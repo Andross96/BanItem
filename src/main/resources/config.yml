@@ -1,0 +1,12 @@
+# +————————————————————————————————————————+ #
+# |————     BANITEM CONFIGURATION      ————| #
+# |————————————      v1        ————————————| #
+# +————————————————————————————————————————+ #
+#
+# If no worlds is setted, the banning will apply to all worlds.
+# Options: blockPlace, blockBreak, pickUp, drop, notAllowedMessage
+diamond_block:
+  worlds:
+  - world
+  blockBreak: true
+  notAllowedMessage: '&cYou are not allowed to break a diamond block in world.'

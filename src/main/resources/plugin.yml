@@ -1,0 +1,12 @@
+name: BanItem
+main: fr.banitem.BanItem
+version: 1
+author: _Andross
+description: Ban item
+commands:
+  banitem:
+    description: Banitem command. Show help.
+permissions:
+  banitem.bypass:
+    default: op
+    description: bypass the banitem
