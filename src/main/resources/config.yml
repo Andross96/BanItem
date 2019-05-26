@@ -1,12 +1,21 @@
 # +————————————————————————————————————————+ #
 # |————     BANITEM CONFIGURATION      ————| #
-# |————————————      v1        ————————————| #
+# |———————————      v1.1        ———————————| #
 # +————————————————————————————————————————+ #
 #
-# If no worlds is setted, the banning will apply to all worlds.
-# Options: blockPlace, blockBreak, pickUp, drop, notAllowedMessage
+# If no worlds is setted, the ban will apply to all worlds.
+# Options:
+# - block-place: when the item is placed
+# - block-break: when the item is breaked
+# - pickup: when the item is picked up
+# - drop: when the item is dropped
+# - interact: when the player use right click with main hand on it
+# - message: send a banitem message at the player
+
+no-permission: '&cYou do not have permission.'
+
 diamond_block:
   worlds:
   - world
-  blockBreak: true
-  notAllowedMessage: '&cYou are not allowed to break a diamond block in world.'
+  block-break: true
+  message: '&cYou are not allowed to break a diamond block in world.'

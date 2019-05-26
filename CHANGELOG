@@ -1,1 +1,7 @@
+v1.1:
+  - Banned items prevents now interactions (configurable)
+  - Added per world bypass permission
+  - Added a reload command
+  - Code cleanup
+--------------------------------------------
 v1: Initial release

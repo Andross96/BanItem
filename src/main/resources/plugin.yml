@@ -1,12 +1,17 @@
 name: BanItem
 main: fr.banitem.BanItem
-version: 1
+version: 1.1
 author: _Andross
 description: Ban item
 commands:
   banitem:
     description: Banitem command. Show help.
 permissions:
-  banitem.bypass:
+  banitem.bypass.*:
     default: op
-    description: bypass the banitem
+    description: bypass the banitem in all worlds
+  banitem.command:
+    default: op
+    description: use /banitem command.
+    children:
+      banitem.command.reload: true
