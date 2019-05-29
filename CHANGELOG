@@ -1,3 +1,8 @@
+v1.2:
+  - Added support version for 1.11, 1.10, 1.9, 1.8 & 1.7
+  - Optimized listeners (not listening if not needed)
+  - Code cleanup
+--------------------------------------------
 v1.1:
   - Banned items prevents now interactions (configurable)
   - Added per world bypass permission
