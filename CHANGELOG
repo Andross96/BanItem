@@ -1,3 +1,9 @@
+v1.3:
+  - Simplified the config file
+  - Added "creative" options: ban apply only if the player is in creative gamemode
+  - Added new "per material per world" bypass permission: banitem.bypass.<WorldName>.<MaterialNameInLowerCase>
+  - Fixed some version compatibility issue
+--------------------------------------------
 v1.2:
   - Added support version for 1.11, 1.10, 1.9, 1.8 & 1.7
   - Optimized listeners (not listening if not needed)

@@ -1,6 +1,7 @@
 package fr.banitem;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -19,10 +20,37 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 public class BanItem extends JavaPlugin {
-    private final Map<String, Map<Material, BannedItem>> banned = new HashMap<>();
+    private final Map<String, Map<Material, Item>> items = new HashMap<>();
+    private boolean v12OrMore, v9OrMore;
+
+    enum Option {
+        PLACE,
+        BREAK,
+        PICKUP,
+        DROP,
+        INTERACT,
+        CREATIVE
+    }
+
+    final class Item {
+        private final Set<Option> options;
+        private final String message;
+
+        Item(final Set<Option> options, final String message){
+            this.options = options;
+            this.message = message;
+        }
+
+        Set<Option> getOptions(){ return options; }
+        String getMessage(){ return message; }
+    }
 
     @Override
     public void onEnable() {
+        // Checking versions
+        v12OrMore = getServer().getBukkitVersion().matches("(1\\.12)(.*)|(1\\.13)(.*)|(1\\.14)(.*)");
+        v9OrMore = getServer().getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)") || v12OrMore;
+
         load();
         getLogger().info("BanItem: Enabled");
     }
@@ -31,10 +59,6 @@ public class BanItem extends JavaPlugin {
         // Config:
         saveDefaultConfig();
         reloadConfig();
-
-        // Checking versions
-        boolean v12OrMore = getServer().getBukkitVersion().matches("1\\.12|1\\.13|1\\.14");
-        boolean v11OrMore = getServer().getBukkitVersion().matches("1\\.11|1\\.12|1\\.13|1\\.14");
 
         // Preparing listeners
         HandlerList.unregisterAll(this);
@@ -47,29 +71,47 @@ public class BanItem extends JavaPlugin {
         boolean dropItemEvent = false;
 
         // Loading banned items:
-        banned.clear();
+        items.clear();
         for(String material : getConfig().getKeys(false)){
             if(material.equals("no-permission")) continue;
 
+            // Checking material
             final Material m = Material.getMaterial(material.toUpperCase());
             if(m == null){
                 getLogger().warning("Unknown material '" + material + "'");
                 continue;
             }
 
-            final BannedItem bi = new BannedItem(getConfig().getBoolean(material + ".block-place"),
-                    getConfig().getBoolean(material + ".block-break"),
-                    getConfig().getBoolean(material + ".pickup"),
-                    getConfig().getBoolean(material + ".drop"),
-                    getConfig().getBoolean(material + ".interact"),
-                    getConfig().getString(material + ".message"));
+            // Checking options
+            String configOptions = getConfig().getString(material + ".options");
+            Set<Option> optionsList = new HashSet<>();
+            if(configOptions == null || configOptions.isEmpty()){
+                getLogger().warning("No banning options setted in '" + material + "'");
+                continue;
+            }
+            if(configOptions.equals("*")) Collections.addAll(optionsList, Option.values());
+            else{
+                String[] options = configOptions.trim().replaceAll("\\s+", "").split(",");
+                for(String option : options){
+                    try {
+                        optionsList.add(Option.valueOf(option.toUpperCase()));
+                    }catch(Exception e){
+                        getLogger().warning("Unknown option '" + option + "' for material '" + material + "'");
+                    }
+                }
+            }
+            if(optionsList.isEmpty()){
+                getLogger().warning("No valid banning options setted in '" + material + "'");
+                continue;
+            }
+            final Item item = new Item(optionsList, getConfig().getString(material + ".message"));
 
-
+            // Checking worlds
             List<String> worlds = new ArrayList<>();
             if(getConfig().isString(material + ".worlds")) worlds.add(getConfig().getString(material + ".worlds"));
             else worlds = getConfig().getStringList(material + ".worlds");
 
-            if(worlds.isEmpty()) getServer().getWorlds().forEach(w -> addBannedItem(w.getName(), m, bi));
+            if(worlds.isEmpty()) getServer().getWorlds().forEach(w -> addBannedItem(w.getName(), m, item));
             else{
                 for(String world : worlds){
                     World w = getServer().getWorld(world);
@@ -77,41 +119,61 @@ public class BanItem extends JavaPlugin {
                         getLogger().warning("Unknown world '" + world + "' for item '" + material + "'.");
                         continue;
                     }
-                    addBannedItem(w.getName(), m, bi);
+                    addBannedItem(w.getName(), m, item);
                 }
             }
 
             // Loading listeners
-            if(!blockPlaceEvent && !bi.canPlace()){
-                getServer().getPluginManager().registerEvent(BlockPlaceEvent.class, listener, eventPriority, (l, e) -> onBlockPlaceEvent((BlockPlaceEvent) e), this, true);
+            if(!blockPlaceEvent && optionsList.contains(Option.PLACE)){
+                getServer().getPluginManager().registerEvent(BlockPlaceEvent.class, listener, eventPriority, (l, e) -> {
+                        BlockPlaceEvent event = (BlockPlaceEvent) e;
+                        if(isBannedItem(event.getPlayer(), event.getBlock().getType(), Option.PLACE)) event.setCancelled(true);
+                    }, this, true);
                 blockPlaceEvent = true;
             }
-            if(!blockBreakEvent && !bi.canBreak()){
-                getServer().getPluginManager().registerEvent(BlockBreakEvent.class, listener, eventPriority, (l, e) -> onBlockBreakEvent((BlockBreakEvent) e), this, true);
+            if(!blockBreakEvent && optionsList.contains(Option.BREAK)){
+                getServer().getPluginManager().registerEvent(BlockBreakEvent.class, listener, eventPriority, (l, e) -> {
+                    BlockBreakEvent event = (BlockBreakEvent) e;
+                    if(isBannedItem(event.getPlayer(), event.getBlock().getType(), Option.BREAK)) event.setCancelled(true);
+                }, this, true);
                 blockBreakEvent = true;
             }
 
-            if(!interactEvent && !bi.canPickUp()){
-                // >=1.11: It has EquipmentSlot
-                // <1.11: it doesn't
-                if(v11OrMore) getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, listener, eventPriority, (l, e) -> onPlayerInteractEvent((org.bukkit.event.player.PlayerInteractEvent) e, true), this, true);
-                else getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, listener, eventPriority, (l, e) -> onPlayerInteractEvent((org.bukkit.event.player.PlayerInteractEvent) e, false), this, true);
+            if(!interactEvent && optionsList.contains(Option.INTERACT)){
+                // >=1.9: It has EquipmentSlot
+                // <1.9: it doesn't
+                if(v9OrMore) getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, listener, eventPriority, (l, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, true), this, true);
+                else getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, listener, eventPriority, (l, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, false), this, true);
                 interactEvent = true;
             }
 
-            if(!pickupItemEvent && !bi.canPickUp()){
+            if(!pickupItemEvent && optionsList.contains(Option.PICKUP)){
                 // >=1.12: EntityPickupItemEvent
                 // <1.12: PlayerPickupItemEvent
-                if(v12OrMore) getServer().getPluginManager().registerEvent(org.bukkit.event.entity.EntityPickupItemEvent.class, listener, eventPriority, (l, e) -> onEntityPickupItemEvent((org.bukkit.event.entity.EntityPickupItemEvent) e), this, true);
-                else getServer().getPluginManager().registerEvent(org.bukkit.event.player.PlayerPickupItemEvent.class, listener, eventPriority, (l, e) -> onPlayerPickupItemEvent((org.bukkit.event.player.PlayerPickupItemEvent) e), this, true);
+                if(v12OrMore) getServer().getPluginManager().registerEvent(org.bukkit.event.entity.EntityPickupItemEvent.class, listener, eventPriority, (l, e) -> {
+                    org.bukkit.event.entity.EntityPickupItemEvent event = (org.bukkit.event.entity.EntityPickupItemEvent)e;
+                    if(!(event.getEntity() instanceof Player)) return;
+                    if(isBannedItem((Player)event.getEntity(), event.getItem().getItemStack().getType(), Option.PICKUP)) event.setCancelled(true);
+                }, this, true);
+                else getServer().getPluginManager().registerEvent(org.bukkit.event.player.PlayerPickupItemEvent.class, listener, eventPriority, (l, e) -> {
+                    org.bukkit.event.player.PlayerPickupItemEvent event = (org.bukkit.event.player.PlayerPickupItemEvent)e;
+                    if(isBannedItem(event.getPlayer(), event.getItem().getItemStack().getType(), Option.PICKUP)) event.setCancelled(true);
+                }, this, true);
                 pickupItemEvent = true;
             }
 
-            if(!dropItemEvent && !bi.canDrop()){
+            if(!dropItemEvent && optionsList.contains(Option.DROP)){
                 // >=1.12: EntityDropItemEvent
                 // <1.12: PlayerDropItemEvent
-                if(v12OrMore) getServer().getPluginManager().registerEvent(org.bukkit.event.entity.EntityDropItemEvent.class, listener, eventPriority, (l, e) -> onEntityDropItemEvent((org.bukkit.event.entity.EntityDropItemEvent) e), this, true);
-                else getServer().getPluginManager().registerEvent(org.bukkit.event.player.PlayerDropItemEvent.class, listener, eventPriority, (l, e) -> onPlayerDropItemEvent((org.bukkit.event.player.PlayerDropItemEvent) e), this, true);
+                if(v12OrMore) getServer().getPluginManager().registerEvent(org.bukkit.event.entity.EntityDropItemEvent.class, listener, eventPriority, (l, e) -> {
+                    org.bukkit.event.entity.EntityDropItemEvent event = (org.bukkit.event.entity.EntityDropItemEvent)e;
+                    if(!(event.getEntity() instanceof Player)) return;
+                    if(isBannedItem((Player)event.getEntity(), event.getItemDrop().getItemStack().getType(), Option.DROP)) event.setCancelled(true);
+                }, this, true);
+                else getServer().getPluginManager().registerEvent(org.bukkit.event.player.PlayerDropItemEvent.class, listener, eventPriority, (l, e) -> {
+                    org.bukkit.event.player.PlayerDropItemEvent event = (org.bukkit.event.player.PlayerDropItemEvent)e;
+                    if(isBannedItem(event.getPlayer(), event.getItemDrop().getItemStack().getType(), Option.DROP)) event.setCancelled(true);
+                }, this, true);
                 dropItemEvent = true;
             }
         }
@@ -143,74 +205,32 @@ public class BanItem extends JavaPlugin {
         return true;
     }
 
-    private void addBannedItem(final String world, final Material m, final BannedItem bi){
-        Map<Material, BannedItem> map = banned.get(world);
+    private void addBannedItem(final String world, final Material m, final Item item){
+        Map<Material, Item> map = items.get(world);
         if(map == null) map = new HashMap<>();
-        map.put(m, bi);
-        banned.put(world, map);
+        map.put(m, item);
+        items.put(world, map);
     }
 
-    private BannedItem getBannedItem(final Player p, final Material m){
+    private boolean isBannedItem(final Player p, final Material m, final Option option){
         final String wName = p.getWorld().getName();
-        if(p.hasPermission("banitem.bypass." + wName)) return null;
-        return (!banned.containsKey(wName) || !banned.get(wName).containsKey(m)) ? null : banned.get(wName).get(m);
+        if(!items.containsKey(wName) || !items.get(wName).containsKey(m)) return false;
+        if(p.hasPermission("banitem.bypass." + wName + ".*") || p.hasPermission("banitem.bypass." + wName + "." + m.name().toLowerCase() + "")) return false;
+        Item i = items.get(wName).get(m);
+        if(!i.getOptions().contains(option)) return false;
+        if(p.getGameMode() != GameMode.CREATIVE && i.getOptions().contains(Option.CREATIVE)) return false;
+        if(option != Option.PICKUP && i.getMessage() != null) p.sendMessage(color(i.getMessage()));
+        return true;
     }
 
     private String color(String text){
         return ChatColor.translateAlternateColorCodes('&', text);
     }
 
-
-    // Listeners
-    private void onBlockPlaceEvent(final BlockPlaceEvent e){
-        BannedItem bi = getBannedItem(e.getPlayer(), e.getBlock().getType());
-        if(bi == null || bi.canPlace()) return;
-        if(bi.getMessage() != null) e.getPlayer().sendMessage(color(bi.getMessage()));
-        e.setCancelled(true);
-    }
-
-    private void onBlockBreakEvent(final BlockBreakEvent e){
-        BannedItem bi = getBannedItem(e.getPlayer(), e.getBlock().getType());
-        if(bi == null || bi.canBreak()) return;
-        if(bi.getMessage() != null) e.getPlayer().sendMessage(color(bi.getMessage()));
-        e.setCancelled(true);
-    }
-
     private void onPlayerInteractEvent(final PlayerInteractEvent e, boolean equipment){
         if(e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) return;
         if(equipment && e.getHand() != EquipmentSlot.HAND) return;
-        BannedItem bi = getBannedItem(e.getPlayer(), e.getClickedBlock().getType());
-        if(bi == null || bi.canInteract()) return;
-        if(bi.getMessage() != null) e.getPlayer().sendMessage(color(bi.getMessage()));
-        e.setCancelled(true);
-    }
-
-    private void onEntityPickupItemEvent(final org.bukkit.event.entity.EntityPickupItemEvent e){
-        if(!(e.getEntity() instanceof Player)) return;
-        BannedItem bi = getBannedItem((Player)e.getEntity(), e.getItem().getItemStack().getType());
-        if(bi == null || bi.canPickUp()) return;
-        e.setCancelled(true);
-    }
-
-    private void onPlayerPickupItemEvent(final org.bukkit.event.player.PlayerPickupItemEvent e){
-        BannedItem bi = getBannedItem(e.getPlayer(), e.getItem().getItemStack().getType());
-        if(bi == null || bi.canPickUp()) return;
-        e.setCancelled(true);
-    }
-
-    private void onEntityDropItemEvent(final org.bukkit.event.entity.EntityDropItemEvent e){
-        if(!(e.getEntity() instanceof Player)) return;
-        BannedItem bi = getBannedItem((Player)e.getEntity(), e.getItemDrop().getItemStack().getType());
-        if(bi == null || bi.canDrop()) return;
-        if(bi.getMessage() != null) e.getEntity().sendMessage(color(bi.getMessage()));
-        e.setCancelled(true);
-    }
-
-    private void onPlayerDropItemEvent(final org.bukkit.event.player.PlayerDropItemEvent e){
-        BannedItem bi = getBannedItem(e.getPlayer(), e.getItemDrop().getItemStack().getType());
-        if(bi == null || bi.canDrop()) return;
-        if(bi.getMessage() != null) e.getPlayer().sendMessage(color(bi.getMessage()));
-        e.setCancelled(true);
+        if(isBannedItem(e.getPlayer(), e.getClickedBlock().getType(), Option.INTERACT)) e.setCancelled(true);
     }
 
 }
