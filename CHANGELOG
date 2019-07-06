@@ -2,6 +2,7 @@ v1.4:
   - Added whitelist
   - Fixed drop option
   - Code & config reorganization
+--------------------------------------------
 v1.3:
   - Simplified the config file
   - Added "creative" options: ban apply only if the player is in creative gamemode
