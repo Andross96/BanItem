@@ -1,22 +1,31 @@
-# +————————————————————————————————————————+ #
-# |————     BANITEM CONFIGURATION      ————| #
-# |———————————      v1.3        ———————————| #
-# +————————————————————————————————————————+ #
+# +———————————————————————————————————————————————————+ #
+# |——————————     BANITEM CONFIGURATION     ——————————| #
+# |——————————————————      v1.4      —————————————————| #
+# +———————————————————————————————————————————————————+ #
 #
-# If no worlds is setted, the ban will apply to all worlds.
-# Options:
+# Worlds can be single 'world', multiple 'world,world_the_end', or you can include all worlds with '*'
+#
+# Blacklist options:
 # - place: when the item is placed
 # - break: when the item is breaked
 # - pickup: when the item is picked up
 # - drop: when the item is dropped
 # - interact: when the player use right click with main hand on it
 # - creative: options applies only if the player is in creative gamemode
-# - message: send a banitem message at the player
 
 no-permission: '&cYou do not have permission.'
 
-diamond_block:
-  worlds:
-  - world
-  options: break, place
-  message: '&cYou are not allowed to break or place a diamond block in world.'
+blacklist:
+  world:
+    diamond_block:
+      options: break, place
+      message: '&cYou are not allowed to break or place a diamond block in world.'
+    stone_button:
+      options: interact
+      message: '&cYou can not interact with a stone button in world.'
+
+whitelist:
+  world_the_end:
+    message: '&cYou can only break and place end stones in the end.'
+    blocks:
+    - 'end_stone'
