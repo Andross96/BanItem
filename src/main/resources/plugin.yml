@@ -1,8 +1,9 @@
 name: BanItem
-main: fr.andross.Plugin
-version: '1.4'
+main: fr.andross.banitem.Plugin
+version: '1.5'
 author: _Andross
 description: Ban item
+api-version: '1.13'
 commands:
   banitem:
     description: Banitem command. Show help.
@@ -15,3 +16,4 @@ permissions:
     description: use /banitem command.
     children:
       banitem.command.reload: true
+      banitem.command.info: true

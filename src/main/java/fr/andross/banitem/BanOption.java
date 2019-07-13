@@ -1,4 +1,4 @@
-package fr.andross.Utils;
+package fr.andross.banitem;
 
 public enum BanOption {
     PLACE,
@@ -6,5 +6,5 @@ public enum BanOption {
     PICKUP,
     DROP,
     INTERACT,
-    CREATIVE
+    INVENTORY
 }

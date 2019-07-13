@@ -1,31 +1,36 @@
-package fr.andross.Utils;
+package fr.andross.banitem;
 
-import fr.andross.Plugin;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.*;
 
-public class BanMap {
+class BanMap {
     private final Plugin pl;
-    private final Map<String, Map<Material, BanOptions>> blacklist = new HashMap<>();
+    private final Map<String, Map<Material, Map<BanOption, String>>> blacklist = new HashMap<>();
     private final Map<String, Set<Material>> whitelist = new HashMap<>();
     private final Map<String, String> whitelist_message = new HashMap<>();
+    private final Map<UUID, Long> pickup_cooldown = new HashMap<>();
 
-    public BanMap (final Plugin pl) {
+    BanMap (final Plugin pl) {
         this.pl = pl;
     }
 
-    public Map<String, Map<Material, BanOptions>> getBlacklist(){ return blacklist; }
-    public Map<String, Set<Material>> getWhitelist(){ return whitelist; }
-    public Map<String, String> getWhitelistMessage(){ return whitelist_message; }
+    Map<String, Map<Material, Map<BanOption, String>>> getBlacklist(){ return blacklist; }
+    Map<String, Set<Material>> getWhitelist(){ return whitelist; }
+    Map<String, String> getWhitelistMessage(){ return whitelist_message; }
+    Map<UUID, Long> getPickupCooldown(){ return pickup_cooldown; }
 
-    public Set<BanOption> load(){
+    Set<BanOption> load(){
         final Set<BanOption> finalOptions = new HashSet<>();
 
-        // Loading blacklist
+        // Clearing maps
         blacklist.clear();
+        whitelist.clear();
+        whitelist_message.clear();
+
+        // Loading blacklist
         ConfigurationSection worldsCs = pl.getConfig().getConfigurationSection("blacklist");
         if(worldsCs != null) {
             for (final String worldKey : worldsCs.getKeys(false)) { // Looping through worlds
@@ -56,37 +61,32 @@ public class BanMap {
                     }
 
                     // Getting options
-                    final Set<BanOption> options = new HashSet<>();
-                    final String configOptions = materialsCs.getString(materialKey + ".options");
-                    if (configOptions == null || configOptions.isEmpty()) {
-                        pl.getLogger().info("Empty options for '" + materialKey + "' set for world '" + worldKey + "' in blacklist from config.yml: ban ignored.");
-                        continue;
-                    }
-                    if (configOptions.equals("*")) Collections.addAll(options, BanOption.values());
-                    else
-                        for (String option : configOptions.trim().replaceAll("\\s+", "").split(",")) {
-                            try {
-                                options.add(BanOption.valueOf(option.toUpperCase()));
-                            } catch (Exception e) {
-                                pl.getLogger().info("Unknown option '" + option + "' for '" + materialKey + "' set for world '" + worldKey + "' in blacklist from config.yml: ban ignored.");
+                    final ConfigurationSection optionsCs = materialsCs.getConfigurationSection(materialKey);
+                    if(optionsCs == null) continue;
+
+                    final Map<BanOption, String> options = new HashMap<>();
+                    for (String optionKey : optionsCs.getKeys(false)) {
+                        final String message = optionsCs.getString(optionKey);
+                        if (optionKey.equals("*")) for(BanOption o : BanOption.values()) options.put(o, message);
+                        else {
+                            for (String option : optionKey.trim().replaceAll("\\s+", "").split(",")) {
+                                try {
+                                    final BanOption bo = BanOption.valueOf(option.toUpperCase());
+                                    options.put(bo, message);
+                                } catch (Exception e) {
+                                    pl.getLogger().info("Unknown option '" + option + "' set for '" + materialKey + "' in world '" + worldKey + "' in blacklist from config.yml");
+                                }
                             }
                         }
-                    if (options.isEmpty()) {
-                        pl.getLogger().info("Empty options for '" + materialKey + "' set for world '" + worldKey + "' in blacklist from config.yml: ban ignored.");
-                        continue;
                     }
 
-                    // Getting message
-                    final String message = materialsCs.getString(materialKey + ".message");
-
                     // Adding into the map
-                    finalOptions.addAll(options);
-                    final BanOptions bo = new BanOptions(options, message);
+                    finalOptions.addAll(options.keySet());
                     for (World w : worlds) {
-                        Map<Material, BanOptions> newmap = blacklist.get(w.getName());
-                        if (newmap == null) newmap = new HashMap<>();
-                        newmap.put(m, bo);
-                        blacklist.put(w.getName(), newmap);
+                        Map<Material, Map<BanOption, String>> newmap = blacklist.get(w.getName().toLowerCase());
+                        if(newmap == null) newmap = new HashMap<>();
+                        newmap.put(m, options);
+                        blacklist.put(w.getName().toLowerCase(), newmap);
                     }
                 }
             }
@@ -94,8 +94,6 @@ public class BanMap {
 
 
         // Loading whitelist
-        whitelist.clear();
-        whitelist_message.clear();
         worldsCs = pl.getConfig().getConfigurationSection("whitelist");
         if(worldsCs != null) {
             for (final String worldKey : worldsCs.getKeys(false)) { // Looping through worlds
@@ -132,7 +130,7 @@ public class BanMap {
                 }
 
                 // Adding into the map
-                for (World w : worlds) whitelist.put(w.getName(), materialSet);
+                for (World w : worlds) whitelist.put(w.getName().toLowerCase(), materialSet);
             }
         }
         return finalOptions;

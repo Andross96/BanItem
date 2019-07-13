@@ -1,3 +1,10 @@
+v1.5:
+  - New inventory option: item can be inventory-banned, means that transfering a banned item from an inventory to another is blocked;
+  - Configuration reorganization: you can now set a custom message for each banned options;
+  - Added new command /banitem info: will give the exact material name (to use in config) & permission node for the item in your hand;
+  - Fixed spawn eggs banning;
+  - Fixed pickup message cooldown;
+--------------------------------------------
 v1.4:
   - Added whitelist
   - Fixed drop option

@@ -1,9 +1,6 @@
-package fr.andross;
+package fr.andross.banitem;
 
-import fr.andross.Utils.BanMap;
-import fr.andross.Utils.BanOption;
-import fr.andross.Utils.BanOptions;
-import org.bukkit.GameMode;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -13,8 +10,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
 
 import java.util.*;
@@ -23,8 +23,9 @@ class BanItem {
     private final Plugin pl;
     private final boolean v12OrMore, v9OrMore;
     private final BanMap map;
+    private long pickupCooldown = 1000;
 
-    BanItem(final Plugin pl){
+    BanItem (final Plugin pl) {
         // Setting plugin
         this.pl = pl;
 
@@ -43,6 +44,8 @@ class BanItem {
         // (re)Loading config
         pl.saveDefaultConfig();
         pl.reloadConfig();
+        // Checking pickup cooldown
+        pickupCooldown = pl.getConfig().getLong("pickup-message-cooldown", 1000);
 
         // (re)Loading from config into maps
         final Set<BanOption> options = map.load();
@@ -53,6 +56,7 @@ class BanItem {
         final EventPriority ep = EventPriority.LOWEST;
 
         // Registering listeners
+        // Adding listeners if option is setted
         if (options.contains(BanOption.PLACE) || !map.getWhitelist().isEmpty()) {
             pl.getServer().getPluginManager().registerEvent(BlockPlaceEvent.class, l, ep, (li, e) -> {
                 final BlockPlaceEvent event = (BlockPlaceEvent) e;
@@ -68,10 +72,31 @@ class BanItem {
         if (options.contains(BanOption.INTERACT)) {
             // >=1.9: It has EquipmentSlot
             // <1.9: it doesn't
-            final EventExecutor ee = v9OrMore ? (li, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, true) : (li, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, false);
-            pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep, ee, pl, true);
+            pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep,
+                    v9OrMore ? (li, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, true) : (li, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, false)
+                    , pl, true);
+        }
+        if (options.contains(BanOption.INVENTORY)) {
+            pl.getServer().getPluginManager().registerEvent(InventoryClickEvent.class, l, ep, (li, e) -> {
+                final InventoryClickEvent event = (InventoryClickEvent) e;
+                final ItemStack item = event.getCurrentItem();
+                if(item == null) return;
+                if (isBanned((Player)event.getWhoClicked(), item.getType(), BanOption.INVENTORY))
+                    event.setCancelled(true);
+            }, pl, true);
+        }
+        if (options.contains(BanOption.DROP)) {
+            pl.getServer().getPluginManager().registerEvent(PlayerDropItemEvent.class, l, ep, (li, e) -> {
+                final PlayerDropItemEvent event = (PlayerDropItemEvent) e;
+                if (isBanned(event.getPlayer(), event.getItemDrop().getItemStack().getType(), BanOption.DROP))
+                    event.setCancelled(true);
+            }, pl, true);
         }
         if (options.contains(BanOption.PICKUP)) {
+            // Pickup cooldown map clearing
+            pl.getServer().getPluginManager().registerEvent(PlayerQuitEvent.class, l, ep, (li, e) -> { map.getPickupCooldown().remove(((PlayerQuitEvent) e).getPlayer().getUniqueId());
+            }, pl, true);
+
             // >=1.12: EntityPickupItemEvent
             // <1.12: PlayerPickupItemEvent
             final EventExecutor ee;
@@ -92,12 +117,25 @@ class BanItem {
             }
             pl.getServer().getPluginManager().registerEvent(c, l, ep, ee, pl, true);
         }
-        if (options.contains(BanOption.DROP)) {
-            pl.getServer().getPluginManager().registerEvent(PlayerDropItemEvent.class, l, ep, (li, e) -> {
-                final PlayerDropItemEvent event = (PlayerDropItemEvent) e;
-                if (isBanned(event.getPlayer(), event.getItemDrop().getItemStack().getType(), BanOption.DROP))
+
+
+
+        // Handling eggs
+        final List<Material> materials = new ArrayList<>();
+        for (Map<Material, Map<BanOption, String>> map2 : map.getBlacklist().values()) materials.addAll(map2.keySet());
+        for (Material m : materials) {
+            if(!m.name().contains("_EGG")) continue;
+
+            // Registering an egg listener
+            pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep, (li, e) -> {
+                final PlayerInteractEvent event = (PlayerInteractEvent) e;
+                if(event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+                if(event.getItem() == null) return;
+                if(!event.getItem().getType().name().contains("_EGG")) return;
+                if (isBanned(event.getPlayer(), event.getItem().getType(), BanOption.PLACE))
                     event.setCancelled(true);
             }, pl, true);
+            return;
         }
     }
     
@@ -107,29 +145,30 @@ class BanItem {
         if(isBanned(e.getPlayer(), e.getClickedBlock().getType(), BanOption.INTERACT)) e.setCancelled(true);
     }
 
-    private boolean isBanned(final Player p, final Material m, final BanOption o){
-        final String w = p.getWorld().getName();
+    private boolean isBanned(final Player p, final Material m, final BanOption o) {
+        final String w = p.getWorld().getName().toLowerCase();
 
         // Checking permission bypass
-        if(p.hasPermission("banitem.bypass." + w + "." + m.name().toLowerCase() + "")) return false;
+        if (p.hasPermission("banitem.bypass." + w + "." + m.name().toLowerCase())) return false;
 
         /* Checking blacklisted*/
         // Checking world
-        final Map<Material, BanOptions> blacklisted = map.getBlacklist().get(w);
+        final Map<Material, Map<BanOption, String>> blacklisted = map.getBlacklist().get(w);
         if (blacklisted != null) {
             // Checking material
-            final BanOptions bo = blacklisted.get(m);
-            if (bo == null) return false;
-
-            // Checking option
-            if (bo.hasOption(o)) {
-                if (!bo.hasOption(BanOption.CREATIVE) || p.getGameMode() == GameMode.CREATIVE) {
-                    // Sending message if it is not a pickup (as it is very spammy)
-                    if (o != BanOption.PICKUP && bo.getMessage() != null) p.sendMessage(pl.color(bo.getMessage()));
+            final Map<BanOption, String> options = blacklisted.get(m);
+            if (options != null) {
+                // Checking option
+                if (options.containsKey(o)) {
+                    // Sending banned message, if exists
+                    sendMessage(p, o, options.get(o));
                     return true;
                 }
             }
         }
+
+        // Ignoring inventory for whitelist
+        if(o == BanOption.INVENTORY) return false;
 
         /* Checking whitelisted*/
         // Checking world
@@ -141,7 +180,27 @@ class BanItem {
 
         // Material not on whitelist, so banned:
         final String message = map.getWhitelistMessage().get(w);
-        if (o != BanOption.PICKUP && message != null) p.sendMessage(pl.color(message));
+        if (message != null) sendMessage(p, o, message);
         return true;
     }
+
+    private void sendMessage(final Player p, final BanOption o, final String m) {
+        // No message set
+        if(m == null || m.isEmpty()) return;
+
+        // Checking pick up cooldown, to prevent spam
+        if (o == BanOption.PICKUP) {
+            final Long time = map.getPickupCooldown().get(p.getUniqueId());
+            if (time == null) map.getPickupCooldown().put(p.getUniqueId(), System.currentTimeMillis());
+            else {
+                if (time + pickupCooldown > System.currentTimeMillis()) return;
+                else map.getPickupCooldown().put(p.getUniqueId(), System.currentTimeMillis());
+            }
+        }
+        p.sendMessage(color(m));
+    }
+
+    String color(final String text) { return ChatColor.translateAlternateColorCodes('&', text); }
+    boolean isV9OrMore() { return v9OrMore; }
+
 }
