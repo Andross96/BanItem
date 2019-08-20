@@ -1,22 +1,24 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v1.5      —————————————————| #
+# |——————————————————      v1.7      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # For any bugs/suggestions: Andross#5254
 #
 # -- Informations: --
 #   - Blacklist contains list of blocked items
 #   - Whitelist contains list of allowed items only, so the following options are blocked:
-#      - Placing, breaking, picking up, dropping, interacting & inventory trades related to the item
+#      - Placing, breaking, picking up, dropping, interacting & using the banned item
 #   - Worlds can be written single 'world', multiple 'world, world_the_end', or you can include all worlds with '*'
-#   - Options can be written single 'break', multiple 'break, place' or you can include all options with '*'
+#   - Options can be written single 'break', multiple 'break, place' or you can include all options with '*'. Using '*!' will not include creative.
 #
 # Blacklist: block ...
 # - place: when the item is placed
 # - break: when the item is breaked
 # - pickup: when the item is picked up
 # - drop: when the item is dropped
-# - interact: when the player use right click with main hand on the item
+# - interact: when the player use right click with main hand on the placed item
+# - use: when the player use right click with the item in the main hand
+# - creative: applies only if the player is in creative mode
 # - inventory: when the player try to take/put the item from/in an inventory
 #
 # Whitelist: allow ...
@@ -25,6 +27,7 @@
 # - pickup: pick up the item
 # - drop: drop the item
 # - interact: when the player use right click with main hand on the item
+# - use: when the player use right click with the item in the main hand
 # - inventory: when the player try to take/put the item from/in an inventory
 
 # No permission message (for /banitem)
@@ -41,12 +44,15 @@ blacklist:
     stone_button:
       interact: '&cYou can not interact with a stone button in world.'
       pickup: '&cYou can not pickup a stone button in world.'
+    lava_bucket:
+      use, creative: '&cYou can not use lava buckets in this world while in creative mode.'
+    my_custom_item:
+      use: '&cYou can not use potion of speed I in world.'
   world_the_end:
-    diamond:
+    diamond_block:
       '*': '&cDiamonds are banned in the end.'
 
 whitelist:
   world_the_end:
-    message: '&cYou can only break and place end stones in the end.'
-    blocks:
-    - 'end_stone'
+    message: '&cYou can only place and break ender stone in the end.'
+    ender_stone: place, break

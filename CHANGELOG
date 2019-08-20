@@ -1,3 +1,10 @@
+v1.7:
+  - Added support for custom items (with differents item meta, name etc.): it offers possibility to ban modded items or specific items (like potions);
+  - Fixed bug with the use option;
+  - Whitelist config reorganization & options fixed;
+  - Code: reorganization, optimization & clean up;
+  - Added developer API: check, add or remove a banned item, easily access to the plugin
+--------------------------------------------
 v1.5:
   - New inventory option: item can be inventory-banned, means that transfering a banned item from an inventory to another is blocked;
   - Configuration reorganization: you can now set a custom message for each banned options;

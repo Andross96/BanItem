@@ -1,101 +1,125 @@
 package fr.andross.banitem;
 
+import fr.andross.banitem.Utils.BanDatabase;
+import fr.andross.banitem.Utils.BanOption;
+import fr.andross.banitem.Utils.BannedItem;
+import fr.andross.banitem.Utils.WhitelistedWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-class BanItem {
-    private final Plugin pl;
-    private final boolean v12OrMore, v9OrMore;
-    private final BanMap map;
-    private long pickupCooldown = 1000;
+public class BanItem extends JavaPlugin implements BanItemAPI {
+    private BanDatabase db;
+    private boolean v12OrMore, v9OrMore;
 
-    BanItem (final Plugin pl) {
-        // Setting plugin
-        this.pl = pl;
+    @Override
+    public void onEnable() {
+        // Checking Bukkit version
+        v12OrMore = getServer().getBukkitVersion().matches("(1\\.12)(.*)|(1\\.13)(.*)|(1\\.14)(.*)");
+        v9OrMore = v12OrMore || getServer().getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)");
 
-        // Checking version
-        v12OrMore = pl.getServer().getBukkitVersion().matches("(1\\.12)(.*)|(1\\.13)(.*)|(1\\.14)(.*)");
-        v9OrMore = pl.getServer().getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)") || v12OrMore;
-
-        // Loading config & maps
-        map = new BanMap(pl);
-        load();
-
-        pl.getLogger().info("BanItem: Sucessfully loaded.");
+        // Loading plugin
+        load(getServer().getConsoleSender());
     }
 
-    void load() {
+    private void load(final CommandSender sender) {
         // (re)Loading config
-        pl.saveDefaultConfig();
-        pl.reloadConfig();
-        // Checking pickup cooldown
-        pickupCooldown = pl.getConfig().getLong("pickup-message-cooldown", 1000);
+        saveDefaultConfig();
+        reloadConfig();
 
-        // (re)Loading from config into maps
-        final Set<BanOption> options = map.load();
+        // (re)Loading database
+        db = new BanDatabase(this);
+        db.load(sender);
+        // Checking maps
+        final Set<BanOption> blacklist = db.getBlacklistOptions();
+        final boolean whitelist = db.isWhitelistEnabled();
 
         // (re)Loading listeners
-        HandlerList.unregisterAll(pl);
+        HandlerList.unregisterAll(this);
         final Listener l = new Listener() { };
-        final EventPriority ep = EventPriority.LOWEST;
+        final EventPriority ep = EventPriority.HIGHEST;
 
         // Registering listeners
         // Adding listeners if option is setted
-        if (options.contains(BanOption.PLACE) || !map.getWhitelist().isEmpty()) {
-            pl.getServer().getPluginManager().registerEvent(BlockPlaceEvent.class, l, ep, (li, e) -> {
-                final BlockPlaceEvent event = (BlockPlaceEvent) e;
-                if (isBanned(event.getPlayer(), event.getBlock().getType(), BanOption.PLACE)) event.setCancelled(true);
-            }, pl, true);
-        }
-        if (options.contains(BanOption.BREAK) || !map.getWhitelist().isEmpty()) {
-            pl.getServer().getPluginManager().registerEvent(BlockBreakEvent.class, l, ep, (li, e) -> {
-                final BlockBreakEvent event = (BlockBreakEvent) e;
-                if (isBanned(event.getPlayer(), event.getBlock().getType(), BanOption.BREAK)) event.setCancelled(true);
-            }, pl, true);
-        }
-        if (options.contains(BanOption.INTERACT)) {
+        if (whitelist || blacklist.contains(BanOption.PLACE) || blacklist.contains(BanOption.BREAK) || blacklist.contains(BanOption.USE) || blacklist.contains(BanOption.INTERACT)) {
             // >=1.9: It has EquipmentSlot
             // <1.9: it doesn't
-            pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep,
-                    v9OrMore ? (li, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, true) : (li, e) -> onPlayerInteractEvent((PlayerInteractEvent) e, false)
-                    , pl, true);
+            getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep, (li, e) -> {
+                final PlayerInteractEvent event = (PlayerInteractEvent) e;
+
+                // Checking placing a banned item?
+                if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.isBlockInHand()) {
+                    if (db.isBanned(event.getPlayer(), event.getItem(), BanOption.PLACE)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Checking breaking a banned item?
+                if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
+                    // Breaking?
+                    if (db.isBanned(event.getPlayer(), new ItemStack(event.getClickedBlock().getType()), BanOption.BREAK)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Checking interacting with a banned item?
+                if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
+                    if (db.isBanned(event.getPlayer(), new ItemStack(event.getClickedBlock().getType()), BanOption.INTERACT)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Checking using an item?
+                if (event.getItem() != null && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+                    if (db.isBanned(event.getPlayer(), event.getItem(), BanOption.USE)) event.setCancelled(true);
+                }
+            }, this);
         }
-        if (options.contains(BanOption.INVENTORY)) {
-            pl.getServer().getPluginManager().registerEvent(InventoryClickEvent.class, l, ep, (li, e) -> {
+
+        if (blacklist.contains(BanOption.INVENTORY)) {
+            getServer().getPluginManager().registerEvent(InventoryClickEvent.class, l, ep, (li, e) -> {
                 final InventoryClickEvent event = (InventoryClickEvent) e;
                 final ItemStack item = event.getCurrentItem();
                 if(item == null) return;
-                if (isBanned((Player)event.getWhoClicked(), item.getType(), BanOption.INVENTORY))
-                    event.setCancelled(true);
-            }, pl, true);
+                if (db.isBanned((Player)event.getWhoClicked(), item, BanOption.INVENTORY)) event.setCancelled(true);
+            }, this);
         }
-        if (options.contains(BanOption.DROP)) {
-            pl.getServer().getPluginManager().registerEvent(PlayerDropItemEvent.class, l, ep, (li, e) -> {
+        if (blacklist.contains(BanOption.DROP) || whitelist) {
+            getServer().getPluginManager().registerEvent(PlayerDropItemEvent.class, l, ep, (li, e) -> {
                 final PlayerDropItemEvent event = (PlayerDropItemEvent) e;
-                if (isBanned(event.getPlayer(), event.getItemDrop().getItemStack().getType(), BanOption.DROP))
+                if (db.isBanned(event.getPlayer(), event.getItemDrop().getItemStack(), BanOption.DROP))
                     event.setCancelled(true);
-            }, pl, true);
+            }, this);
         }
-        if (options.contains(BanOption.PICKUP)) {
+
+        if (blacklist.contains(BanOption.PICKUP) || whitelist) {
             // Pickup cooldown map clearing
-            pl.getServer().getPluginManager().registerEvent(PlayerQuitEvent.class, l, ep, (li, e) -> { map.getPickupCooldown().remove(((PlayerQuitEvent) e).getPlayer().getUniqueId());
-            }, pl, true);
+            getServer().getPluginManager().registerEvent(PlayerQuitEvent.class, l, ep, (li, e) -> { db.getPickupCooldowns().remove(((PlayerQuitEvent) e).getPlayer().getUniqueId());
+            }, this);
 
             // >=1.12: EntityPickupItemEvent
             // <1.12: PlayerPickupItemEvent
@@ -106,101 +130,269 @@ class BanItem {
                 ee = (li, e) -> {
                     final org.bukkit.event.entity.EntityPickupItemEvent event = (org.bukkit.event.entity.EntityPickupItemEvent) e;
                     if (!(event.getEntity() instanceof Player)) return;
-                    if (isBanned((Player) event.getEntity(), event.getItem().getItemStack().getType(), BanOption.PICKUP)) event.setCancelled(true);
+                    if (db.isBanned((Player) event.getEntity(), event.getItem().getItemStack(), BanOption.PICKUP)) event.setCancelled(true);
                 };
             } else {
                 c = org.bukkit.event.player.PlayerPickupItemEvent.class;
                 ee = (li, e) -> {
                     final org.bukkit.event.player.PlayerPickupItemEvent event = (org.bukkit.event.player.PlayerPickupItemEvent) e;
-                    if (isBanned(event.getPlayer(), event.getItem().getItemStack().getType(), BanOption.PICKUP)) event.setCancelled(true);
+                    if (db.isBanned(event.getPlayer(), event.getItem().getItemStack(), BanOption.PICKUP)) event.setCancelled(true);
                 };
             }
-            pl.getServer().getPluginManager().registerEvent(c, l, ep, ee, pl, true);
+            getServer().getPluginManager().registerEvent(c, l, ep, ee, this);
         }
 
+        sender.sendMessage(color("&c[&e&lBanItem&c] &2Successfully loaded &e" + db.getBlacklist().getTotal() + "&2 blacklisted & &e" + db.getWhitelist().getTotal() + "&2 whitelisted item(s)."));
+    }
 
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        final String noperm = color(getConfig().getString("no-permission", "&cYou do not have permission."));
 
-        // Handling eggs
-        final List<Material> materials = new ArrayList<>();
-        for (Map<Material, Map<BanOption, String>> map2 : map.getBlacklist().values()) materials.addAll(map2.keySet());
-        for (Material m : materials) {
-            if(!m.name().contains("_EGG")) continue;
+        // Reload command?
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (!sender.hasPermission("banitem.command.reload")) {
+                sender.sendMessage(noperm);
+                return true;
+            }
 
-            // Registering an egg listener
-            pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep, (li, e) -> {
-                final PlayerInteractEvent event = (PlayerInteractEvent) e;
-                if(event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-                if(event.getItem() == null) return;
-                if(!event.getItem().getType().name().contains("_EGG")) return;
-                if (isBanned(event.getPlayer(), event.getItem().getType(), BanOption.PLACE))
-                    event.setCancelled(true);
-            }, pl, true);
-            return;
+            load(sender);
+            return true;
         }
-    }
-    
-    private void onPlayerInteractEvent(final PlayerInteractEvent e, final boolean equipment){
-        if(e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) return;
-        if(equipment && e.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) return;
-        if(isBanned(e.getPlayer(), e.getClickedBlock().getType(), BanOption.INTERACT)) e.setCancelled(true);
-    }
 
-    private boolean isBanned(final Player p, final Material m, final BanOption o) {
-        final String w = p.getWorld().getName().toLowerCase();
+        // Iteminfo command?
+        if (args.length > 0 && args[0].equalsIgnoreCase("info")) {
+            // Console?
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("Command IG only.");
+                return true;
+            }
 
-        // Checking permission bypass
-        if (p.hasPermission("banitem.bypass." + w + "." + m.name().toLowerCase())) return false;
+            // Permission?
+            if (!sender.hasPermission("banitem.command.info")) {
+                sender.sendMessage(noperm);
+                return true;
+            }
 
-        /* Checking blacklisted*/
-        // Checking world
-        final Map<Material, Map<BanOption, String>> blacklisted = map.getBlacklist().get(w);
-        if (blacklisted != null) {
-            // Checking material
-            final Map<BanOption, String> options = blacklisted.get(m);
-            if (options != null) {
-                // Checking option
-                if (options.containsKey(o)) {
-                    // Sending banned message, if exists
-                    sendMessage(p, o, options.get(o));
+            // Showing item info
+            final Player p = (Player) sender;
+            final String m = v9OrMore ? p.getInventory().getItemInMainHand().getType().name().toLowerCase() : p.getInventory().getItemInHand().getType().name().toLowerCase();
+            sender.sendMessage(color("&c[&e&lBanItem&c] &7Material name: &e" + m));
+            sender.sendMessage(color("&c[&e&lBanItem&c] &7Permission: &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + m));
+            return true;
+        }
+
+        // Customitem command?
+        if(args.length > 0 && args[0].matches("(?i)customitem|ci")) {
+            // Checking permission
+            if (!sender.hasPermission("banitem.command.customitem")) {
+                sender.sendMessage(noperm);
+                return true;
+            }
+
+            if (args.length < 2) { // Showing help
+                sender.sendMessage(color("&c[&e&lBanItem&c] &7Usage:"));
+                sender.sendMessage(color("&c[&e&lBanItem&c] &7/banitem &bci add &3<name> &3[force]"));
+                sender.sendMessage(color("&c[&e&lBanItem&c] &7/banitem &bci remove &3<name>"));
+                sender.sendMessage(color("&c[&e&lBanItem&c] &7/banitem &bci list"));
+                return true;
+            }
+
+            // Adding custom item?
+            if (args[1].equalsIgnoreCase("add")) {
+                // Console?
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("Command IG only.");
                     return true;
                 }
+
+                if (args.length < 3) { // Showing help
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &7/banitem &bci add &3<name> &3[force]"));
+                    return true;
+                }
+
+                // Checking variables
+                final String customName = args[2];
+                final ItemStack customItem = v9OrMore ? ((Player)sender).getInventory().getItemInMainHand() : ((Player)sender).getInventory().getItemInHand();
+                if (customItem.getType() == Material.AIR) {
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &cYou must have a valid item in your hand."));
+                    return true;
+                }
+
+                // Checking if already exists
+                if (db.getCustomItems().containsKey(customName) && !(args.length > 3 && args[3].equalsIgnoreCase("force"))) {
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &cA custom item named &e" + customName + "&c already exists. Add &2force&c argument to replace it."));
+                    return true;
+                }
+
+                // Adding custom item
+                try {
+                    db.addCustomItem(customName, customItem);
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &2Custom item &e" + customName + "&2 added."));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &cUnable to save custom item. Check the console for more information."));
+                }
+                return true;
             }
+
+            // Removing custom item?
+            if (args[1].equalsIgnoreCase("remove")) {
+                if (args.length < 3) { // Showing help
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &7/banitem &bci remove &3<name>"));
+                    return true;
+                }
+
+                // Checking variables
+                final String customName = args[2];
+
+                // Checking if exists
+                if (!db.getCustomItems().containsKey(customName)) {
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &cThere is no custom item named &e" + customName + "&c."));
+                    return true;
+                }
+
+                // Removing custom item
+                try {
+                    db.removeCustomItem(customName);
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &2Custom item &e" + customName + "&2 removed."));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &cUnable to remove custom item. Check the console for more information."));
+                }
+                return true;
+            }
+
+            // Listing custom item?
+            if (args[1].equalsIgnoreCase("list")) {
+                final List<String> items = new ArrayList<>(db.getCustomItems().keySet());
+                if (items.isEmpty()) {
+                    sender.sendMessage(color("&c[&e&lBanItem&c] &7There is no custom item created yet."));
+                    return true;
+                }
+
+                final StringBuilder list = new StringBuilder();
+                for(String s : items) list.append(ChatColor.GOLD).append(s).append(ChatColor.GRAY).append(", ");
+                sender.sendMessage(color("&c[&e&lBanItem&c] &2Custom items: " + list.toString().substring(0, list.toString().length() - 2) + "&7."));
+                return true;
+            }
+
+            return true;
         }
 
-        // Ignoring inventory for whitelist
-        if(o == BanOption.INVENTORY) return false;
+        if (!sender.hasPermission("banitem.command.help")) {
+            sender.sendMessage(noperm);
+            return true;
+        }
 
-        /* Checking whitelisted*/
-        // Checking world
-        final Set<Material> whitelisted = map.getWhitelist().get(w);
-        if (whitelisted == null) return false;
-
-        // Checking material
-        if (whitelisted.contains(m)) return false;
-
-        // Material not on whitelist, so banned:
-        final String message = map.getWhitelistMessage().get(w);
-        if (message != null) sendMessage(p, o, message);
+        // Help message
+        sender.sendMessage(color("&c[&e&lBanItem&c] &2Version: &ev" + getDescription().getVersion()));
+        sender.sendMessage(color("&c[&e&lBanItem&c] &7Use /banitem &3info&7 to get info about your item in hand."));
+        sender.sendMessage(color("&c[&e&lBanItem&c] &7Use /banitem &3customitem&7 to add/remove/list custom items."));
+        sender.sendMessage(color("&c[&e&lBanItem&c] &7Use /banitem &3reload&7 to reload the config."));
         return true;
     }
 
-    private void sendMessage(final Player p, final BanOption o, final String m) {
-        // No message set
-        if(m == null || m.isEmpty()) return;
+    @NotNull
+    public String color(final String text) { return ChatColor.translateAlternateColorCodes('&', text); }
 
-        // Checking pick up cooldown, to prevent spam
-        if (o == BanOption.PICKUP) {
-            final Long time = map.getPickupCooldown().get(p.getUniqueId());
-            if (time == null) map.getPickupCooldown().put(p.getUniqueId(), System.currentTimeMillis());
-            else {
-                if (time + pickupCooldown > System.currentTimeMillis()) return;
-                else map.getPickupCooldown().put(p.getUniqueId(), System.currentTimeMillis());
-            }
-        }
-        p.sendMessage(color(m));
+    // API \\
+    @NotNull
+    public BanDatabase getDatabase() { return db; }
+
+    @NotNull
+    public fr.andross.banitem.Maps.CustomItems getCustomItems() { return db.getCustomItems(); }
+
+    @NotNull
+    public fr.andross.banitem.Maps.Blacklisted getBlacklist() { return db.getBlacklist(); }
+
+    @NotNull
+    public fr.andross.banitem.Maps.Whitelisted getWhitelist() { return db.getWhitelist(); }
+
+    @NotNull
+    public fr.andross.banitem.Utils.BanUtils getUtils() { return db.getUtils(); }
+
+    public void reload(CommandSender sender) { load(sender); }
+
+    @Nullable
+    public Map<BanOption, String> getBlacklisted(@NotNull ItemStack item, @NotNull String world) {
+        final Map<BannedItem, Map<BanOption, String>> map = db.getBlacklist().get(world);
+        if (map == null) return null;
+        return map.get(new BannedItem(item));
     }
 
-    String color(final String text) { return ChatColor.translateAlternateColorCodes('&', text); }
-    boolean isV9OrMore() { return v9OrMore; }
+    @Nullable
+    public WhitelistedWorld getWhitelisted(@NotNull String world) {
+        return db.getWhitelist().get(world);
+    }
+
+    public void addCustomItem(@NotNull String name, @NotNull ItemStack item) throws Exception {
+        db.addCustomItem(name, item);
+    }
+
+    public void removeCustomItem(@NotNull String name) throws Exception {
+        db.removeCustomItem(name);
+    }
+
+    public boolean containsCustomItem(@NotNull ItemStack item) {
+        return db.getCustomItems().getName(new BannedItem(item)) != null;
+    }
+
+    public boolean containsCustomItem(@NotNull String name) {
+        return db.getCustomItems().containsKey(name);
+    }
+
+    public void addToBlacklist(@NotNull ItemStack item, @NotNull Map<BanOption, String> options, @NotNull String... worlds) {
+        final BannedItem bannedItem = new BannedItem(item);
+
+        for (String w : worlds) {
+            db.getBlacklist().addNewBan(w, bannedItem, options);
+            for (Map.Entry<BanOption, String> entry : options.entrySet()) {
+                getConfig().set("blacklist." + w + "." + item.getType().name().toLowerCase() + "." + entry.getKey().name().toLowerCase(), entry.getValue());
+            }
+        }
+        saveConfig();
+    }
+
+    public void removeFromBlacklist(@NotNull ItemStack item, @NotNull String... worlds) {
+        final BannedItem bannedItem = new BannedItem(item);
+
+        for (String w : worlds) {
+            final Map<BannedItem, Map<BanOption, String>> map = db.getBlacklist().get(w);
+            map.remove(bannedItem);
+            db.getBlacklist().put(w, map);
+            getConfig().set("blacklist." + w + "." + item.getType().name().toLowerCase(), null);
+        }
+        saveConfig();
+    }
+
+    public void addToWhitelist(@NotNull ItemStack item, @NotNull List<BanOption> options, @NotNull String... worlds) {
+        final BannedItem bannedItem = new BannedItem(item);
+        final StringBuilder list = new StringBuilder();
+        for (BanOption o : options) list.append(o.name().toLowerCase()).append(",");
+        String finalList = list.toString();
+        final String option = finalList.substring(0, finalList.length() - 1);
+
+        for (String w : worlds) {
+            db.getWhitelist().addNewException(w, null, bannedItem, options);
+            getConfig().set("whitelist." + w + "." + item.getType().name().toLowerCase(), option);
+        }
+        saveConfig();
+    }
+
+    public void removeFromWhitelist(@NotNull ItemStack item, @NotNull String... worlds) {
+        final BannedItem bannedItem = new BannedItem(item);
+
+        for (String w : worlds) {
+            final WhitelistedWorld wlw = db.getWhitelist().get(w);
+            if (wlw == null) continue;
+            wlw.getWhitelisted().remove(bannedItem);
+
+            getConfig().set("whitelist." + w + "." + item.getType().name().toLowerCase(), null);
+        }
+        saveConfig();
+    }
+
+
 
 }

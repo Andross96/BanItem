@@ -1,6 +1,6 @@
 name: BanItem
-main: fr.andross.banitem.Plugin
-version: '1.5'
+main: fr.andross.banitem.BanItem
+version: '1.7'
 author: _Andross
 description: Ban item
 api-version: '1.13'
@@ -9,11 +9,11 @@ commands:
     description: Banitem command. Show help.
 permissions:
   banitem.bypass.*:
-    default: op
     description: bypass the ban item in all worlds
-  banitem.command:
-    default: op
+  banitem.command.*:
     description: use /banitem command.
     children:
+      banitem.command.customitem: true
       banitem.command.reload: true
       banitem.command.info: true
+      banitem.command.help: true
