@@ -20,6 +20,12 @@ public final class BannedItem {
         this.meta = item.hasItemMeta() ? item.getItemMeta() : null;
     }
 
+    public ItemStack toItemStack() {
+        final ItemStack item = new ItemStack(m);
+        if (meta != null) item.setItemMeta(meta);
+        return item;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,3 +1,13 @@
+v1.8:
+  - Added new command /banitem check [delete]: give a list of players which has a blacklisted item in its inventory (respects the world); use the delete argument to remove them;
+  - The command /banitem info now correctly shows a custom name, if its the case;
+  - Replaced the use option with the place one: for example, to ban the use of an enderpearl, the option will be place (stability and code performance reasons)
+  - Added an 'ignored' options key for whitelisted worlds: by default in a whitelisted world, you can not place/break/use/interact/pickup & drop items, you can now choose to disable some;
+  - Fixed whitelist worlds: all options are correctly usable;
+  - Fixed world recognition: worlds created by others plugin are now correctly supported;
+  - Fixed double messages;
+  - Code & listeners reorganisation
+--------------------------------------------
 v1.7:
   - Added support for custom items (with differents item meta, name etc.): it offers possibility to ban modded items or specific items (like potions);
   - Fixed bug with the use option;

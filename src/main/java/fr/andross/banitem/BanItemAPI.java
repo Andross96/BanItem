@@ -1,12 +1,12 @@
 package fr.andross.banitem;
 
-import fr.andross.banitem.Maps.Blacklisted;
+import fr.andross.banitem.Maps.Blacklist;
 import fr.andross.banitem.Maps.CustomItems;
-import fr.andross.banitem.Maps.Whitelisted;
+import fr.andross.banitem.Maps.Whitelist;
 import fr.andross.banitem.Utils.BanDatabase;
 import fr.andross.banitem.Utils.BanOption;
 import fr.andross.banitem.Utils.BanUtils;
-import fr.andross.banitem.Utils.WhitelistedWorld;
+import fr.andross.banitem.Maps.WhitelistWorld;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ import java.util.Map;
 public interface BanItemAPI {
 
     /**
-     * Get the BanItem database, containing blacklisted, whitelisted & custom items
+     * Get the BanItem database, containing blacklist, whitelist & custom items
      *
      * @return the BanDatabase object
      */
@@ -33,20 +33,20 @@ public interface BanItemAPI {
     CustomItems getCustomItems();
 
     /**
-     * Get the blacklist map from database containing all blacklisted items
+     * Get the blacklist map from database containing all blacklist items
      *
-     * @return the blacklisted map
+     * @return the blacklist map
      */
     @NotNull
-    Blacklisted getBlacklist();
+    Blacklist getBlacklist();
 
     /**
-     * Get the whitelist map from database containing all whitelisted items
+     * Get the whitelist map from database containing all whitelist items
      *
-     * @return the whitelisted map
+     * @return the whitelist map
      */
     @NotNull
-    Whitelisted getWhitelist();
+    Whitelist getWhitelist();
 
     /**
      * Get the some utils
@@ -71,16 +71,16 @@ public interface BanItemAPI {
      * @return A map containing the ban options & messages
      */
     @Nullable
-    Map<BanOption, String> getBlacklisted(@NotNull ItemStack item, @NotNull String world);
+    Map<BanOption, String> getBlacklist(@NotNull ItemStack item, @NotNull String world);
 
     /**
-     * Return a WhitelistedWorld, containing allowed items & the message for each world
+     * Return a WhitelistWorld, containing allowed items & the message for each world
      *
      * @param world the world name
-     * @return A map containing the whitelisted world informations
+     * @return A map containing the whitelist world informations
      */
     @Nullable
-    WhitelistedWorld getWhitelisted(@NotNull String world);
+    WhitelistWorld getWhitelist(@NotNull String world);
 
     /**
      * Add a custom ItemStack into the plugin database
@@ -117,7 +117,7 @@ public interface BanItemAPI {
     boolean containsCustomItem(@NotNull String name);
 
     /**
-     * Add a new blacklisted item
+     * Add a new blacklist item
      *
      * @param item the ItemStack to ban
      * @param options a map containing options & message to ban
@@ -126,7 +126,7 @@ public interface BanItemAPI {
     void addToBlacklist(@NotNull ItemStack item, @NotNull Map<BanOption, String> options, @NotNull String... worlds);
 
     /**
-     * Remove a blacklisted item
+     * Remove a blacklist item
      *
      * @param item the ItemStack to remove
      * @param worlds worlds by name where the ban apply
@@ -149,4 +149,14 @@ public interface BanItemAPI {
      * @param worlds worlds by name where the ban apply
      */
     void removeFromWhitelist(@NotNull ItemStack item, @NotNull String... worlds);
+
+    /**
+     * Get a BanOption value
+     * <b>Options are:</b> place, break, pickup, drop, interact, use, creative, inventory
+     * @param option Name of the option
+     * @return a BanOption value if exists, otherwise null
+     */
+    @Nullable
+    BanOption getBanOption(@NotNull String option);
+
 }

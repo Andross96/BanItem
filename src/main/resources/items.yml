@@ -1,4 +1,4 @@
-my_custom_item:
+my_custom_potion:
   ==: org.bukkit.inventory.ItemStack
   type: POTION
   meta:
