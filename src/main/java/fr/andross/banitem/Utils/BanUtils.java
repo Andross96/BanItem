@@ -11,6 +11,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -20,10 +21,7 @@ import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public final class BanUtils {
 
@@ -125,6 +123,13 @@ public final class BanUtils {
             pl.getServer().getPluginManager().registerEvent(PlayerDropItemEvent.class, l, ep, (li, e) -> {
                 final PlayerDropItemEvent event = (PlayerDropItemEvent) e;
                 if (db.isBanned(event.getPlayer(), event.getItemDrop().getItemStack(), BanOption.DROP)) event.setCancelled(true);
+            }, pl, true);
+        }
+
+        if (blacklist.contains(BanOption.DISPENSE) || whitelist) {
+            pl.getServer().getPluginManager().registerEvent(BlockDispenseEvent.class, l, ep, (li, e) -> {
+                final BlockDispenseEvent event = (BlockDispenseEvent) e;
+                if (db.isBanned(event.getBlock().getWorld().getName(), event.getItem(), BanOption.DISPENSE)) event.setCancelled(true);
             }, pl, true);
         }
 

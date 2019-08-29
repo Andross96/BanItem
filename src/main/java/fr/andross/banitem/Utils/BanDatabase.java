@@ -42,7 +42,7 @@ public final class BanDatabase {
         return whitelist.isEmpty();
     }
 
-    public boolean isBanned(final Player p, final ItemStack item, final BanOption o) {
+    public boolean isBanned(final Player p, final ItemStack item, final BanOption option) {
         final String w = p.getWorld().getName().toLowerCase();
 
         // Creating BannedItem object
@@ -64,8 +64,8 @@ public final class BanDatabase {
                 if (options.containsKey(BanOption.CREATIVE) && p.getGameMode() != GameMode.CREATIVE) return false;
 
                 // Sending banned message, if exists
-                if (options.containsKey(o)) {
-                    sendMessage(p, o, options.get(o));
+                if (options.containsKey(option)) {
+                    sendMessage(p, option, options.get(option));
                     return true;
                 }
             }
@@ -77,14 +77,31 @@ public final class BanDatabase {
         if (ww == null) return false;
 
         // Is ignored?
-        if (ww.isIgnored(o)) return false;
+        if (ww.isIgnored(option)) return false;
 
         // Checking banned item
         final Set<BanOption> options = ww.getWhitelist().get(bannedItem);
-        if (options != null && options.contains(o)) return false;
+        if (options != null && options.contains(option)) return false;
 
-        sendMessage(p, o, ww.getMessage());
+        sendMessage(p, option, ww.getMessage());
         return true;
+    }
+
+    public boolean isBanned(final String world, final ItemStack item, final BanOption o) {
+        final BannedItem bannedItem = new BannedItem(item);
+
+        /* Checking blacklisted */
+        final Map<BannedItem, Map<BanOption, String>> blacklisted = blacklist.get(world);
+        if (blacklisted != null) {
+            final Map<BanOption, String> options = blacklisted.get(bannedItem);
+            if (options != null && options.containsKey(o)) return true;
+        }
+
+        /* Checking whitelisted */
+        final WhitelistWorld ww = whitelist.get(world);
+        if (ww == null || ww.isIgnored(o)) return false;
+        final Set<BanOption> options = ww.getWhitelist().get(bannedItem);
+        return options == null || !options.contains(o);
     }
 
     private void sendMessage(final Player p, final BanOption o, final String m) {

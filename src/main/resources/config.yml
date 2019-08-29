@@ -1,13 +1,13 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v1.8      —————————————————| #
+# |——————————————————      v1.9      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # For any bugs/suggestions: Andross#5254
 #
 # -- Informations: --
 #   - Blacklist contains list of blocked items
 #   - Whitelist contains list of allowed items only, so the following options are blocked:
-#      - Placing, breaking, picking up, dropping & interacting with items which are not on whitelist
+#      - Placing, breaking, picking up, dropping, interacting & dispensing items which are not on whitelist
 #   - Worlds can be written single 'world', multiple 'world, world_the_end', or you can include all worlds with '*'
 #   - Options can be written single 'break', multiple 'break, place' or you can include all options with '*'. Using '*!' will not include creative.
 #
@@ -19,14 +19,16 @@
 # - interact: when the player use right click with main hand on the placed item
 # - creative: applies only if the player is in creative mode
 # - inventory: when the player try to take/put the item from/in an inventory
+# - dispense: when an item is dispensed from a block
 #
 # Whitelist: allow ...
 # - place: place or use the item
 # - break: break the item
 # - pickup: pick up the item
 # - drop: drop the item
-# - interact: when the player use right click with main hand on the item (Have to be almost always used)
+# - interact: when the player use right click with main hand on the item (Have to be almost always used, as you first interact with the clicked block)
 # - inventory: when the player try to take/put the item from/in an inventory
+# - dispense: an item to be dispensed from a block
 # The 'message' key represents the message sent to players if they try to use an item which is not in whitelist
 # The 'ignored' key represents all ignored options (they will not being by default banned)
 

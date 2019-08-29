@@ -1,3 +1,7 @@
+v1.9:
+  - Added dispense ban option: block/allow an item to be dispensed from a block
+  - Fixed some rare case where items are not banned (it deals with datas)
+--------------------------------------------
 v1.8:
   - Added new command /banitem check [delete]: give a list of players which has a blacklisted item in its inventory (respects the world); use the delete argument to remove them;
   - The command /banitem info now correctly shows a custom name, if its the case;

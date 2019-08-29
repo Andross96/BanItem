@@ -7,5 +7,6 @@ public enum BanOption {
     DROP,
     INTERACT,
     CREATIVE,
-    INVENTORY
+    INVENTORY,
+    DISPENSE
 }
