@@ -7,7 +7,7 @@
 # -- Informations: --
 #   - Blacklist contains list of blocked items
 #   - Whitelist contains list of allowed items only, so the following options are blocked:
-#      - Placing, breaking, picking up, dropping, interacting & dispensing items which are not on whitelist
+#      - Placing, breaking, picking up, dropping, interacting, clicking & dispensing items which are not on whitelist
 #   - Worlds can be written single 'world', multiple 'world, world_the_end', or you can include all worlds with '*'
 #   - Options can be written single 'break', multiple 'break, place' or you can include all options with '*'. Using '*!' will not include creative.
 #
@@ -17,18 +17,26 @@
 # - pickup: when the item is picked up
 # - drop: when the item is dropped
 # - interact: when the player use right click with main hand on the placed item
-# - creative: applies only if the player is in creative mode
+# - click: when the player use left click with the item in the main hand
 # - inventory: when the player try to take/put the item from/in an inventory
 # - dispense: when an item is dispensed from a block
+# - Additional option:
+#  - 'delete': when a player open & close an inventory, it will check and delete items which have this option
+#  - 'creative': applies only if the player is in creative mode
+#  - 'craft': the item will not be craftable anymore
+#  - 'smelt': the item will not be smeltable anymore
 #
 # Whitelist: allow ...
 # - place: place or use the item
 # - break: break the item
 # - pickup: pick up the item
 # - drop: drop the item
-# - interact: when the player use right click with main hand on the item (Have to be almost always used, as you first interact with the clicked block)
-# - inventory: when the player try to take/put the item from/in an inventory
+# - interact: the player to use right click with main hand on the item (Have to be almost always used, as you first interact with the clicked block)
+# - click: the player to use left click with the item in the main hand
+# - inventory: the player to take/put the item from/in an inventory
 # - dispense: an item to be dispensed from a block
+# - craft: crafting the item
+# - smelt: smelting the item
 # The 'message' key represents the message sent to players if they try to use an item which is not in whitelist
 # The 'ignored' key represents all ignored options (they will not being by default banned)
 
@@ -37,6 +45,18 @@ no-permission: '&cYou do not have permission.'
 
 # Message cooldown when player try to pickup a banned item (in milliseconds)
 pickup-message-cooldown: 1000
+
+# Animations when a ban item message is sent
+sound:
+  enabled: true
+  type: ENCHANT_THORNS_HIT
+  volume: 1
+  pitch: 1
+  worldSound: false # if the sound can be heard by others players around or not
+particle:
+  enabled: true
+  type: BARRIER
+  amount: 1
 
 blacklist:
   world:
@@ -47,7 +67,7 @@ blacklist:
       interact: '&cYou can not interact with a stone button in world.'
       pickup: '&cYou can not pickup a stone button in world.'
     lava_bucket:
-      place, creative: '&cYou can not use lava buckets in this world while in creative mode.'
+      place, creative, delete: '&cYou can not use lava buckets in this world while in creative mode.'
     my_custom_potion:
       place: '&cYou can not use potion of speed I in world.'
   world_the_end:
@@ -57,4 +77,4 @@ whitelist:
   world_the_end:
     message: '&cYou can only place and break ender stone in the end.'
     ignored: inventory, pickup, drop
-    ender_stone: place, interact, break
+    end_stone: place, interact, break

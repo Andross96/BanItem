@@ -12,13 +12,6 @@ public final class BannedItem {
     private final ItemMeta meta;
     private final MaterialData data;
 
-    public BannedItem(final Material m) {
-        final ItemStack item = new ItemStack(m);
-        this.m = item.getType();
-        this.meta = item.hasItemMeta() ? item.getItemMeta() : null;
-        this.data = item.getData();
-    }
-
     public BannedItem(final ItemStack item) {
         this.m = item.getType();
         this.meta = item.hasItemMeta() ? item.getItemMeta() : null;
@@ -30,6 +23,10 @@ public final class BannedItem {
         if (meta != null) item.setItemMeta(meta);
         if (data != null) item.setData(data);
         return item;
+    }
+
+    public Material getType() {
+        return m;
     }
 
     @Override

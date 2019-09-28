@@ -1,28 +1,19 @@
 package fr.andross.banitem;
 
 import fr.andross.banitem.Commands.BanCommand;
-import fr.andross.banitem.Maps.Blacklist;
-import fr.andross.banitem.Maps.Whitelist;
-import fr.andross.banitem.Utils.BanDatabase;
-import fr.andross.banitem.Utils.BanOption;
 import fr.andross.banitem.Utils.BanUtils;
-import fr.andross.banitem.Utils.BannedItem;
-import fr.andross.banitem.Maps.WhitelistWorld;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-
-public class BanItem extends JavaPlugin implements BanItemAPI {
+public class BanItem extends JavaPlugin {
     private BanDatabase db;
+    private BanItemAPI api;
     private boolean v12OrMore, v9OrMore;
-    private final BanUtils utils = new BanUtils();
 
     @Override
     public void onEnable() {
@@ -30,11 +21,21 @@ public class BanItem extends JavaPlugin implements BanItemAPI {
         v12OrMore = getServer().getBukkitVersion().matches("(1\\.12)(.*)|(1\\.13)(.*)|(1\\.14)(.*)");
         v9OrMore = v12OrMore || getServer().getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)");
 
+        // Loading API
+        this.api = new BanItemAPI(this);
+
         // Loading plugin after worlds
         getServer().getScheduler().scheduleSyncDelayedTask(this, () -> { if(isEnabled()) load(getServer().getConsoleSender()); });
     }
 
-    private void load(final CommandSender sender) {
+    @Override
+    public void onDisable() {
+        // Cleaning up'
+        HandlerList.unregisterAll(this);
+        Bukkit.getScheduler().cancelTasks(this);
+    }
+
+    public void load(final CommandSender sender) {
         // (re)Loading config
         saveDefaultConfig();
         reloadConfig();
@@ -43,7 +44,7 @@ public class BanItem extends JavaPlugin implements BanItemAPI {
         db = new BanDatabase(this, sender);
 
         // (re)Loading listeners
-        utils.reloadListeners(this);
+        BanUtils.reloadListeners(this);
 
         sender.sendMessage(color("&c[&e&lBanItem&c] &2Successfully loaded &e" + db.getBlacklist().getTotal() + "&2 blacklisted & &e" + db.getWhitelist().getTotal() + "&2 whitelisted item(s)."));
     }
@@ -72,113 +73,16 @@ public class BanItem extends JavaPlugin implements BanItemAPI {
         return true;
     }
 
-    @NotNull
-    public String color(final String text) { return ChatColor.translateAlternateColorCodes('&', text); }
     public boolean isv9OrMore() { return v9OrMore; }
+
     public boolean isv12OrMore() { return v12OrMore; }
 
-    // API \\
     @NotNull
-    public BanDatabase getDatabase() { return db; }
-
-    @NotNull
-    public fr.andross.banitem.Maps.CustomItems getCustomItems() { return db.getCustomItems(); }
+    public String color(final String text) { return ChatColor.translateAlternateColorCodes('&', text); }
 
     @NotNull
-    public Blacklist getBlacklist() { return db.getBlacklist(); }
+    public BanDatabase getDb() { return db; }
 
     @NotNull
-    public Whitelist getWhitelist() { return db.getWhitelist(); }
-
-    @NotNull
-    public fr.andross.banitem.Utils.BanUtils getUtils() { return utils; }
-
-    public void reload(CommandSender sender) { load(sender); }
-
-    @Nullable
-    public Map<BanOption, String> getBlacklist(@NotNull ItemStack item, @NotNull String world) {
-        final Map<BannedItem, Map<BanOption, String>> map = db.getBlacklist().get(world);
-        if (map == null) return null;
-        return map.get(new BannedItem(item));
-    }
-
-    @Nullable
-    public WhitelistWorld getWhitelist(@NotNull String world) {
-        return db.getWhitelist().get(world);
-    }
-
-    public void addCustomItem(@NotNull String name, @NotNull ItemStack item) throws Exception {
-        db.addCustomItem(name, item);
-    }
-
-    public void removeCustomItem(@NotNull String name) throws Exception {
-        db.removeCustomItem(name);
-    }
-
-    public boolean containsCustomItem(@NotNull ItemStack item) {
-        return db.getCustomItems().getName(new BannedItem(item)) != null;
-    }
-
-    public boolean containsCustomItem(@NotNull String name) {
-        return db.getCustomItems().containsKey(name);
-    }
-
-    public void addToBlacklist(@NotNull ItemStack item, @NotNull Map<BanOption, String> options, @NotNull String... worlds) {
-        final BannedItem bannedItem = new BannedItem(item);
-
-        for (String w : worlds) {
-            db.getBlacklist().addNewBan(w, bannedItem, options);
-            for (Map.Entry<BanOption, String> entry : options.entrySet()) {
-                getConfig().set("blacklist." + w + "." + item.getType().name().toLowerCase() + "." + entry.getKey().name().toLowerCase(), entry.getValue());
-            }
-        }
-        saveConfig();
-    }
-
-    public void removeFromBlacklist(@NotNull ItemStack item, @NotNull String... worlds) {
-        final BannedItem bannedItem = new BannedItem(item);
-
-        for (String w : worlds) {
-            final Map<BannedItem, Map<BanOption, String>> map = db.getBlacklist().get(w);
-            map.remove(bannedItem);
-            db.getBlacklist().put(w, map);
-            getConfig().set("blacklist." + w + "." + item.getType().name().toLowerCase(), null);
-        }
-        saveConfig();
-    }
-
-    public void addToWhitelist(@NotNull ItemStack item, @NotNull List<BanOption> options, @NotNull String... worlds) {
-        final BannedItem bannedItem = new BannedItem(item);
-        final StringBuilder list = new StringBuilder();
-        for (BanOption o : options) list.append(o.name().toLowerCase()).append(",");
-        String finalList = list.toString();
-        final String option = finalList.substring(0, finalList.length() - 1);
-
-        for (String w : worlds) {
-            db.getWhitelist().addNewException(w, null, null, bannedItem, options);
-            getConfig().set("whitelist." + w + "." + item.getType().name().toLowerCase(), option);
-        }
-        saveConfig();
-    }
-
-    public void removeFromWhitelist(@NotNull ItemStack item, @NotNull String... worlds) {
-        final BannedItem bannedItem = new BannedItem(item);
-
-        for (String w : worlds) {
-            final WhitelistWorld ww = db.getWhitelist().get(w);
-            if (ww == null) continue;
-            ww.getWhitelist().remove(bannedItem);
-
-            getConfig().set("whitelist." + w + "." + item.getType().name().toLowerCase(), null);
-        }
-        saveConfig();
-    }
-
-    public BanOption getBanOption(@NotNull String option) {
-        try {
-            return BanOption.valueOf(option.toUpperCase());
-        } catch (Exception e) {
-            return null;
-        }
-    }
+    public BanItemAPI getApi() { return api; }
 }

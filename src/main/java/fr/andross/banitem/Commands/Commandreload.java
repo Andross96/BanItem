@@ -17,7 +17,7 @@ public class Commandreload extends BanCommand {
             return;
         }
 
-        pl.reload(sender);
+        pl.load(sender);
     }
 
 }

@@ -37,7 +37,7 @@ public class Commandinfo extends BanCommand {
             message("&c[&e&lBanItem&c] &7Material name: &e" + itemName);
             message("&c[&e&lBanItem&c] &7Permission: &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + itemName);
 
-            final String customItemName = pl.getDatabase().getCustomItems().getName(new BannedItem(item));
+            final String customItemName = pl.getDb().getCustomItems().getName(new BannedItem(item));
             if (customItemName != null) message("&c[&e&lBanItem&c] &7Custom item name: &e" + customItemName);
         }
     }

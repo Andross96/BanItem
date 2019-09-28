@@ -64,6 +64,7 @@ public class CustomItems extends HashMap<String, BannedItem> {
 
     @Nullable
     public String getName(final BannedItem value){
+        if (value == null) return null;
         return reversed.get(value);
     }
 

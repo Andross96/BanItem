@@ -6,7 +6,11 @@ public enum BanOption {
     PICKUP,
     DROP,
     INTERACT,
+    CLICK,
     CREATIVE,
     INVENTORY,
-    DISPENSE
+    DISPENSE,
+    DELETE,
+    CRAFT,
+    SMELT
 }

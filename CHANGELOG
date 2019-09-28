@@ -1,3 +1,12 @@
+v1.9.4:
+  - Added new permission based on option: banitem.bypass.WorldName.MaterialName.Option
+  - Added configurable particle & sound effect when a message for a banned item is received
+  - Added 'craft' option: the player will not be able to craft the item anymore
+  - Added 'smelt' option: the player will not be able to smelt the item anymore
+  - Added new methods in developer api (+ added maven repo on github)
+  - Fixed 'delete' options: now correctly send a message, if configurated
+  - Fixed rare issue with whitelisted custom items
+--------------------------------------------
 v1.9:
   - Added dispense ban option: block/allow an item to be dispensed from a block
   - Fixed some rare case where items are not banned (it deals with datas)

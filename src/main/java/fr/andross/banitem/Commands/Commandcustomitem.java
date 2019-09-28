@@ -54,14 +54,14 @@ public class Commandcustomitem extends BanCommand {
             }
 
             // Checking if already exists
-            if (pl.getDatabase().getCustomItems().containsKey(customName) && !(args.length > 3 && args[3].equalsIgnoreCase("force"))) {
+            if (pl.getDb().getCustomItems().containsKey(customName) && !(args.length > 3 && args[3].equalsIgnoreCase("force"))) {
                 message("&c[&e&lBanItem&c] &cA custom item named &e" + customName + "&c already exists. Add &2force&c argument to replace it.");
                 return;
             }
 
             // Adding custom item
             try {
-                pl.getDatabase().addCustomItem(customName, customItem);
+                pl.getDb().addCustomItem(customName, customItem);
                 message("&c[&e&lBanItem&c] &2Custom item &e" + customName + "&2 added.");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -81,14 +81,14 @@ public class Commandcustomitem extends BanCommand {
             final String customName = args[2];
 
             // Checking if exists
-            if (!pl.getDatabase().getCustomItems().containsKey(customName)) {
+            if (!pl.getDb().getCustomItems().containsKey(customName)) {
                 message("&c[&e&lBanItem&c] &cThere is no custom item named &e" + customName + "&c.");
                 return;
             }
 
             // Removing custom item
             try {
-                pl.getDatabase().removeCustomItem(customName);
+                pl.getDb().removeCustomItem(customName);
                 message("&c[&e&lBanItem&c] &2Custom item &e" + customName + "&2 removed.");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,7 +99,7 @@ public class Commandcustomitem extends BanCommand {
 
         // Listing custom item?
         if (args[1].equalsIgnoreCase("list")) {
-            final List<String> items = new ArrayList<>(pl.getDatabase().getCustomItems().keySet());
+            final List<String> items = new ArrayList<>(pl.getDb().getCustomItems().keySet());
             if (items.isEmpty()) {
                 message("&c[&e&lBanItem&c] &7There is no custom item created yet.");
                 return;
