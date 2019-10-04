@@ -159,7 +159,7 @@ public final class BanUtils {
         if (blacklist.contains(BanOption.DISPENSE) || whitelist) {
             pl.getServer().getPluginManager().registerEvent(BlockDispenseEvent.class, l, ep, (li, e) -> {
                 final BlockDispenseEvent event = (BlockDispenseEvent) e;
-                if (db.isDispenseBanned(event.getBlock().getWorld().getName(), event.getItem())) event.setCancelled(true);
+                if (db.isBanned(event.getBlock().getWorld().getName(), event.getItem(), BanOption.DISPENSE)) event.setCancelled(true);
             }, pl, true);
         }
 
@@ -179,10 +179,12 @@ public final class BanUtils {
                 final FurnaceSmeltEvent event = (FurnaceSmeltEvent) e;
                 final ItemStack item = event.getSource();
                 final Furnace f = (Furnace) event.getBlock().getState();
-                final HumanEntity he = f.getInventory().getViewers().get(0);
-                if (he == null) return;
-                if (db.isBanned((Player) he, item, BanOption.SMELT)) event.setCancelled(true);
-            }, pl);
+                if (db.isBanned(f.getWorld().getName(), item, BanOption.SMELT)) {
+                    if (!f.getInventory().getViewers().isEmpty())
+                        if (!db.isBanned((Player) f.getInventory().getViewers().get(0), item, BanOption.SMELT)) return;
+                    event.setCancelled(true);
+                }
+            }, pl, true);
         }
 
         if (blacklist.contains(BanOption.PICKUP) || whitelist) {

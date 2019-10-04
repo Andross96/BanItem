@@ -26,7 +26,7 @@ public class BanItemAPI {
     }
 
     /**
-     * Get the BanItem database, containing <b>blacklist</b>, <b>whitelist</b> & <b>custom items</b>.
+     * Get the BanItem database, containing <b>blacklist</b>, <b>whitelist</b> and <b>custom items</b>.
      *
      * @return the BanDatabase object
      */
@@ -36,8 +36,7 @@ public class BanItemAPI {
     }
 
     /**
-     * Reload the plugin configuration files.<br />
-     * Any error messages will be sent to the sender.
+     * Reload the plugin configuration files. Any error messages will be sent to the sender.
      *
      * @param sender send messages to
      */
@@ -68,7 +67,8 @@ public class BanItemAPI {
      * **********************
     ------------------------------*/
     /**
-     * Check if the <b>item</b> is blacklisted into the world <b>worldName</b>.<br />
+     * Check if the <b>item</b> is blacklisted into the world <b>worldName</b>.
+     * <p>
      * This method will check first for a matching material (ItemStack#getType()), then for a custom item (a kind of ItemStack#isSimilar)
      *
      * @param worldName the name of the blacklisted world
@@ -84,7 +84,7 @@ public class BanItemAPI {
      * Add a new material to blacklisted worlds and save the config.yml file. <i>(comments in file may be removed)</i>
      *
      * @param material the Material to ban
-     * @param options a map containing options & their respective message to ban
+     * @param options a map containing options and their respective message to ban
      * @param worlds worlds by name where the ban apply
      */
     public void addToBlacklist(@NotNull Material material, @NotNull Map<BanOption, String> options, @NotNull String... worlds) {
@@ -96,11 +96,12 @@ public class BanItemAPI {
     }
 
     /**
-     * Add a custom item to blacklisted worlds and save the config.yml file. <i>(comments in file may be removed)</i><br />
+     * Add a custom item to blacklisted worlds and save the config.yml file. <i>(comments in file may be removed)</i>
+     * <p>
      * The custom name can be retrieved with <i>getCustomName(ItemStack)</i>.
      *
      * @param customName the name of the custom item to ban
-     * @param options a map containing options & their respective message to ban
+     * @param options a map containing options and their respective message to ban
      * @param worlds worlds by name where the ban apply
      * @throws UnknownObjectException if the custom name is not found
      */
@@ -131,7 +132,8 @@ public class BanItemAPI {
     }
 
     /**
-     * Remove a custom item from blacklisted worlds and save the config.yml file. <i>(comments in file may be removed)</i><br />
+     * Remove a custom item from blacklisted worlds and save the config.yml file. <i>(comments in file may be removed)</i>
+     * <p>
      * The custom name can be retrieved with <i>getCustomName(ItemStack)</i>.
      *
      * @param customName the name of the custom item to ban
@@ -188,7 +190,8 @@ public class BanItemAPI {
     }
 
     /**
-     * Add a material to the whitelist and save the config.yml file. <i>(comments in file may be removed)</i><br />
+     * Add a material to the whitelist and save the config.yml file. <i>(comments in file may be removed)</i>
+     * <p>
      * The custom name can be retrieved with <i>getCustomName(ItemStack)</i>.
      *
      * @param customName custom item name to add
@@ -228,7 +231,8 @@ public class BanItemAPI {
     }
 
     /**
-     * Add a material to the whitelist and save the config.yml file. <i>(comments in file may be removed)</i><br />
+     * Add a material to the whitelist and save the config.yml file. <i>(comments in file may be removed)</i>
+     * <p>
      * The custom name can be retrieved with <i>getCustomName(ItemStack)</i>.
      *
      * @param customName custom item name to add
@@ -281,7 +285,8 @@ public class BanItemAPI {
     }
 
     /**
-     * Add an ItemStack as a custom item and save it in items.yml<br />
+     * Add an ItemStack as a custom item and save it in items.yml
+     * <p>
      * <b>Will replace existing value</b>
      *
      * @param name the name of the custom ItemStack

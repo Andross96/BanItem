@@ -95,18 +95,18 @@ public final class BanDatabase {
         return true;
     }
 
-    public boolean isDispenseBanned(final String world, final ItemStack item) {
+    public boolean isBanned(final String world, final ItemStack item, final BanOption option) {
         final BannedItem bannedItem = new BannedItem(item);
 
         /* Checking blacklisted */
         final Map<BanOption, String> blacklisted = blacklist.getBanOptions(world, bannedItem);
-        if (!blacklisted.isEmpty() && blacklisted.containsKey(BanOption.DISPENSE)) return true;
+        if (!blacklisted.isEmpty() && blacklisted.containsKey(option)) return true;
 
         /* Checking whitelisted */
         final WhitelistWorld ww = whitelist.get(world);
-        if (ww == null || ww.isIgnored(BanOption.DISPENSE)) return false;
+        if (ww == null || ww.isIgnored(option)) return false;
         final Set<BanOption> options = ww.getBanOptions(bannedItem);
-        return options == null || !options.contains(BanOption.DISPENSE);
+        return options == null || !options.contains(option);
     }
 
     private void sendMessage(final Player p, final BanOption o, final String m) {
