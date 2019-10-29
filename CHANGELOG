@@ -1,3 +1,10 @@
+v1.9.7:
+  - Added the wear option: players can't equip the item (armor);
+  - Fixed an error with the craft option
+--------------------------------------------
+v1.9.6:
+  - Fixed another error with the smelt option
+--------------------------------------------
 v1.9.5:
   - Fixed errors with the smelt option
 --------------------------------------------

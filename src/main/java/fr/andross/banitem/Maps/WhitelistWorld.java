@@ -71,6 +71,7 @@ public class WhitelistWorld {
     /**
      * Check if the ban option is ignored for this world
      *
+     * @param option The ban option
      * @return true if the option is ignored (not checked by the plugin for this world), otherwise false
      */
     public boolean isIgnored(@NotNull final BanOption option) { return ignored.contains(option); }

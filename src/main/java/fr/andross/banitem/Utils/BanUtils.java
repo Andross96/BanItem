@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -149,6 +150,32 @@ public final class BanUtils {
             }, pl, true);
         }
 
+        if (blacklist.contains(BanOption.WEAR) || whitelist) {
+            pl.getServer().getPluginManager().registerEvent(InventoryClickEvent.class, l, ep, (li, e) -> {
+                final InventoryClickEvent event = (InventoryClickEvent) e;
+                if (event.getRawSlot() >= 5 && event.getRawSlot() <= 8) {
+                    if (event.getCursor() != null) {
+                        if (db.isBanned((Player) event.getWhoClicked(), event.getCursor(), BanOption.WEAR)) {
+                            event.setCancelled(true);
+                            return;
+                        }
+                    }
+                }
+                if (event.getCurrentItem() == null) return;
+                if (event.isShiftClick()) {
+                    if (db.isBanned((Player) event.getWhoClicked(), event.getCurrentItem(), BanOption.WEAR)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+                if (event.getRawSlot() >= 5 && event.getRawSlot() <= 8 && event.getHotbarButton() > -1 && event.getClickedInventory() != null) {
+                    final ItemStack item = event.getClickedInventory().getItem(event.getHotbarButton());
+                    if (item == null) return;
+                    if (db.isBanned((Player) event.getWhoClicked(), item, BanOption.WEAR)) event.setCancelled(true);
+                }
+            }, pl, true);
+        }
+
         if (blacklist.contains(BanOption.DROP) || whitelist) {
             pl.getServer().getPluginManager().registerEvent(PlayerDropItemEvent.class, l, ep, (li, e) -> {
                 final PlayerDropItemEvent event = (PlayerDropItemEvent) e;
@@ -168,14 +195,14 @@ public final class BanUtils {
                 final PrepareItemCraftEvent event = (PrepareItemCraftEvent) e;
                 if (event.getRecipe() == null) return;
                 final ItemStack item = event.getRecipe().getResult();
-                final HumanEntity he = event.getViewers().get(0);
-                if (he == null) return;
-                if (db.isBanned((Player) he, item, BanOption.CRAFT)) event.getInventory().setResult(null);
+                if (!event.getViewers().isEmpty())
+                    if (db.isBanned((Player) event.getViewers().get(0), item, BanOption.CRAFT)) event.getInventory().setResult(null);
             }, pl);
         }
 
         if (blacklist.contains(BanOption.SMELT) || whitelist) {
             pl.getServer().getPluginManager().registerEvent(FurnaceSmeltEvent.class, l, ep, (ll, e) -> {
+                if (!(e instanceof FurnaceSmeltEvent)) return;
                 final FurnaceSmeltEvent event = (FurnaceSmeltEvent) e;
                 final ItemStack item = event.getSource();
                 final Furnace f = (Furnace) event.getBlock().getState();

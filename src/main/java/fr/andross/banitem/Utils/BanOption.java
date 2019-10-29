@@ -9,6 +9,7 @@ public enum BanOption {
     CLICK,
     CREATIVE,
     INVENTORY,
+    WEAR,
     DISPENSE,
     DELETE,
     CRAFT,
