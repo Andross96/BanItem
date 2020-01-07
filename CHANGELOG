@@ -1,3 +1,10 @@
+v1.9.8:
+  - Added the swap option: when the player try to swap the item in hands
+  - Added the armorstandplace option: when the player try to place the item on an armorstand
+  - Added the armorstandtake option: when the player try to take the item from an armorstand
+  - Updated the config ban options list: Options can be written single 'break', multiple 'break, place' or '*' will include all options (except creative & delete)
+  - Fixed compatibility with 1.15
+--------------------------------------------
 v1.9.7:
   - Added the wear option: players can't equip the item (armor);
   - Fixed an error with the craft option

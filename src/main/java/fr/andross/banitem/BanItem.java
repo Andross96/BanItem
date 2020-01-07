@@ -18,14 +18,14 @@ public class BanItem extends JavaPlugin {
     @Override
     public void onEnable() {
         // Checking Bukkit version
-        v12OrMore = Bukkit.getBukkitVersion().matches("(1\\.12)(.*)|(1\\.13)(.*)|(1\\.14)(.*)");
+        v12OrMore = Bukkit.getBukkitVersion().matches("(1\\.12)(.*)|(1\\.13)(.*)|(1\\.14)(.*)|(1\\.15)(.*)");
         v9OrMore = v12OrMore || Bukkit.getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)");
 
         // Loading API
         this.api = new BanItemAPI(this);
 
         // Loading plugin after worlds
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> { if(isEnabled()) load(Bukkit.getConsoleSender()); });
+        Bukkit.getScheduler().runTaskLater(this, () -> { if(isEnabled()) load(Bukkit.getConsoleSender()); }, 20L);
     }
 
     @Override

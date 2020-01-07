@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Furnace;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -15,19 +14,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class BanUtils {
+    private static final List<BanOption> allOptions = Arrays.stream(BanOption.values()).filter(o -> o != BanOption.CREATIVE && o != BanOption.DELETE).collect(Collectors.toList());
 
     @Nullable
     public static List<World> getWorldsFromString(@NotNull final String s){
@@ -44,23 +45,18 @@ public final class BanUtils {
 
     @Nullable
     public static List<BanOption> getBanOptionsFromString(@NotNull final String options) {
+        if (options.equals("*")) return allOptions;
+
         final List<BanOption> optionsList = new ArrayList<>();
-        switch (options.toLowerCase()) {
-            case "*": return Arrays.asList(BanOption.values());
-            case "*!":
-                for (BanOption o : BanOption.values()) if (o != BanOption.CREATIVE) optionsList.add(o);
-                return optionsList;
-            case "*b": return Arrays.asList(BanOption.PLACE, BanOption.BREAK);
-            default:
-                for (String option : options.toUpperCase().trim().replaceAll("\\s+", "").split(",")) {
-                    try {
-                        optionsList.add(BanOption.valueOf(option));
-                    } catch (Exception e) {
-                        return null;
-                    }
-                }
-                break;
+        for (String option : options.toUpperCase().trim().replaceAll("\\s+", "").split(",")) {
+            try {
+                if (option.equals("*")) optionsList.addAll(allOptions);
+                else optionsList.add(BanOption.valueOf(option));
+            } catch (Exception e) {
+                return null;
+            }
         }
+
         return optionsList;
     }
 
@@ -102,7 +98,6 @@ public final class BanUtils {
         if (blacklist.contains(BanOption.PLACE) || whitelist) {
             pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep, (li, e) -> {
                 final PlayerInteractEvent event = (PlayerInteractEvent) e;
-                if (pl.isv9OrMore() && event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) return;
                 if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.isBlockInHand() && event.getItem() != null) {
                     if (db.isBanned(event.getPlayer(), event.getItem(), BanOption.PLACE)) {
                         event.setCancelled(true);
@@ -134,7 +129,6 @@ public final class BanUtils {
         if (blacklist.contains(BanOption.CLICK) || whitelist) {
             pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep, (li, e) -> {
                 final PlayerInteractEvent event = (PlayerInteractEvent) e;
-                if (pl.isv9OrMore() && event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) return;
                 if (event.getItem() == null) return;
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR)
                     if (db.isBanned(event.getPlayer(), event.getItem(), BanOption.CLICK)) event.setCancelled(true);
@@ -176,6 +170,20 @@ public final class BanUtils {
             }, pl, true);
         }
 
+        if (blacklist.contains(BanOption.SWAP) || whitelist) {
+            if (!pl.isv9OrMore()) pl.getLogger().warning("Can not use the 'swap' option in Minecraft < 1.9");
+            else {
+                pl.getServer().getPluginManager().registerEvent(org.bukkit.event.player.PlayerSwapHandItemsEvent.class, l, ep, (li, e) -> {
+                    final org.bukkit.event.player.PlayerSwapHandItemsEvent event = (org.bukkit.event.player.PlayerSwapHandItemsEvent) e;
+                    if (event.getMainHandItem() != null && db.isBanned(event.getPlayer(), event.getMainHandItem(), BanOption.SWAP)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    if (event.getOffHandItem() != null && db.isBanned(event.getPlayer(), event.getOffHandItem(), BanOption.SWAP)) event.setCancelled(true);
+                }, pl, true);
+            }
+        }
+
         if (blacklist.contains(BanOption.DROP) || whitelist) {
             pl.getServer().getPluginManager().registerEvent(PlayerDropItemEvent.class, l, ep, (li, e) -> {
                 final PlayerDropItemEvent event = (PlayerDropItemEvent) e;
@@ -187,6 +195,23 @@ public final class BanUtils {
             pl.getServer().getPluginManager().registerEvent(BlockDispenseEvent.class, l, ep, (li, e) -> {
                 final BlockDispenseEvent event = (BlockDispenseEvent) e;
                 if (db.isBanned(event.getBlock().getWorld().getName(), event.getItem(), BanOption.DISPENSE)) event.setCancelled(true);
+            }, pl, true);
+        }
+
+        if (blacklist.contains(BanOption.ARMORSTANDPLACE) || whitelist) {
+            pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, l, ep, (li, e) -> {
+                final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
+                if (event.getPlayerItem() == null || event.getPlayerItem().getType()  == Material.AIR) return;
+                if (db.isBanned(event.getPlayer(), event.getPlayerItem(), BanOption.ARMORSTANDPLACE)) event.setCancelled(true);
+            }, pl, true);
+        }
+
+        if (blacklist.contains(BanOption.ARMORSTANDTAKE) || whitelist) {
+            pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, new Listener() {}, ep, (li, e) -> {
+                final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
+                if (event.getArmorStandItem() == null || event.getArmorStandItem().getType()  == Material.AIR) return;
+                if (db.isBanned(event.getPlayer(), event.getArmorStandItem(), BanOption.ARMORSTANDTAKE))
+                    event.setCancelled(true);
             }, pl, true);
         }
 

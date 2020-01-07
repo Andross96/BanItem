@@ -1,17 +1,23 @@
 package fr.andross.banitem.Utils;
 
 public enum BanOption {
+    // General
     PLACE,
     BREAK,
     PICKUP,
     DROP,
     INTERACT,
     CLICK,
-    CREATIVE,
     INVENTORY,
     WEAR,
+    SWAP,
+    ARMORSTANDPLACE,
+    ARMORSTANDTAKE,
     DISPENSE,
-    DELETE,
     CRAFT,
-    SMELT
+    SMELT,
+
+    // Options
+    CREATIVE,
+    DELETE
 }
