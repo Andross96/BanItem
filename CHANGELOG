@@ -1,3 +1,8 @@
+v1.9.9:
+  - Fixed whitelist
+  - Fixed armorstand events
+  - Fixed 1.7 compatibility
+--------------------------------------------
 v1.9.8:
   - Added the swap option: when the player try to swap the item in hands
   - Added the armorstandplace option: when the player try to place the item on an armorstand

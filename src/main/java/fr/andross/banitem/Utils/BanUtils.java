@@ -199,20 +199,24 @@ public final class BanUtils {
         }
 
         if (blacklist.contains(BanOption.ARMORSTANDPLACE) || whitelist) {
-            pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, l, ep, (li, e) -> {
-                final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
-                if (event.getPlayerItem() == null || event.getPlayerItem().getType()  == Material.AIR) return;
-                if (db.isBanned(event.getPlayer(), event.getPlayerItem(), BanOption.ARMORSTANDPLACE)) event.setCancelled(true);
-            }, pl, true);
+            if (!pl.isv8OrMore()) pl.getLogger().warning("Can not use the 'armorstandplace' option in Minecraft < 1.8");
+            else
+                pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, l, ep, (li, e) -> {
+                    final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
+                    if (event.getPlayerItem() == null || event.getPlayerItem().getType()  == Material.AIR) return;
+                    if (db.isBanned(event.getPlayer(), event.getPlayerItem(), BanOption.ARMORSTANDPLACE)) event.setCancelled(true);
+                }, pl, true);
         }
 
         if (blacklist.contains(BanOption.ARMORSTANDTAKE) || whitelist) {
-            pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, new Listener() {}, ep, (li, e) -> {
-                final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
-                if (event.getArmorStandItem() == null || event.getArmorStandItem().getType()  == Material.AIR) return;
-                if (db.isBanned(event.getPlayer(), event.getArmorStandItem(), BanOption.ARMORSTANDTAKE))
-                    event.setCancelled(true);
-            }, pl, true);
+            if (!pl.isv8OrMore()) pl.getLogger().warning("Can not use the 'armorstandtake' option in Minecraft < 1.8");
+            else
+                pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, new Listener() {}, ep, (li, e) -> {
+                    final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
+                    if (event.getArmorStandItem() == null || event.getArmorStandItem().getType()  == Material.AIR) return;
+                    if (db.isBanned(event.getPlayer(), event.getArmorStandItem(), BanOption.ARMORSTANDTAKE))
+                        event.setCancelled(true);
+                }, pl, true);
         }
 
         if (blacklist.contains(BanOption.CRAFT) || whitelist) {

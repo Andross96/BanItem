@@ -13,13 +13,14 @@ import org.jetbrains.annotations.NotNull;
 public class BanItem extends JavaPlugin {
     private BanDatabase db;
     private BanItemAPI api;
-    private boolean v12OrMore, v9OrMore;
+    private boolean v12OrMore, v9OrMore, v8OrMore;
 
     @Override
     public void onEnable() {
         // Checking Bukkit version
         v12OrMore = Bukkit.getBukkitVersion().matches("(1\\.12)(.*)|(1\\.13)(.*)|(1\\.14)(.*)|(1\\.15)(.*)");
         v9OrMore = v12OrMore || Bukkit.getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)");
+        v8OrMore = v9OrMore || Bukkit.getBukkitVersion().matches("(1\\.8)(.*)");
 
         // Loading API
         this.api = new BanItemAPI(this);
@@ -76,6 +77,10 @@ public class BanItem extends JavaPlugin {
     public boolean isv9OrMore() { return v9OrMore; }
 
     public boolean isv12OrMore() { return v12OrMore; }
+
+    public boolean isv8OrMore() {
+        return v8OrMore;
+    }
 
     @NotNull
     public String color(final String text) { return ChatColor.translateAlternateColorCodes('&', text); }

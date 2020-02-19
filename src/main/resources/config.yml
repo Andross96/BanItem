@@ -83,5 +83,5 @@ blacklist:
 whitelist:
   world_the_end:
     message: '&cYou can only place and break ender stone in the end.'
-    ignored: inventory, pickup, drop # these options will be by default allowed
-    end_stone: place, interact, break # players will can place & break ender stones
+    ignored: inventory, pickup, drop, click # those options will be ignored by default
+    end_stone: place, interact, break # allow only place, interacting & breaking ender stone

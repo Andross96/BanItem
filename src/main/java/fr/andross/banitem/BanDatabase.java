@@ -47,7 +47,7 @@ public final class BanDatabase {
     }
 
     public boolean isWhitelistEnabled() {
-        return whitelist.isEmpty();
+        return !whitelist.isEmpty();
     }
 
     public boolean isBanned(final Player p, final ItemStack item, final BanOption option) {
