@@ -8,6 +8,7 @@ load: POSTWORLD
 commands:
   banitem:
     description: Banitem command. Show help.
+    permission: banitem.command
 permissions:
   banitem.bypass.*:
     description: bypass the ban item in all worlds
