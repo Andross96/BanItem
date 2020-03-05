@@ -52,15 +52,16 @@ public final class BanDatabase {
 
     public boolean isBanned(final Player p, final ItemStack item, final BanOption option) {
         // Variables
-        final String w = p.getWorld().getName().toLowerCase();
+        final String w = p.getWorld().getName();
+        final String wLower = w.toLowerCase();
         final String itemName = item.getType().name().toLowerCase();
         final String optionName = option.name().toLowerCase();
         final BannedItem bannedItem = new BannedItem(item);
         final String customItemName = customItems.getName(bannedItem);
 
         // Checking permission bypass
-        if (p.hasPermission("banitem.bypass." + w + "." + itemName + "." + optionName)) return false;
-        if (customItemName != null) if (p.hasPermission("banitem.bypass." + w + "." + customItemName + "." + optionName)) return false;
+        if (p.hasPermission("banitem.bypass." + wLower + "." + itemName + "." + optionName)) return false;
+        if (customItemName != null) if (p.hasPermission("banitem.bypass." + wLower + "." + customItemName + "." + optionName)) return false;
 
         /* Checking blacklisted */
         final Map<BanOption, String> blacklisted = blacklist.getBanOptions(w, bannedItem);

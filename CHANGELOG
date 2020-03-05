@@ -1,3 +1,6 @@
+v1.9.9.1:
+  - Fixed problem where items are not correctly banned in some other (custom) worlds (case sensitive issue)
+--------------------------------------------
 v1.9.9:
   - Fixed whitelist
   - Fixed armorstand events

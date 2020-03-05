@@ -50,7 +50,7 @@ public final class BanUtils {
         final List<BanOption> optionsList = new ArrayList<>();
         for (String option : options.toUpperCase().trim().replaceAll("\\s+", "").split(",")) {
             try {
-                if (option.equals("*")) optionsList.addAll(allOptions);
+                if (option.equals("*")) return allOptions;
                 else optionsList.add(BanOption.valueOf(option));
             } catch (Exception e) {
                 return null;
