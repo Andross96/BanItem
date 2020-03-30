@@ -18,7 +18,7 @@ BanItem is a simple lightweight per world ban item, fully configurable.
   <dependency>
     <groupId>fr.andross</groupId>
     <artifactId>BanItem</artifactId>
-    <version>1.9.4</version>
+    <version>1.9.9.2</version>
     <scope>provided</scope>
   </dependency>
 </dependencies>
