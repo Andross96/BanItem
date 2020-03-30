@@ -1,3 +1,17 @@
+v1.9.9.2:
+  - Added new option attack: can not attack an entity with the item;
+  - Added new option consume: can not consume the food item;
+  - Added new command /banitem customitem get <name>: to get the custom item in your inventory;
+  - Added tab completition: commands can now be completed with tabs. Also display available custom items name into custom item commands;
+  - Added a allworlds permission, which include all worlds: banitem.bypass.allworlds.apple.consume
+  - Better Worlds configuration: can now be excluded: *, !world -> all worlds, except 'world';
+  - Better Options configuration: can now be excluded: *, !pickup -> everything banned (not include creative & delete), except 'pickup';
+  - Whitelist deactivated by default in config.yml (commented);
+  - Better command integration with Bukkit: does not display the command the player if do not have the permission;
+  - Fixed delete permission;
+  - Fixed custom item visual amount bug;
+  - Code reorganization;
+--------------------------------------------
 v1.9.9.1:
   - Fixed problem where items are not correctly banned in some other (custom) worlds (case sensitive issue)
 --------------------------------------------

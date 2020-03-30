@@ -2,22 +2,34 @@ package fr.andross.banitem.Utils;
 
 public enum BanOption {
     // General
-    PLACE,
-    BREAK,
-    PICKUP,
-    DROP,
-    INTERACT,
-    CLICK,
-    INVENTORY,
-    WEAR,
-    SWAP,
-    ARMORSTANDPLACE,
-    ARMORSTANDTAKE,
-    DISPENSE,
-    CRAFT,
-    SMELT,
+    PLACE("place"),
+    BREAK("break"),
+    PICKUP("pickup"),
+    DROP("drop"),
+    INTERACT("interact"),
+    CLICK("click"),
+    ATTACK("attack"),
+    INVENTORY("inventory"),
+    CONSUME("consume"),
+    WEAR("wear"),
+    SWAP("swap"),
+    ARMORSTANDPLACE("armorstandplace"),
+    ARMORSTANDTAKE("armorstandtake"),
+    DISPENSE("dispense"),
+    CRAFT("craft"),
+    SMELT("smelt"),
 
     // Options
-    CREATIVE,
-    DELETE
+    CREATIVE("creative"),
+    DELETE("delete");
+
+    private final String name;
+
+    BanOption(final String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

@@ -10,9 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Commandcheck extends BanCommand {
 
@@ -31,9 +29,9 @@ public class Commandcheck extends BanCommand {
         // Checking...
         final boolean delete = args.length > 1 && args[1].equalsIgnoreCase("delete");
         final Set<String> players = new HashSet<>();
-        for (String world : pl.getDb().getBlacklist().keySet()) {
-            final Map<Material, Map<BanOption, String>> map = pl.getDb().getBlacklist().get(world);
-            final Map<BannedItem, Map<BanOption, String>> customMap = pl.getDb().getBlacklist().getCustomItems(world);
+        for (String world : pl.getBanDatabase().getBlacklist().keySet()) {
+            final Map<Material, Map<BanOption, String>> map = pl.getBanDatabase().getBlacklist().get(world);
+            final Map<BannedItem, Map<BanOption, String>> customMap = pl.getBanDatabase().getBlacklist().getCustomItems(world);
             for (final Player p : pl.getServer().getOnlinePlayers()) {
                 // Normal items
                 if (map != null) {
@@ -90,5 +88,12 @@ public class Commandcheck extends BanCommand {
         for (String player : players) list.append(ChatColor.GOLD).append(player).append(ChatColor.GRAY).append(", ");
         message("&c[&e&lBanItem&c] &eFound &2" + players.size() + "&e player(s) with blacklisted item(s) in inventory: ");
         message(list.toString().substring(0, list.toString().length() - 2) + "&7.");
+    }
+
+    @Override
+    public List<String> runTab() {
+        final List<String> list = new ArrayList<>();
+        if (args.length == 2) list.add("delete");
+        return list;
     }
 }

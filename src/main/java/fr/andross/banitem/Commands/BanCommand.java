@@ -1,7 +1,11 @@
 package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
+import fr.andross.banitem.Utils.Chat;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public abstract class BanCommand {
     protected final BanItem pl;
@@ -15,7 +19,7 @@ public abstract class BanCommand {
     }
 
     void message(final String message) {
-        sender.sendMessage(pl.color(message));
+        sender.sendMessage(Chat.color(message));
     }
 
     String getNoPermMessage() {
@@ -23,4 +27,7 @@ public abstract class BanCommand {
     }
 
     public abstract void run();
+
+    @Nullable
+    public abstract List<String> runTab();
 }

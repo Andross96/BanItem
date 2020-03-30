@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -12,7 +13,7 @@ public final class BannedItem {
     private final ItemMeta meta;
     private final MaterialData data;
 
-    public BannedItem(final ItemStack item) {
+    public BannedItem(@NotNull final ItemStack item) {
         this.m = item.getType();
         this.meta = item.hasItemMeta() ? item.getItemMeta() : null;
         this.data = item.getData();

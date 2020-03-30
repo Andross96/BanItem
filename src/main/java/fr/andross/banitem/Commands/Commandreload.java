@@ -2,6 +2,10 @@ package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Commandreload extends BanCommand {
 
@@ -20,4 +24,9 @@ public class Commandreload extends BanCommand {
         pl.load(sender);
     }
 
+    @Nullable
+    @Override
+    public List<String> runTab() {
+        return new ArrayList<>();
+    }
 }

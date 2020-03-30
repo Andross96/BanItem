@@ -5,6 +5,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class BanAnimation {
     // Sound
@@ -17,7 +18,8 @@ public class BanAnimation {
     private Particle particle;
     private int amount = 10;
 
-    public BanAnimation(final BanItem pl, final CommandSender sender) {
+    public BanAnimation(@NotNull final CommandSender sender) {
+        final BanItem pl = BanItem.getInstance();
         // Sound
         final boolean soundEnabled = pl.getConfig().getBoolean("sound.enabled");
         if (soundEnabled) {
@@ -26,8 +28,8 @@ public class BanAnimation {
                 volume = pl.getConfig().getInt("sound.volume");
                 pitch = pl.getConfig().getInt("sound.pitch");
                 worldSound = pl.getConfig().getBoolean("sound.worldSound");
-            } catch (Exception e) {
-                sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cInvalid sound parameters set in config.yml."));
+            } catch (final Exception e) {
+                sender.sendMessage(Chat.color("&c[&e&lBanItem&c] &cInvalid sound parameters set in config.yml."));
             }
         }
         // Particle
@@ -36,13 +38,13 @@ public class BanAnimation {
             try {
                 particle = Particle.valueOf(pl.getConfig().getString("particle.type"));
                 amount = pl.getConfig().getInt("particle.amount");
-            } catch (Exception e) {
-                sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cInvalid particle parameters set in config.yml."));
+            } catch (final Exception e) {
+                sender.sendMessage(Chat.color("&c[&e&lBanItem&c] &cInvalid particle parameters set in config.yml."));
             }
         }
     }
 
-    public void runAnimation(final Player p) {
+    public void runAnimation(@NotNull final Player p) {
         // Sound
         if (sound != null) {
             if (worldSound) p.getWorld().playSound(p.getLocation(), sound, volume, pitch);

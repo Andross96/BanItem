@@ -2,10 +2,12 @@ package fr.andross.banitem.Maps;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.Utils.BannedItem;
+import fr.andross.banitem.Utils.Chat;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -17,7 +19,8 @@ public class CustomItems extends HashMap<String, BannedItem> {
     private final File itemsFile;
     private FileConfiguration itemsConfig;
 
-    public CustomItems(final BanItem pl, final CommandSender sender) {
+    public CustomItems(@NotNull final CommandSender sender) {
+        final BanItem pl = BanItem.getInstance();
         this.itemsFile = new File(pl.getDataFolder(), "items.yml");
 
         // Checking/Creating file
@@ -25,21 +28,21 @@ public class CustomItems extends HashMap<String, BannedItem> {
             // Trying to save the custom one, else creating a new one
             if (!itemsFile.isFile()) pl.saveResource("items.yml", false);
             if (!itemsFile.isFile()) if (!itemsFile.createNewFile()) throw new Exception();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
-            sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cUnable to use custom items for this session."));
+            sender.sendMessage(Chat.color("&c[&e&lBanItem&c] &cUnable to use custom items for this session."));
             return;
         }
 
         // Loading custom items
         itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
-        for (String key : itemsConfig.getKeys(false)) {
+        for (final String key : itemsConfig.getKeys(false)) {
             try {
-                final ItemStack itemStack = (ItemStack) itemsConfig.get(key);
-                if (itemStack == null) continue;
+                final ItemStack itemStack = itemsConfig.getItemStack(key);
+                if (itemStack == null) throw new Exception();
                 put(key, new BannedItem(itemStack));
-            } catch (Exception e) {
-                sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cInvalid custom item &e" + key + "&c in items.yml."));
+            } catch (final Exception e) {
+                sender.sendMessage(Chat.color("&c[&e&lBanItem&c] &cInvalid custom item &e" + key + "&c in items.yml."));
             }
         }
     }

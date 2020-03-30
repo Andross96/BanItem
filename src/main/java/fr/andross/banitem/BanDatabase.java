@@ -15,11 +15,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public final class BanDatabase {
-    private final BanItem pl;
     private final Blacklist blacklist;
     private final Whitelist whitelist;
     private final CustomItems customItems;
@@ -27,22 +27,20 @@ public final class BanDatabase {
     private final Map<UUID, Long> pickupCooldowns = new HashMap<>();
     private final long pickupCooldown;
 
-    public BanDatabase(final BanItem pl, final CommandSender sender) {
-        this.pl = pl;
-        this.customItems = new CustomItems(pl, sender);
-        this.blacklist = new Blacklist(pl, sender, customItems);
-        this.whitelist = new Whitelist(pl, sender, customItems);
-        this.animations = new BanAnimation(pl, sender);
-        pickupCooldown = pl.getConfig().getLong("pickup-message-cooldown", 1000);
+    public BanDatabase(@NotNull final CommandSender sender) {
+        this.customItems = new CustomItems(sender);
+        this.blacklist = new Blacklist(sender, customItems);
+        this.whitelist = new Whitelist(sender, customItems);
+        this.animations = new BanAnimation(sender);
+        pickupCooldown = BanItem.getInstance().getConfig().getLong("pickup-message-cooldown");
     }
 
+    @NotNull
     public Set<BanOption> getBlacklistOptions() {
         final Set<BanOption> options = new HashSet<>();
-        for(Map<Material, Map<BanOption, String>> values : blacklist.values()) {
-            for (Map<BanOption, String> value : values.values()) {
+        for(final Map<Material, Map<BanOption, String>> values : blacklist.values())
+            for (final Map<BanOption, String> value : values.values())
                 options.addAll(value.keySet());
-            }
-        }
         return options;
     }
 
@@ -50,7 +48,7 @@ public final class BanDatabase {
         return !whitelist.isEmpty();
     }
 
-    public boolean isBanned(final Player p, final ItemStack item, final BanOption option) {
+    public boolean isBanned(@NotNull final Player p, @NotNull final ItemStack item, @NotNull final BanOption option) {
         // Variables
         final String w = p.getWorld().getName();
         final String wLower = w.toLowerCase();
@@ -60,8 +58,7 @@ public final class BanDatabase {
         final String customItemName = customItems.getName(bannedItem);
 
         // Checking permission bypass
-        if (p.hasPermission("banitem.bypass." + wLower + "." + itemName + "." + optionName)) return false;
-        if (customItemName != null) if (p.hasPermission("banitem.bypass." + wLower + "." + customItemName + "." + optionName)) return false;
+        if (BanUtils.hasPermission(p, wLower, itemName, customItemName, optionName)) return false;
 
         /* Checking blacklisted */
         final Map<BanOption, String> blacklisted = blacklist.getBanOptions(w, bannedItem);
@@ -70,11 +67,7 @@ public final class BanDatabase {
             // Creative only?
             if (blacklisted.containsKey(BanOption.CREATIVE) && p.getGameMode() != GameMode.CREATIVE) break bl;
             // Delete?
-            if (blacklisted.containsKey(BanOption.DELETE)) Bukkit.getScheduler().runTask(pl, () -> {
-                BanUtils.deleteItemFromInventory(pl, p.getWorld().getName(), p.getInventory());
-                final String message = blacklisted.get(BanOption.DELETE);
-                if (message != null && !message.isEmpty()) p.sendMessage(pl.color(message));
-            });
+            if (blacklisted.containsKey(BanOption.DELETE)) Bukkit.getScheduler().runTask(BanItem.getInstance(), () -> BanUtils.deleteItemFromInventory(p, p.getInventory()));
             // Sending banned message, if exists
             if (blacklisted.containsKey(option)) {
                 sendMessage(p, option, blacklisted.get(option));
@@ -96,7 +89,7 @@ public final class BanDatabase {
         return true;
     }
 
-    public boolean isBanned(final String world, final ItemStack item, final BanOption option) {
+    public boolean isBanned(@NotNull final String world, @NotNull final ItemStack item, @NotNull final BanOption option) {
         final BannedItem bannedItem = new BannedItem(item);
 
         /* Checking blacklisted */
@@ -110,7 +103,7 @@ public final class BanDatabase {
         return options == null || !options.contains(option);
     }
 
-    private void sendMessage(final Player p, final BanOption o, final String m) {
+    private void sendMessage(@NotNull final Player p, @NotNull final BanOption o, @Nullable final String m) {
         // No message set
         if(m == null || m.isEmpty()) return;
         // Checking pick up cooldown, to prevent spam
@@ -137,7 +130,7 @@ public final class BanDatabase {
         customItems.getItemsConfig().save(customItems.getItemsFile());
     }
 
-    public void removeCustomItem(final String customName) throws Exception {
+    public void removeCustomItem(@NotNull final String customName) throws Exception {
         // Removing from map
         customItems.remove(customName);
 
@@ -146,9 +139,24 @@ public final class BanDatabase {
         customItems.getItemsConfig().save(customItems.getItemsFile());
     }
 
-    public Map<UUID, Long> getPickupCooldowns() { return pickupCooldowns; }
-    public CustomItems getCustomItems() { return customItems; }
-    public Blacklist getBlacklist() { return blacklist; }
-    public Whitelist getWhitelist() { return whitelist; }
+    @NotNull
+    public Map<UUID, Long> getPickupCooldowns() {
+        return pickupCooldowns;
+    }
+
+    @NotNull
+    public CustomItems getCustomItems() {
+        return customItems;
+    }
+
+    @NotNull
+    public Blacklist getBlacklist() {
+        return blacklist;
+    }
+
+    @NotNull
+    public Whitelist getWhitelist() {
+        return whitelist;
+    }
 
 }

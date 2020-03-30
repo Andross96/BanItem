@@ -21,7 +21,7 @@ import java.util.Map;
 public class BanItemAPI {
     private final BanItem pl;
 
-    BanItemAPI(final BanItem pl) {
+    BanItemAPI(@NotNull final BanItem pl) {
         this.pl = pl;
     }
 
@@ -32,7 +32,7 @@ public class BanItemAPI {
      */
     @NotNull
     public BanDatabase getDatabase() {
-        return pl.getDb();
+        return pl.getBanDatabase();
     }
 
     /**

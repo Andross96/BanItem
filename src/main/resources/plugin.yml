@@ -1,13 +1,13 @@
 name: BanItem
 main: fr.andross.banitem.BanItem
-version: '1.9.9.1'
+version: '1.9.9.2'
 author: _Andross
 description: Ban item
 api-version: '1.13'
-load: POSTWORLD
 commands:
   banitem:
     description: Banitem command. Show help.
+    permission: banitem.command
     aliases: [bi]
 permissions:
   banitem.bypass.*:

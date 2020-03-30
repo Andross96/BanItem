@@ -6,6 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Commandinfo extends BanCommand {
 
@@ -37,8 +41,14 @@ public class Commandinfo extends BanCommand {
             message("&c[&e&lBanItem&c] &7Material name: &e" + itemName);
             message("&c[&e&lBanItem&c] &7Permission: &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + itemName);
 
-            final String customItemName = pl.getDb().getCustomItems().getName(new BannedItem(item));
+            final String customItemName = pl.getBanDatabase().getCustomItems().getName(new BannedItem(item));
             if (customItemName != null) message("&c[&e&lBanItem&c] &7Custom item name: &e" + customItemName);
         }
+    }
+
+    @Nullable
+    @Override
+    public List<String> runTab() {
+        return new ArrayList<>();
     }
 }

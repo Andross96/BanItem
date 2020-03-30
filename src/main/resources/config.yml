@@ -7,8 +7,16 @@
 # -- General Informations: --
 #   - Blacklist contains list of blocked items
 #   - Whitelist contains list of allowed items only
-#   - Worlds can be written single 'world', multiple 'world, world_the_end', or you can include all worlds with '*'
-#   - Options can be written single 'break', multiple 'break, place' or '*' will include all options (except creative & delete)
+#   - Worlds can be written:
+#     -> single: 'world' ; 'world_the_end'...
+#     -> multiple: 'world, world_the_end'...
+#     -> all: '*'
+#     -> all except: '*, !world_the_end, !world_nether': all worlds, except world_the_end & world_nether
+#   - Options can be written:
+#     -> single: 'place' ; 'break'...
+#     -> multiple: 'place, break', '*, creative'...
+#     -> all: '*' (does NOT include creative & delete)
+#     -> all except: '*, !place' (all, NOT include creative & delete, except place))
 #
 # Blacklist: block ...
 # - place: when the item is placed or used
@@ -17,7 +25,9 @@
 # - drop: when the item is dropped
 # - interact: when the player use right click with main hand on the placed item
 # - click: when the player use left click with the item in the main hand
+# - attack: when the player use left click with the item in the main hand on an entity
 # - inventory: when the player try to take/put the item from/in an inventory
+# - consume: when the player try to consume a food
 # - wear: when the player try to put the item as an armor (you'll need to use also the 'place' option)
 # - swap: when the player try to swap the item in hands
 # - armorstandplace: when the player try to place the item on an armorstand
@@ -36,7 +46,9 @@
 # - drop: drop the item
 # - interact: the player to use right click with main hand on the item (Have to be almost always used, as you first interact with the clicked block)
 # - click: the player to use left click with the item in the main hand
+# - attack: the player to use left click with the item in the main hand on an entity
 # - inventory: the player to take/put the item from/in an inventory
+# - consume: the player to consume a food
 # - wear: the player to put the item as an armor
 # - swap: the player to swap the item in hands
 # - armorstandplace: the player to place the item on an armorstand
@@ -80,8 +92,8 @@ blacklist:
   world_the_end:
     ender_pearl:
       place: '&cYou can not use enderpearls in the end.'
-whitelist:
-  world_the_end:
-    message: '&cYou can only place and break ender stone in the end.'
-    ignored: inventory, pickup, drop, click # those options will be ignored by default
-    end_stone: place, interact, break # allow only place, interacting & breaking ender stone
+#whitelist:
+#  world_the_end:
+#    message: '&cYou can only place and break ender stone in the end.'
+#    ignored: inventory, pickup, drop, click, attack, wear # those options will be ignored by default
+#    end_stone: place, interact, break # allow only place, interacting & breaking ender stone

@@ -4,28 +4,29 @@ import fr.andross.banitem.BanItem;
 import fr.andross.banitem.Utils.BanOption;
 import fr.andross.banitem.Utils.BanUtils;
 import fr.andross.banitem.Utils.BannedItem;
+import fr.andross.banitem.Utils.Chat;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class Whitelist extends HashMap<String, WhitelistWorld> {
 
-    public Whitelist(final BanItem pl, final CommandSender sender, final CustomItems customItems) {
+    public Whitelist(@NotNull final CommandSender sender, @NotNull final CustomItems customItems) {
+        final BanItem pl = BanItem.getInstance();
         // Loading whitelist
         final ConfigurationSection worldsCs = pl.getConfig().getConfigurationSection("whitelist");
-        if(worldsCs == null) return;
+        if (worldsCs == null) return;
 
         for (final String worldKey : worldsCs.getKeys(false)) { // Looping through worlds
             // Checking the world
-            final List<World> worlds = BanUtils.getWorldsFromString(worldKey);
-            if (worlds == null || worlds.isEmpty()) {
-                sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cUnknown world(s) &e" + worldKey + "&c set in whitelist of config.yml"));
-                continue;
-            }
+            final List<World> worlds = BanUtils.getWorldsFromString(sender, false, worldKey);
+            if (worlds.isEmpty()) continue;
 
             // Getting item info
             final ConfigurationSection itemsSection = worldsCs.getConfigurationSection(worldKey);
@@ -37,7 +38,7 @@ public class Whitelist extends HashMap<String, WhitelistWorld> {
                 // Blocked message?
                 if (itemKey.equalsIgnoreCase("message")) {
                     message = itemsSection.getString(itemKey);
-                    if (message != null) message = pl.color(message);
+                    if (message != null) message = Chat.color(message);
                     continue;
                 }
 
@@ -45,8 +46,7 @@ public class Whitelist extends HashMap<String, WhitelistWorld> {
                 if (itemKey.equalsIgnoreCase("ignored")) {
                     final String ignoredOptions = itemsSection.getString(itemKey);
                     if (ignoredOptions == null) continue;
-                    ignored = BanUtils.getBanOptionsFromString(ignoredOptions);
-                    if (ignored == null) sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cUnknown ignored options &e" + itemKey + "&c set for world &e" + worldKey + "&c in whitelist of config.yml"));
+                    ignored = BanUtils.getBanOptionsFromString(sender, false, ignoredOptions, itemKey, worldKey);
                     continue;
                 }
 
@@ -56,7 +56,7 @@ public class Whitelist extends HashMap<String, WhitelistWorld> {
                 if (m == null) {
                     bi = customItems.get(itemKey);
                     if (bi == null) {
-                        sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cUnknown item &e" + itemKey + "&c set for world &e" + worldKey + "&c in whitelist of config.yml"));
+                        sender.sendMessage(Chat.color("&c[&e&lBanItem&c] &cUnknown item &e" + itemKey + "&c set for world &e" + worldKey + "&c in whitelist of config.yml"));
                         continue;
                     }
                 }
@@ -64,28 +64,24 @@ public class Whitelist extends HashMap<String, WhitelistWorld> {
                 // Getting options for the item
                 final String options = itemsSection.getString(itemKey);
                 if (options == null) continue;
-                final List<BanOption> banOptions = BanUtils.getBanOptionsFromString(options);
-                // Incorrect option(s)?
-                if (banOptions == null || banOptions.isEmpty()) {
-                    sender.sendMessage(pl.color("&c[&e&lBanItem&c] &cInvalid options &e" + options + "&c for item &e" + itemKey + "&c set for world &e" + worldKey + "&c in whitelist of config.yml"));
-                    continue;
-                }
+                final List<BanOption> banOptions = BanUtils.getBanOptionsFromString(sender, false, options, itemKey, worldKey);
+                if (banOptions.isEmpty()) continue;
 
                 // Adding into the map
-                if (bi != null) for (World w : worlds) addNewException(w.getName(), message, ignored, bi, banOptions);
-                else for (World w : worlds) addNewException(w.getName(), message, ignored, m, banOptions);
+                if (bi != null) for (final World w : worlds) addNewException(w.getName(), message == null ? null : Chat.color(message), ignored, bi, banOptions);
+                else for (final World w : worlds) addNewException(w.getName(), message == null ? null : Chat.color(message), ignored, m, banOptions);
             }
         }
     }
 
-    public void addNewException(final String world, final String message, final List<BanOption> ignored, final Material m, final List<BanOption> o) {
+    public void addNewException(@NotNull final String world, @Nullable final String message, @Nullable final List<BanOption> ignored, @NotNull final Material m, @NotNull final List<BanOption> o) {
         WhitelistWorld wlw = get(world);
         if (wlw == null) wlw = new WhitelistWorld(message, ignored);
         wlw.addNewEntry(m, o);
         put(world, wlw);
     }
 
-    public void addNewException(final String world, final String message, final List<BanOption> ignored, final BannedItem i, final List<BanOption> o) {
+    public void addNewException(@NotNull final String world, @Nullable final String message, @Nullable final List<BanOption> ignored, @NotNull final BannedItem i, @NotNull final List<BanOption> o) {
         WhitelistWorld wlw = get(world);
         if (wlw == null) wlw = new WhitelistWorld(message, ignored);
         wlw.addNewEntry(i, o);
