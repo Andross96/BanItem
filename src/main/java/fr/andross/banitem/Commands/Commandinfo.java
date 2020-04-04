@@ -1,6 +1,7 @@
 package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
+import fr.andross.banitem.Utils.BanUtils;
 import fr.andross.banitem.Utils.BannedItem;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -33,7 +34,7 @@ public class Commandinfo extends BanCommand {
 
         // Showing item info
         final Player p = (Player) sender;
-        final ItemStack item = pl.isv9OrMore() ? p.getInventory().getItemInMainHand() : p.getInventory().getItemInHand();
+        final ItemStack item = BanUtils.v9OrMore ? p.getInventory().getItemInMainHand() : p.getInventory().getItemInHand();
         if (item.getType() == Material.AIR) {
             message("&c[&e&lBanItem&c] &cYou must have a valid item in your hand.");
         } else {

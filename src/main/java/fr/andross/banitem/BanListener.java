@@ -59,7 +59,7 @@ public class BanListener {
         if (blacklist.contains(BanOption.INTERACT) || whitelist) {
             pl.getServer().getPluginManager().registerEvent(PlayerInteractEvent.class, l, ep, (li, e) -> {
                 final PlayerInteractEvent event = (PlayerInteractEvent) e;
-                if (pl.isv9OrMore() && event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) return;
+                if (BanUtils.v9OrMore && event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) return;
                 if (event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK)
                     if (db.isBanned(event.getPlayer(), new ItemStack(event.getClickedBlock().getType()), BanOption.INTERACT)) event.setCancelled(true);
             }, pl, true);
@@ -83,7 +83,7 @@ public class BanListener {
 
                 final EntityEquipment eq = damager.getEquipment();
                 if (eq == null) return;
-                final ItemStack item = pl.isv9OrMore() ? eq.getItemInMainHand() : eq.getItemInHand();
+                final ItemStack item = BanUtils.v9OrMore ? eq.getItemInMainHand() : eq.getItemInHand();
                 if (BanUtils.isNullOrAir(item)) return;
 
                 if (db.isBanned(damager, item, BanOption.ATTACK)) event.setCancelled(true);
@@ -135,7 +135,7 @@ public class BanListener {
         }
 
         if (blacklist.contains(BanOption.SWAP) || whitelist) {
-            if (!pl.isv9OrMore()) pl.getLogger().warning("Can not use the 'swap' option in Minecraft < 1.9");
+            if (!BanUtils.v9OrMore) pl.getLogger().warning("Can not use the 'swap' option in Minecraft < 1.9");
             else {
                 pl.getServer().getPluginManager().registerEvent(org.bukkit.event.player.PlayerSwapHandItemsEvent.class, l, ep, (li, e) -> {
                     final org.bukkit.event.player.PlayerSwapHandItemsEvent event = (org.bukkit.event.player.PlayerSwapHandItemsEvent) e;
@@ -163,21 +163,21 @@ public class BanListener {
         }
 
         if (blacklist.contains(BanOption.ARMORSTANDPLACE) || whitelist) {
-            if (!pl.isv8OrMore()) pl.getLogger().warning("Can not use the 'armorstandplace' option in Minecraft < 1.8");
+            if (!BanUtils.v8OrMore) pl.getLogger().warning("Can not use the 'armorstandplace' option in Minecraft < 1.8");
             else
                 pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, l, ep, (li, e) -> {
                     final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
-                    if (BanUtils.isNullOrAir(event.getPlayerItem()) || event.getPlayerItem().getType()  == Material.AIR) return;
+                    if (BanUtils.isNullOrAir(event.getPlayerItem()) || event.getPlayerItem().getType() == Material.AIR) return;
                     if (db.isBanned(event.getPlayer(), event.getPlayerItem(), BanOption.ARMORSTANDPLACE)) event.setCancelled(true);
                 }, pl, true);
         }
 
         if (blacklist.contains(BanOption.ARMORSTANDTAKE) || whitelist) {
-            if (!pl.isv8OrMore()) pl.getLogger().warning("Can not use the 'armorstandtake' option in Minecraft < 1.8");
+            if (!BanUtils.v8OrMore) pl.getLogger().warning("Can not use the 'armorstandtake' option in Minecraft < 1.8");
             else
                 pl.getServer().getPluginManager().registerEvent(PlayerArmorStandManipulateEvent.class, new Listener() {}, ep, (li, e) -> {
                     final PlayerArmorStandManipulateEvent event = (PlayerArmorStandManipulateEvent) e;
-                    if (BanUtils.isNullOrAir(event.getPlayerItem()) || event.getArmorStandItem().getType()  == Material.AIR) return;
+                    if (BanUtils.isNullOrAir(event.getPlayerItem()) || event.getArmorStandItem().getType() == Material.AIR) return;
                     if (db.isBanned(event.getPlayer(), event.getArmorStandItem(), BanOption.ARMORSTANDTAKE))
                         event.setCancelled(true);
                 }, pl, true);
@@ -215,7 +215,7 @@ public class BanListener {
             // <1.12: PlayerPickupItemEvent
             final EventExecutor ee;
             final Class<? extends Event> c;
-            if (pl.isv12OrMore()) {
+            if (BanUtils.v12OrMore) {
                 c = org.bukkit.event.entity.EntityPickupItemEvent.class;
                 ee = (li, e) -> {
                     final org.bukkit.event.entity.EntityPickupItemEvent event = (org.bukkit.event.entity.EntityPickupItemEvent) e;

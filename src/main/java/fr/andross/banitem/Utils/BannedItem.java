@@ -19,6 +19,10 @@ public final class BannedItem {
         this.data = item.getData();
     }
 
+    public Material getType() {
+        return m;
+    }
+
     public ItemStack toItemStack() {
         final ItemStack item = new ItemStack(m);
         if (meta != null) item.setItemMeta(meta);
@@ -26,20 +30,16 @@ public final class BannedItem {
         return item;
     }
 
-    public Material getType() {
-        return m;
-    }
-
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BannedItem that = (BannedItem) o;
-        return m == that.m && Objects.equals(meta, that.meta) && Objects.equals(data, that.data);
+        final BannedItem that = (BannedItem) o;
+        return m == that.m && Objects.equals(meta, that.meta) && (BanUtils.v13OrMore || Objects.equals(data, that.data));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(m, meta, data);
+        return BanUtils.v13OrMore ? Objects.hash(m, meta) : Objects.hash(m, meta, data);
     }
 }

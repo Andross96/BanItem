@@ -1,6 +1,7 @@
 package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
+import fr.andross.banitem.Utils.BanUtils;
 import fr.andross.banitem.Utils.BannedItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -52,7 +53,7 @@ public class Commandcustomitem extends BanCommand {
 
                 // Checking variables
                 final String customName = args[2];
-                final ItemStack customItem = pl.isv9OrMore() ? ((Player)sender).getInventory().getItemInMainHand() : ((Player)sender).getInventory().getItemInHand();
+                final ItemStack customItem = BanUtils.v9OrMore ? ((Player)sender).getInventory().getItemInMainHand() : ((Player)sender).getInventory().getItemInHand();
                 if (customItem.getType() == Material.AIR) {
                     message("&c[&e&lBanItem&c] &cYou must have a valid item in your hand.");
                     return;

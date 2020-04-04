@@ -1,3 +1,6 @@
+v1.9.9.3:
+  - Fixed custom items persistence (not recognized anymore after reload) for Minecraft 1.13+
+--------------------------------------------
 v1.9.9.2:
   - Added new option attack: can not attack an entity with the item;
   - Added new option consume: can not consume the food item;

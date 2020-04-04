@@ -34,7 +34,7 @@ public class BanAnimation {
         }
         // Particle
         final boolean particleEnabled = pl.getConfig().getBoolean("particle.enabled");
-        if (particleEnabled && pl.isv9OrMore()) {
+        if (particleEnabled && BanUtils.v9OrMore) {
             try {
                 particle = Particle.valueOf(pl.getConfig().getString("particle.type"));
                 amount = pl.getConfig().getInt("particle.amount");

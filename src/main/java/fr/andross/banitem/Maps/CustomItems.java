@@ -38,7 +38,7 @@ public class CustomItems extends HashMap<String, BannedItem> {
         itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
         for (final String key : itemsConfig.getKeys(false)) {
             try {
-                final ItemStack itemStack = itemsConfig.getItemStack(key);
+                final ItemStack itemStack = (ItemStack) itemsConfig.get(key);
                 if (itemStack == null) throw new Exception();
                 put(key, new BannedItem(itemStack));
             } catch (final Exception e) {

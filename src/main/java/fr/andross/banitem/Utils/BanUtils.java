@@ -19,6 +19,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class BanUtils {
+    // Checking Bukkit version
+    // Totally removed MaterialData from ItemStacks
+    public static final boolean v13OrMore = Bukkit.getBukkitVersion().matches("(1\\.13)(.*)|(1\\.14)(.*)|(1\\.15)(.*)");
+    // Implemented EntityPickupItemEvent
+    public static final boolean v12OrMore = v13OrMore || Bukkit.getBukkitVersion().matches("(1\\.12)(.*)");
+    // Implemented OFF Hand
+    public static final boolean v9OrMore = v12OrMore || Bukkit.getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)");
+    // Armor stand compatibility
+    public static final boolean v8OrMore = v9OrMore || Bukkit.getBukkitVersion().matches("(1\\.8)(.*)");
+
     private static final List<BanOption> allOptions = Arrays.stream(BanOption.values()).filter(o -> o != BanOption.CREATIVE && o != BanOption.DELETE).collect(Collectors.toList());
 
     @NotNull

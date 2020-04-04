@@ -1,6 +1,6 @@
 name: BanItem
 main: fr.andross.banitem.BanItem
-version: '1.9.9.2'
+version: '1.9.9.3'
 author: _Andross
 description: Ban item
 api-version: '1.13'
