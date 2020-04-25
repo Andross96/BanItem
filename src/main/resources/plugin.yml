@@ -1,22 +1,24 @@
 name: BanItem
 main: fr.andross.banitem.BanItem
-version: '1.9.9.3'
-author: _Andross
+version: '2.0'
+author: Andross
 description: Ban item
 api-version: '1.13'
 commands:
   banitem:
     description: Banitem command. Show help.
-    permission: banitem.command
+    permission: banitem.command.help
     aliases: [bi]
 permissions:
   banitem.bypass.*:
     description: bypass the ban item in all worlds
-  banitem.command.*:
+  banitem.command:
     description: use /banitem command.
     children:
+      banitem.command.add: true
       banitem.command.check: true
       banitem.command.customitem: true
       banitem.command.help: true
+      banitem.command.log: true
       banitem.command.info: true
       banitem.command.reload: true

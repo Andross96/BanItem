@@ -1,3 +1,35 @@
+v2.0:
+  - New option brew: when the item is brewed into a brewing stand;
+  - New option drops: remove item drop from a breaked block;
+  - New option entitydrop: when the item is dropped by an entity;
+  - New option glide: when trying to glide with an elytra;
+  - New option hangingplace: when a player try to place a hanging item (itemframe, painting...);
+  - Option 'inventory' renamed to transfer, optimized & fixed: can not transfer an item from an inventory to another;
+  - Option wear optimized & fixed. Now also automatically give the item back (in inventory, or drop it if full) if a player already wear an item & change the world;
+  - Creative option is now part of ban data gamemode;
+  -Added options data:
+    - Can now check multiples datas depending of the option (entity involved, inventory used, player gamemode etc.)
+    - Added a 'gamemode' data, which will consider the player gamemode to apply the ban or not
+    - Added a 'log' boolean data, which allows players in game to be directly notified if player use a banned item, with /banitem log
+    - Added a 'cooldown' (in milliseconds) long data (non persistent), the ban only applies if players aren't in cooldown
+  - New in configuration:
+    - Better debug: displays a more detailled debug message, if something is not loaded well;
+    - Hopper transfer block: if it's enabled and if an item has transfer option, this will be blocked;
+    - Use the event api: to let others plugins modify the behavior of a banned action
+    - You can now set multiples ban messages (using a list)
+  - Commands improved, commented & added new ones:
+    - /banitem log: activate the live log mode, sending message (of banned items with 'log: true') to them;
+    - /banitem add <name> <options> [message]: to directly ban in game an item (type, without metadata);
+    - /banitem ci add <name> [options] [message]: to directly ban in game an item (with metadata);
+    - /banitem help <type>: give some informations about a specific type (option? entity? etc.);
+  - Materials now also supports '*' & '!' operators, and correctly support AIR (player empty hand)
+  - Fixed & optimized whitelist;
+  - Fixed rare exceptions where custom items aren't banned;
+  - Fixed custom items;
+  - Fixed command permissions;
+  - Fixed display of custom items permissions in /banitem info;
+  - Recoded & optimized large part of the code;
+  - Recoded & optimized API. New PlayerBanItemEvent. Every class is now documented.
 v1.9.9.3:
   - Fixed custom items persistence (not recognized anymore after reload) for Minecraft 1.13+
 --------------------------------------------

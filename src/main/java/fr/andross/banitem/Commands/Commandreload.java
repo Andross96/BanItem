@@ -7,6 +7,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Sub command reload
+ * @version 2.0
+ * @author Andross
+ */
 public class Commandreload extends BanCommand {
 
     public Commandreload(final BanItem pl, final CommandSender sender, final String[] args) {
@@ -21,7 +26,8 @@ public class Commandreload extends BanCommand {
             return;
         }
 
-        pl.load(sender);
+        header("&6&lReload");
+        pl.getApi().load(sender, null);
     }
 
     @Nullable

@@ -1,17 +1,25 @@
 package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.Utils.BanOption;
-import fr.andross.banitem.Utils.BannedItem;
+import fr.andross.banitem.Options.BanOption;
+import fr.andross.banitem.Options.BanOptionData;
+import fr.andross.banitem.Utils.Ban.BannedItem;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
+/**
+ * Sub command check
+ * @version 2.0
+ * @author Andross
+ */
 public class Commandcheck extends BanCommand {
 
     public Commandcheck(final BanItem pl, final CommandSender sender, final String[] args) {
@@ -28,47 +36,25 @@ public class Commandcheck extends BanCommand {
 
         // Checking...
         final boolean delete = args.length > 1 && args[1].equalsIgnoreCase("delete");
-        final Set<String> players = new HashSet<>();
-        for (String world : pl.getBanDatabase().getBlacklist().keySet()) {
-            final Map<Material, Map<BanOption, String>> map = pl.getBanDatabase().getBlacklist().get(world);
-            final Map<BannedItem, Map<BanOption, String>> customMap = pl.getBanDatabase().getBlacklist().getCustomItems(world);
-            for (final Player p : pl.getServer().getOnlinePlayers()) {
-                // Normal items
-                if (map != null) {
-                    for (final Material bannedItem : map.keySet()) {
-                        if (!p.getWorld().getName().equalsIgnoreCase(world)) continue;
-                        if (!p.getInventory().contains(bannedItem)) continue;
-                        players.add(p.getName());
-                        // Removing
-                        if (delete) {
-                            final PlayerInventory inv = p.getInventory();
-                            int size = inv.getSize();
-                            for (int slot = 0; slot < size; slot++) {
-                                final ItemStack is = inv.getItem(slot);
-                                if (is == null) continue;
-                                if (is.getType() == bannedItem) inv.clear(slot);
-                            }
-                        }
-                    }
-                }
-                // Custom items
-                if (customMap != null) {
-                    for (final BannedItem bannedItem : customMap.keySet()) {
-                        final ItemStack item = bannedItem.toItemStack();
-                        if (!p.getWorld().getName().equalsIgnoreCase(world)) continue;
-                        if (!p.getInventory().containsAtLeast(item, 1)) continue;
-                        players.add(p.getName());
-                        // Removing
-                        if (delete) {
-                            final PlayerInventory inv = p.getInventory();
-                            int size = inv.getSize();
-                            for (int slot = 0; slot < size; slot++) {
-                                final ItemStack is = inv.getItem(slot);
-                                if (is == null) continue;
-                                final BannedItem bannedItemStack = new BannedItem(is);
-                                if (bannedItem.equals(bannedItemStack)) inv.clear(slot);
-                            }
-                        }
+        final List<String> players = new ArrayList<>();
+        for (final Player p : pl.getServer().getOnlinePlayers()) {
+            final Map<BannedItem, Map<BanOption, BanOptionData>> map = pl.getBanDatabase().getBlacklist().get(p.getWorld());
+            if (map == null) continue; // nothing banned in this world
+            for (final BannedItem bannedItem : map.keySet()) {
+                // Has banned item?
+                final ItemStack itemStack = bannedItem.toItemStack();
+                if (!p.getInventory().containsAtLeast(itemStack, 1)) continue;
+                players.add(p.getName());
+
+                // Removing?
+                if (delete) {
+                    final PlayerInventory inv = p.getInventory();
+                    int size = inv.getSize();
+                    for (int slot = 0; slot < size; slot++) {
+                        final ItemStack is = inv.getItem(slot);
+                        if (pl.getUtils().isNullOrAir(is)) continue;
+                        final BannedItem bannedItemStack = new BannedItem(is);
+                        if (bannedItem.equals(bannedItemStack)) inv.clear(slot);
                     }
                 }
             }
@@ -76,18 +62,17 @@ public class Commandcheck extends BanCommand {
 
         // Showing list
         if (players.isEmpty()) {
-            message("&c[&e&lBanItem&c] &eFound &20&e player with blacklisted item(s) in inventory.");
+            header("&6&lCheck");
+            message("&7No player with blacklisted item in inventory found.");
             return;
         }
 
-        if (delete) {
-            message("&c[&e&lBanItem&c] &7&oSuccessfully removed banned items to &e&o" + players.size() + "&7&o players.");
-            return;
-        }
-        final StringBuilder list = new StringBuilder();
-        for (String player : players) list.append(ChatColor.GOLD).append(player).append(ChatColor.GRAY).append(", ");
-        message("&c[&e&lBanItem&c] &eFound &2" + players.size() + "&e player(s) with blacklisted item(s) in inventory: ");
-        message(list.toString().substring(0, list.toString().length() - 2) + "&7.");
+        final StringJoiner joiner = new StringJoiner(",", "", "&7.");
+        for (final String player : players) joiner.add(ChatColor.GOLD + player + ChatColor.GRAY);
+        header("&6&lCheck");
+        message("&7Found &2" + players.size() + "&7 player(s):");
+        message(joiner.toString());
+        if (delete) message("&7&oSuccessfully removed banned items from &e&o" + players.size() + "&7&o players.");
     }
 
     @Override

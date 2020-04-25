@@ -1,7 +1,0 @@
-my_custom_potion:
-  ==: org.bukkit.inventory.ItemStack
-  type: POTION
-  meta:
-    ==: ItemMeta
-    meta-type: POTION
-    potion-type: minecraft:swiftness
