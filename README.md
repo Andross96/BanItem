@@ -1,5 +1,5 @@
 # BanItem
-BanItem is a simple lightweight per world ban item, fully configurable.
+BanItem is a simple lightweight & powerful per world ban item, fully configurable.
 
 # Links
 * [Spigot thread](https://www.spigotmc.org/resources/banitem.67701/) / [Bukkit thread](https://dev.bukkit.org/projects/banitem-reloaded)
@@ -18,7 +18,7 @@ BanItem is a simple lightweight per world ban item, fully configurable.
   <dependency>
     <groupId>fr.andross</groupId>
     <artifactId>BanItem</artifactId>
-    <version>1.9.9.2</version>
+    <version>2.0</version>
     <scope>provided</scope>
   </dependency>
 </dependencies>
