@@ -10,7 +10,7 @@ BanItem is a simple lightweight & powerful per world ban item, fully configurabl
 <repositories>
   <repository>
     <id>andross-repo</id>
-    <url>https://repo.andross.fr/</url>
+    <url>http://repo.andross.fr/</url>
   </repository>
 </repositories>
 
