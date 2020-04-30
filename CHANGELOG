@@ -1,3 +1,9 @@
+v2.0.1:
+  - Fixed info command;
+  - Fixed check command;
+  - Fixed drops option (FurnaceExtractEvent error);
+  - Fixed <1.8 rare exception;
+--------------------------------------------
 v2.0:
   - New option brew: when the item is brewed into a brewing stand;
   - New option drops: remove item drop from a breaked block;

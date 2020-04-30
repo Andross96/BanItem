@@ -1,6 +1,7 @@
 package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
+import fr.andross.banitem.Database.Blacklist;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
 import fr.andross.banitem.Utils.Ban.BannedItem;
@@ -10,14 +11,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * Sub command check
- * @version 2.0
+ * @version 2.0.1
  * @author Andross
  */
 public class Commandcheck extends BanCommand {
@@ -36,26 +34,20 @@ public class Commandcheck extends BanCommand {
 
         // Checking...
         final boolean delete = args.length > 1 && args[1].equalsIgnoreCase("delete");
-        final List<String> players = new ArrayList<>();
+        final Set<String> players = new HashSet<>();
+        final Blacklist blacklist = pl.getBanDatabase().getBlacklist();
         for (final Player p : pl.getServer().getOnlinePlayers()) {
-            final Map<BannedItem, Map<BanOption, BanOptionData>> map = pl.getBanDatabase().getBlacklist().get(p.getWorld());
+            final Map<BannedItem, Map<BanOption, BanOptionData>> map = blacklist.get(p.getWorld());
             if (map == null) continue; // nothing banned in this world
-            for (final BannedItem bannedItem : map.keySet()) {
-                // Has banned item?
-                final ItemStack itemStack = bannedItem.toItemStack();
-                if (!p.getInventory().containsAtLeast(itemStack, 1)) continue;
-                players.add(p.getName());
 
-                // Removing?
-                if (delete) {
-                    final PlayerInventory inv = p.getInventory();
-                    int size = inv.getSize();
-                    for (int slot = 0; slot < size; slot++) {
-                        final ItemStack is = inv.getItem(slot);
-                        if (pl.getUtils().isNullOrAir(is)) continue;
-                        final BannedItem bannedItemStack = new BannedItem(is);
-                        if (bannedItem.equals(bannedItemStack)) inv.clear(slot);
-                    }
+            // Checking player inventory
+            final PlayerInventory inv = p.getInventory();
+            for (int i = 0; i < inv.getSize(); i++) {
+                final ItemStack item = inv.getItem(i);
+                if (pl.getUtils().isNullOrAir(item)) continue;
+                if (map.containsKey(new BannedItem(item)) || map.containsKey(new BannedItem(item, false))) {
+                    if (delete) inv.clear(i);
+                    players.add(p.getName());
                 }
             }
         }

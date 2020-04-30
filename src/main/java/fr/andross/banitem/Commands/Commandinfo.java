@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Sub command info
- * @version 2.0
+ * @version 2.0.1
  * @author Andross
  */
 public class Commandinfo extends BanCommand {
@@ -44,7 +44,8 @@ public class Commandinfo extends BanCommand {
         final String customItemName = pl.getBanDatabase().getCustomItems().getName(new BannedItem(item));
         message("&7Material name: &e" + itemName);
         if (customItemName != null) message("&7Custom item name: &e" + customItemName);
-        message("&7Permission: &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + (customItemName != null ? customItemName.toLowerCase() : itemName));
+        message("&7Permission: ");
+        message(" &7>> &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + (customItemName != null ? customItemName.toLowerCase() : itemName) + ".option.*");
     }
 
     @Nullable

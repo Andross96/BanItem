@@ -59,7 +59,7 @@
 #    - BREW: when the item (potion) is brewed inside a brewing stand [no specific data]
 #    - CLICK: when the player use left click with the item in the main hand
 #      -> Special data: material - the block clicked, if there is one
-#    - CONSME: when the player try to consume a food [no specific data]
+#    - CONSUME: when the player try to consume a food [no specific data]
 #    - CRAFT: the item will not be craftable anymore [no specific data]
 #    - DELETE: when a player open & close an inventory, it will check and delete items which have this option [no specific data]
 #    - DISPENSE: when an item is dispensed from a block [no specific data]

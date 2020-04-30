@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 2.0
+ * @version 2.0.1
  * @author Andross
  */
 public final class BanUtils extends Listable {
@@ -168,7 +168,7 @@ public final class BanUtils extends Listable {
      * @param player any player
      * @param invs inventories
      */
-    public void deleteItemFromInventory(@NotNull final HumanEntity player, @NotNull final Inventory... invs) {
+    public void deleteItemFromInventory(@NotNull final Player player, @NotNull final Inventory... invs) {
         // Op or all permissions?
         if (player.isOp() || player.hasPermission("banitem.bypass.*")) return;
 
@@ -215,12 +215,12 @@ public final class BanUtils extends Listable {
     /**
      * This method is used to send a ban message to player, if exists.
      * Mainly used for blacklist
-     * @param player send the message to {@link HumanEntity}
+     * @param player send the message to {@link Player}
      * @param itemName name of the item
      * @param option the ban option <i>(used for log)</i>
      * @param data the ban data <i>(containing the messages)</i>
      */
-    public void sendMessage(@NotNull final HumanEntity player, @NotNull final String itemName, @NotNull final BanOption option, @Nullable final BanOptionData data) {
+    public void sendMessage(@NotNull final Player player, @NotNull final String itemName, @NotNull final BanOption option, @Nullable final BanOptionData data) {
         if (data == null) return; // no message neither log
 
         // Checking pick up cooldown, to prevent spam
@@ -258,7 +258,7 @@ public final class BanUtils extends Listable {
 
         // Sending message & animation
         message.forEach(player::sendMessage);
-        if (player instanceof Player) pl.getBanConfig().getAnimation().runAnimation((Player) player);
+        pl.getBanConfig().getAnimation().runAnimation((Player) player);
     }
 
     /**

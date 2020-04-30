@@ -36,7 +36,7 @@ import java.util.Set;
  * <p>This class is used to register only the needed listeners.
  * {@link BanListener#loadListeners()} should be called everytimes that a option is added/removed
  * into a map <i>(blacklist or whitelist)</i></p>
- * @version 2.0
+ * @version 2.0.1
  * @author Andross
  */
 public final class BanListener {
@@ -170,11 +170,11 @@ public final class BanListener {
         if (blacklist.contains(BanOption.DELETE)) {
             pm.registerEvent(InventoryOpenEvent.class, listener, ep, (ll, event) -> {
                 final InventoryOpenEvent e = (InventoryOpenEvent) event;
-                utils.deleteItemFromInventory(e.getPlayer(), e.getView().getTopInventory(), e.getView().getBottomInventory());
+                utils.deleteItemFromInventory(((Player) e.getPlayer()), e.getView().getTopInventory(), e.getView().getBottomInventory());
             }, pl);
             pm.registerEvent(InventoryCloseEvent.class, listener, ep, (ll, event) -> {
                 final InventoryCloseEvent e = (InventoryCloseEvent) event;
-                utils.deleteItemFromInventory(e.getPlayer(), e.getView().getTopInventory(), e.getView().getBottomInventory());
+                utils.deleteItemFromInventory(((Player) e.getPlayer()), e.getView().getTopInventory(), e.getView().getBottomInventory());
             }, pl);
         }
 
@@ -194,6 +194,7 @@ public final class BanListener {
 
         if (blacklist.contains(BanOption.DROPS) || whitelist) {
             pm.registerEvent(BlockBreakEvent.class, listener, ep, (li, event) -> {
+                if (!(event instanceof BlockBreakEvent)) return; // also called for FurnaceExtractEvent...
                 final BlockBreakEvent e = (BlockBreakEvent) event;
                 final ItemStack itemInHand = utils.getItemInHand(e.getPlayer());
                 if (e.getBlock().getDrops(itemInHand).stream().anyMatch(item -> api.isBanned(e.getPlayer(), item, BanOption.DROPS, new BanData(BanDataType.MATERIAL, itemInHand.getType()))))
