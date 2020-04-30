@@ -7,21 +7,17 @@ BanItem is a simple lightweight & powerful per world ban item, fully configurabl
 
 # Developer API
 ```xml
-<repositories>
   <repository>
     <id>andross-repo</id>
-    <url>https://repo.andross.fr/</url>
+    <url>http://repo.andross.fr/</url>
   </repository>
-</repositories>
 
-<dependencies>
   <dependency>
     <groupId>fr.andross</groupId>
     <artifactId>BanItem</artifactId>
     <version>2.0</version>
     <scope>provided</scope>
   </dependency>
-</dependencies>
 ```
 
 For any questions/suggestions: PM me on spigot or on discord (Andross#5254).
