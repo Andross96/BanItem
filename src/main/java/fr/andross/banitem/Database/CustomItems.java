@@ -1,7 +1,7 @@
 package fr.andross.banitem.Database;
 
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.Utils.Ban.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

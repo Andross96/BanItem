@@ -2,13 +2,16 @@ package fr.andross.banitem.Utils.Debug;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.Options.BanOption;
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.Item.MetaType;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * A debug class, which can handle and display the nodes
  * Mainly used when loading the plugin, to display any error
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public final class Debug implements Cloneable {
@@ -138,6 +141,22 @@ public final class Debug implements Cloneable {
                         case INVENTORY: {
                             messages.add("&7This inventory type is unknown. Valid inventory types:");
                             messages.add("&7>> " + Arrays.stream(InventoryType.values()).map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            continue;
+                        }
+                        case METADATA: {
+                            messages.add("&7This metadata is unknown. Valid metadatas:");
+                            messages.add("&7>> " + Arrays.stream(MetaType.values()).map(MetaType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            continue;
+                        }
+                        case METADATA_ENCHANTMENT: {
+                            messages.add("&7This enchantment is unknown. The synthax is Enchantment:Level");
+                            messages.add("&7Valid enchantments:");
+                            messages.add("&7>> " + Arrays.stream(Enchantment.values()).map(Enchantment::getName).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            continue;
+                        }
+                        case METADATA_POTION: {
+                            messages.add("&7This potion is unknown. Valid potions:");
+                            messages.add("&7>> " + Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).map(String::toLowerCase).collect(Collectors.joining(",")));
                             continue;
                         }
                     }

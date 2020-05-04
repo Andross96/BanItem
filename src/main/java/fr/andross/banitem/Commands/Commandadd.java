@@ -1,13 +1,12 @@
 package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.BanListener;
 import fr.andross.banitem.Options.BanDataType;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BanVersion;
-import fr.andross.banitem.Utils.Ban.BannedItem;
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.BanVersion;
+import fr.andross.banitem.Utils.Item.BannedItem;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -81,7 +80,7 @@ public class Commandadd extends BanCommand {
         for (final BanOption bo : options) optionsData.put(bo, optionData);
 
         pl.getApi().addToBlacklist(new BannedItem(item, false), optionsData, p.getWorld());
-        BanListener.loadListeners();
+        pl.getListener().load(sender);
         header("&6&lAdd");
         message("&2The item '&a" + item.getType().name().toLowerCase() + "&2' is now successfully banned for world &a" + p.getWorld().getName() + "&2.");
         message("&7&oNote that you surely have the bypass permission, so the ban may not apply to you!");

@@ -1,4 +1,4 @@
-package fr.andross.banitem.Utils.Ban;
+package fr.andross.banitem.Utils;
 
 import fr.andross.banitem.BanUtils;
 import org.bukkit.Particle;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Animation class
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public final class BanAnimation {

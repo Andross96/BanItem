@@ -3,7 +3,7 @@ package fr.andross.banitem.Events;
 import fr.andross.banitem.Options.BanData;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;

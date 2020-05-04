@@ -1,3 +1,10 @@
+v2.1:
+  - Added metadata ban data -> ban items only if they have a custom metadata (durability, displayname, lore, enchantment...);
+  - Entitydrop option now correctly support the player bypass permission;
+  - Optimized check command;
+  - Optimized blacklist & whitelist map;
+  - Fixed left hand utilisation;
+--------------------------------------------
 v2.0.1:
   - Fixed info command;
   - Fixed check command;

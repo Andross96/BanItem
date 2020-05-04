@@ -1,10 +1,11 @@
 package fr.andross.banitem.Options;
 
+import fr.andross.banitem.Utils.Item.BannedItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple enum indicating what kind of data is used
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public enum BanDataType {
@@ -13,6 +14,12 @@ public enum BanDataType {
      * Used to check if the banned item has a cooldown
      */
     COOLDOWN("cooldown"),
+
+    /**
+     * Type: {@link BannedItemMeta}
+     * Used to check the item metadata
+     */
+    METADATA("metadata"),
 
     /**
      * Type: Set of EntityType {@link org.bukkit.entity.EntityType}

@@ -1,13 +1,12 @@
 package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.BanListener;
 import fr.andross.banitem.Options.BanDataType;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BanVersion;
-import fr.andross.banitem.Utils.Ban.BannedItem;
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.BanVersion;
+import fr.andross.banitem.Utils.Item.BannedItem;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command custom item
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public class Commandcustomitem extends BanCommand {
@@ -131,7 +130,7 @@ public class Commandcustomitem extends BanCommand {
 
                 // Adding in blacklist
                 pl.getApi().addToBlacklist(new BannedItem(item, true), optionsData, p.getWorld());
-                BanListener.loadListeners();
+                pl.getListener().load(sender);
                 message("&2This item '&a" + name + "&2' is now successfully banned for world &a" + p.getWorld().getName() + "&2.");
                 message("&7&oNote that you surely have the bypass permission, so the ban may not apply to you!");
                 return;
@@ -190,7 +189,7 @@ public class Commandcustomitem extends BanCommand {
                 header("&6&lCustomItems - Remove");
                 try {
                     pl.getBanDatabase().removeCustomItem(customName);
-                    BanListener.loadListeners();
+                    pl.getListener().load(sender);
                     message("&2Custom item &e" + customName + "&2 removed.");
                 } catch (Exception e) {
                     e.printStackTrace();

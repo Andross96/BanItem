@@ -1,5 +1,6 @@
-package fr.andross.banitem.Utils.Ban;
+package fr.andross.banitem.Utils.Item;
 
+import fr.andross.banitem.Utils.BanVersion;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;

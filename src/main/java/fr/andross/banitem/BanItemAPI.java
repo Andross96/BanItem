@@ -7,7 +7,7 @@ import fr.andross.banitem.Database.WhitelistedWorld;
 import fr.andross.banitem.Options.BanData;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -29,9 +29,9 @@ import java.util.Map;
  * <p>This api is loaded on next tick after server load, to allow other custom worlds plugins to load worlds.
  * So this API is <u>not</u> available on server load, but will be on next available tick!</p>
  * <p>If you add/remove any option from a map <i>(blacklist/whitelist)</i>, you have to reload the plugin listeners
- * so it can handle correctly the options, using {@link BanListener#loadListeners()}</p>
+ * so it can handle correctly the options, using {@link BanListener#load(CommandSender)} ()}</p>
  * @author Andross
- * @version 2.0
+ * @version 2.1
  */
 public class BanItemAPI {
     private static BanItemAPI instance;

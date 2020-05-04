@@ -1,9 +1,11 @@
 package fr.andross.banitem.Options;
 
+import fr.andross.banitem.Utils.Item.BannedItemMeta;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +16,7 @@ import java.util.*;
  * Example: the messages, if the option should be logged, any item...
  * The data type is written as description in {@link BanDataType} description.
  * I've also included some clear api methods to get them, at the bottom.
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public final class BanOptionData extends HashMap<BanDataType, Object> {
@@ -51,6 +53,16 @@ public final class BanOptionData extends HashMap<BanDataType, Object> {
         if (data == null) return true;
         final Set<Object> s = getData(data.getType());
         return s == null || s.contains(data.getObject());
+    }
+
+    /**
+     * Trying to check if the item meta matches
+     * @param item the item stack to compare
+     * @return true if the item meta matches, otherwise false
+     */
+    public boolean matches(@NotNull final ItemStack item) {
+        if (!containsKey(BanDataType.METADATA)) return true;
+        return ((BannedItemMeta) get(BanDataType.METADATA)).matches(item);
     }
 
     /**
@@ -98,6 +110,15 @@ public final class BanOptionData extends HashMap<BanDataType, Object> {
      */
     public long getCooldown() {
         return (long) getOrDefault(BanDataType.COOLDOWN, 0L);
+    }
+
+    /**
+     * Trying to get a {@link BannedItemMeta} object, to compare item metas
+     * @return the banned item meta, null if there is none added
+     */
+    @Nullable
+    public BannedItemMeta getMetadata() {
+        return getData(BanDataType.METADATA);
     }
 
     /**

@@ -1,11 +1,11 @@
-package fr.andross.banitem.Utils.Ban;
+package fr.andross.banitem.Utils;
 
 import org.bukkit.Bukkit;
 
 /**
  * Class that contains some notable versions nodes, so the plugin can handle well multiple versions
  * Those variables are used to check versions compatibility
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public final class BanVersion {
@@ -20,7 +20,7 @@ public final class BanVersion {
     public static final boolean v12OrMore = v13OrMore || Bukkit.getBukkitVersion().matches("(1\\.12)(.*)");
 
     /**
-     * In 1.9+, the off hand have been added
+     * In 1.9+, the off hand have been added. Also added PotionMeta#getBasePotionData()
      */
     public static final boolean v9OrMore = v12OrMore || Bukkit.getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)");
 

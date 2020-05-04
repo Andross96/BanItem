@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Main plugin class
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public class BanItem extends JavaPlugin {
@@ -24,6 +24,7 @@ public class BanItem extends JavaPlugin {
     private BanConfig banConfig;
     private BanDatabase banDatabase;
     private final BanUtils utils = new BanUtils(this);
+    private final BanListener listener = new BanListener(this);
 
     @Override
     public void onEnable() {
@@ -45,13 +46,13 @@ public class BanItem extends JavaPlugin {
             reloadConfig();
             config = getConfig();
         }
-        banConfig = new BanConfig(utils, sender, config);
+        banConfig = new BanConfig(this, sender, config);
 
         // (re)Loading database
         banDatabase = new BanDatabase(this, sender, config);
 
         // (re)Loading listeners
-        BanListener.loadListeners();
+        listener.load(sender);
 
         // Result
         sender.sendMessage(utils.getPrefix() + utils.color("&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s)."));
@@ -143,5 +144,14 @@ public class BanItem extends JavaPlugin {
     @NotNull
     public BanUtils getUtils() {
         return utils;
+    }
+
+    /**
+     * The listener class
+     * @return listener class of the plugin
+     */
+    @NotNull
+    public BanListener getListener() {
+        return listener;
     }
 }

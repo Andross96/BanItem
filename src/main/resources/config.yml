@@ -1,6 +1,9 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v2.0      —————————————————| #
+# |——————————————————      v2.1      —————————————————| #
+# +———————————————————————————————————————————————————+ #
+# |                   Documentation:                  | #
+# |             http://banitem.andross.fr/            | #
 # +———————————————————————————————————————————————————+ #
 # For any bugs/suggestions: Andross#5254
 # +——————————————————————————————————————————————————————————————————————————————————————————————+
@@ -18,7 +21,7 @@
 #
 #  - Items can be written: (https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
 #    -> single: 'stone' ; 'dirt'...
-#    -> multiple: 'stone, break'
+#    -> multiple: 'stone, dirt'
 #    -> all: '*' (also include air [=empty hand]!)
 #    -> all except: '*, !stone' (all, except stone)
 #
@@ -48,6 +51,15 @@
 #       -> https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 #     -> log(*): true/false - if players with /banitem log will receive a message for this ban
 #     -> message(*): a string or list of string to be sent if the item is banned
+#     -> metadata(*): the metadata that the item should have:
+#       -> 'displayname-equals': string - if the item displayname is equals to this (e.g: displayname-equals: 'test')
+#       -> 'displayname-contains': string - if the item displayname contains this (e.g: displayname-contains: 'test')
+#       -> 'lore-equals': list - if the item lore is equals to this
+#       -> 'lore-contains': string/list - if the item lore contains this
+#       -> 'durability': short - if the item durability is equals to this (e.g: durability: 3)
+#       -> 'enchantment-equals': string/list - if the item enchantments is equals to this (e.g: enchantment-equals: 'SILK_TOUCH:1')
+#       -> 'enchantment-contains': string/list - if the item enchantments contains all this (e.g: enchantment-contains: 'SILK_TOUCH:1')
+#       -> 'potion': string/list - if the item contains this potion (e.g: potion: 'SPEED')
 #        +——————————————————————————————————————————————————————+
 #  - Options and their possibles datas:
 #    - ARMORSTANDPLACE: when the player try to place the item on an armorstand [no specific data]
@@ -63,8 +75,8 @@
 #    - CRAFT: the item will not be craftable anymore [no specific data]
 #    - DELETE: when a player open & close an inventory, it will check and delete items which have this option [no specific data]
 #    - DISPENSE: when an item is dispensed from a block [no specific data]
-#    - DROP: when the item is dropped by a player [no specific data]
-#    - DROPS: when the item is dropped from a block
+#    - DROP: when an item is dropped by a player [no specific data]
+#    - DROPS: when an item is dropped from a block
 #      -> Special data: material - the item in the player's hand
 #    - ENTITYDROP: when an entity dies and drop the item
 #      -> Special data: entity - the entity type
@@ -76,7 +88,7 @@
 #    - INTERACT: when the player use right click with main hand on the placed item
 #      -> Special data: material - the item in player's hand
 #    - PICKUP: when the item is picked up [no specific data]
-#    - PLACE: when the item is placed or used
+#    - PLACE: when the player use right click, so the item is placed or used
 #      -> Special data: material - the block clicked, if there is one
 #    - SMELT: the item will not be smeltable anymore [no specific data]
 #    - SWAP: when the player try to swap the item in hands [no specific data]
@@ -115,12 +127,15 @@ hoppers-block: false
 # No permission message (for /banitem)
 no-permission: '&cYou do not have permission.'
 
-# Message cooldown when player try to pickup a banned item (in milliseconds)
-pickup-message-cooldown: 1000
-
 # This will allow the plugin to call 'PlayerBanItemEvent' whenever an item is banned
 # This is used to allow others plugins to modify the behavior
 use-event-api: false
+
+# List of options that should have maximum listening priority
+# Giving maximum priority will force the ban item plugin to have the final word on an event
+# This is used mainly to also block other plugins events, if the action is banned
+# You can use the options formatting ('*', 'option1, option2', '*,!break' etc.)
+priority: place,consume
 
 # Animations when a ban item message is sent
 sound:
@@ -135,7 +150,6 @@ sound:
 #  amount: 1
 
 # Here is some quick examples:
-
 #blacklist:
 #  world:
 #    diamond_block: # can not place or break diamond_block
@@ -154,6 +168,11 @@ sound:
 #        entity: item_frame
 #        message: '&cYou can not put a stick into an itemframe!'
 #        log: true
+#    diamond_sword: # can not attack with a diamond sword with display name 'test'
+#      attack: # can not attack with diamond sword, with this displayname
+#        message: '&cNo sword with text ''test''!'
+#        metadata:
+#          displayname-equals: 'test'
 #    diamond: # can not put diamonds from a player inventory to a chest
 #      transfer:
 #        inventory-from: player
@@ -165,7 +184,8 @@ sound:
 
 #whitelist:
 #  world_the_end:
-#    message: '&cYou can only place ender stone in the end.'
-#    ignored: '*, !place' # all options ignored, considering only the place one
+#    message: '&cOnly thing allowed in this world: placing dirt.'
+#    ignored: 'interact' # we ignore the interact, so player can interact (to place) with everything
 #    dirt: place # dirt can be placed
-### Whitelist conclusion: in world_the_end, players can not place any block, except dirt.
+### Whitelist conclusion: in world_the_end, only one thing is allowed: placing dirt.
+### Everything else (breaking, pickup, drop etc.) will be blocked.

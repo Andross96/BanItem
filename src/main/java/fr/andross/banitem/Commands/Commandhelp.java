@@ -2,7 +2,7 @@ package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.Options.BanOption;
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;

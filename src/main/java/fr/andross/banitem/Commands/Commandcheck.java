@@ -2,9 +2,12 @@ package fr.andross.banitem.Commands;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.Database.Blacklist;
+import fr.andross.banitem.Database.ItemMap;
+import fr.andross.banitem.Options.BanDataType;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItemMeta;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,7 +18,7 @@ import java.util.*;
 
 /**
  * Sub command check
- * @version 2.0.1
+ * @version 2.1
  * @author Andross
  */
 public class Commandcheck extends BanCommand {
@@ -37,18 +40,30 @@ public class Commandcheck extends BanCommand {
         final Set<String> players = new HashSet<>();
         final Blacklist blacklist = pl.getBanDatabase().getBlacklist();
         for (final Player p : pl.getServer().getOnlinePlayers()) {
-            final Map<BannedItem, Map<BanOption, BanOptionData>> map = blacklist.get(p.getWorld());
+            final ItemMap map = blacklist.get(p.getWorld());
             if (map == null) continue; // nothing banned in this world
 
             // Checking player inventory
             final PlayerInventory inv = p.getInventory();
-            for (int i = 0; i < inv.getSize(); i++) {
+            item: for (int i = 0; i < inv.getSize(); i++) {
                 final ItemStack item = inv.getItem(i);
                 if (pl.getUtils().isNullOrAir(item)) continue;
-                if (map.containsKey(new BannedItem(item)) || map.containsKey(new BannedItem(item, false))) {
-                    if (delete) inv.clear(i);
-                    players.add(p.getName());
+
+                final Map<BanOption, BanOptionData> data = map.get(new BannedItem(item));
+                if (data == null || data.isEmpty()) continue;
+
+                // Checking metadata
+                for (final BanOption option : data.keySet()) {
+                    final BanOptionData optionData = data.get(option);
+                    if (optionData.containsKey(BanDataType.METADATA)) {
+                        final BannedItemMeta meta = optionData.getMetadata();
+                        if (meta != null && !meta.matches(item)) continue item;
+                    }
                 }
+
+                // Blacklisted!
+                if (delete) inv.clear(i);
+                players.add(p.getName());
             }
         }
 

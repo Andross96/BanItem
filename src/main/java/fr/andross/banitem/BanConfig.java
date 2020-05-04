@@ -1,6 +1,10 @@
 package fr.andross.banitem;
 
-import fr.andross.banitem.Utils.Ban.BanAnimation;
+import fr.andross.banitem.Options.BanOption;
+import fr.andross.banitem.Utils.BanAnimation;
+import fr.andross.banitem.Utils.Debug.Debug;
+import fr.andross.banitem.Utils.Debug.DebugMessage;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -8,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class that contains the ban config
@@ -46,11 +50,6 @@ public final class BanConfig {
     private String noPermission;
 
     /**
-     * # Message cooldown when player try to pickup a banned item (in milliseconds)
-     */
-    private long pickupCooldown;
-
-    /**
      * This will allow the plugin to call 'PlayerBanItemEvent' whenever an item is banned
      * This is used to allow others plugins to modify the behavior
      *
@@ -59,13 +58,22 @@ public final class BanConfig {
     private boolean useEventApi;
 
     /**
+     * Set of options that should have maximum listening priority
+     * Giving maximum priority will force the ban item plugin to have the final word on an event
+     * This is used mainly to also block other plugins events, if the action is banned
+     * If you modify this list, you'll also have to reload the listeners
+     */
+    private final Set<BanOption> priority = new HashSet<>();
+
+    /**
      * This should not be instantiate. Use {@link BanItemAPI#load(CommandSender, FileConfiguration)} instead.
-     * @param utils the plugin utils
+     * @param pl the plugin instance
      * @param sender the sender who executed this
      * @param config the configuration file used
      */
-    BanConfig(@NotNull final BanUtils utils, @NotNull final CommandSender sender, @NotNull final FileConfiguration config) {
+    BanConfig(@NotNull final BanItem pl, @NotNull final CommandSender sender, @NotNull final FileConfiguration config) {
         this.config = config;
+        final BanUtils utils = pl.getUtils();
 
         // Loading animation
         animation = new BanAnimation(utils, sender, config);
@@ -74,12 +82,14 @@ public final class BanConfig {
         betterDebug = config.getBoolean("better-debug");
         hoppersBlock = config.getBoolean("hoppers-block");
         noPermission = utils.color(Objects.requireNonNull(config.getString("no-permission", "&cYou do not have permission")));
-        pickupCooldown = config.getLong("pickup-message-cooldown");
-        if (pickupCooldown < 0) {
-            sender.sendMessage(utils.getPrefix() + utils.color("&cInvalid '&epickup-message-cooldown&c' from config."));
-            pickupCooldown = 0;
-        }
         useEventApi = config.getBoolean("use-event-api");
+
+        if (config.contains("priority")) {
+            List<String> priorityNames = utils.getStringList(config.get("priority"));
+            priorityNames = utils.getSplittedList(priorityNames);
+            if (!priorityNames.isEmpty())
+                priority.addAll(utils.getList(Listable.Type.OPTION, priorityNames, new Debug(pl, sender, new DebugMessage(null, "config.yml"), new DebugMessage(null, "priority"))));
+        }
     }
 
     /**
@@ -96,8 +106,8 @@ public final class BanConfig {
         config.set("better-debug", betterDebug);
         config.set("hoppers-block", hoppersBlock);
         config.set("no-permission", noPermission);
-        config.set("pickup-message-cooldown", pickupCooldown);
         config.set("use-event-api", useEventApi);
+        config.set("priority", priority.isEmpty() ? null : priority.stream().map(BanOption::getName).collect(Collectors.toList()));
 
         config.save(file);
     }
@@ -154,7 +164,7 @@ public final class BanConfig {
 
     /**
      * Set if the the hoppers should also be blocked (for items with options transfer) or not.
-     * <b>Important:</b> any modification of this should be used with {@link BanListener#loadListeners()} to enable the listener
+     * <b>Important:</b> any modification of this should be used with {@link BanListener#load(CommandSender)}} to enable the listener
      * @param hoppersBlock boolean
      */
     public void setHoppersBlock(final boolean hoppersBlock) {
@@ -179,22 +189,6 @@ public final class BanConfig {
     }
 
     /**
-     * Get the pick up cooldown
-     * @return the pick up cooldown
-     */
-    public long getPickupCooldown() {
-        return pickupCooldown;
-    }
-
-    /**
-     * Set the pick up cooldown
-     * @param pickupCooldown the pick up cooldown
-     */
-    public void setPickupCooldown(final long pickupCooldown) {
-        this.pickupCooldown = pickupCooldown;
-    }
-
-    /**
      * If the event api is enabled
      * @return true if the event api is enabled, otherwise false
      */
@@ -208,5 +202,13 @@ public final class BanConfig {
      */
     public void setUseEventApi(final boolean useEventApi) {
         this.useEventApi = useEventApi;
+    }
+
+    /**
+     * List of options priority
+     * @return list of options priority
+     */
+    public Set<BanOption> getPriority() {
+        return priority;
     }
 }

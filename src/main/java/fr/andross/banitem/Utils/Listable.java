@@ -1,10 +1,10 @@
-package fr.andross.banitem.Utils.General;
+package fr.andross.banitem.Utils;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.Database.CustomItems;
 import fr.andross.banitem.Options.BanOption;
-import fr.andross.banitem.Utils.Ban.BannedItem;
 import fr.andross.banitem.Utils.Debug.Debug;
+import fr.andross.banitem.Utils.Item.BannedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * A listable class which will attempt to create List object from gived data.
  * Mainly used to load configurations.
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public class Listable {
@@ -127,6 +127,7 @@ public class Listable {
     public <T> List<T> getList(@NotNull final Type type, @NotNull final List<String> strings, @Nullable final Debug d) {
         final List<T> list = new ArrayList<>();
         final List<T> ignoredList = new ArrayList<>();
+        if (strings.isEmpty()) return list;
 
         for (String key : strings) {
             try {
@@ -141,7 +142,7 @@ public class Listable {
                 if (remove) ignoredList.add(o); else list.add(o);
             } catch (final Exception e) {
                 if (d == null) return new ArrayList<>();
-                d.clone().add(type, "&cInvalid " + type.name().toLowerCase() + " &e&l" + key + "&c.").sendDebug();
+                d.clone().add(type, "&cUnknown " + type.name().toLowerCase() + " &e&l" + key + "&c.").sendDebug();
             }
         }
 
@@ -221,7 +222,10 @@ public class Listable {
         ITEM,
         ENTITY,
         GAMEMODE,
-        INVENTORY
+        INVENTORY,
+        METADATA,
+        METADATA_ENCHANTMENT,
+        METADATA_POTION
     }
 
     /**

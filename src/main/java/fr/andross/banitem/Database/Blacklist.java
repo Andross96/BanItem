@@ -7,16 +7,16 @@ import fr.andross.banitem.Options.BanData;
 import fr.andross.banitem.Options.BanDataType;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BannedItem;
 import fr.andross.banitem.Utils.Debug.Debug;
 import fr.andross.banitem.Utils.Debug.DebugMessage;
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.Item.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItemMeta;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,10 +25,10 @@ import java.util.*;
 
 /**
  * Map that contains the blacklisted items and their options
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
-public final class Blacklist extends HashMap<World, Map<BannedItem, Map<BanOption, BanOptionData>>> {
+public final class Blacklist extends HashMap<World, ItemMap> {
     private final BanItem pl;
 
     /**
@@ -79,41 +79,37 @@ public final class Blacklist extends HashMap<World, Map<BannedItem, Map<BanOptio
      * @param map map containing {@link BanOption} and their respective {@link BanOptionData}
      */
     public void addNewBan(@NotNull final World world, @NotNull final BannedItem item, @Nullable final Map<BanOption, BanOptionData> map) {
-        final Map<BannedItem, Map<BanOption, BanOptionData>> newmap = getOrDefault(world, new HashMap<>());
-        newmap.put(item, map);
-        put(world, newmap);
+        final ItemMap itemMap = getOrDefault(world, new ItemMap());
+        itemMap.put(item, map);
+        put(world, itemMap);
     }
 
     /**
+     * Try to get the ban options data for this item, considering the item meta.
      * @param world bukkit world <i>({@link World})</i>
      * @param item banned item <i>({@link BannedItem})</i>
      * @param option the ban option type asked <i>({@link BanOption})</i>
      * @return the {@link BanOptionData} object if the item is banned, or null if there is no banned option for this item with this option in this world
      */
     @Nullable
-    public BanOptionData getBanOption(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option) {
-        final Map<BanOption, BanOptionData> map = getBanOptions(world, item);
-        return map == null ? null : map.get(option);
+    public BanOptionData getBanData(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option) {
+        return !containsKey(world) ? null : get(world).getExact(item, option);
     }
 
     /**
-     * Trying to get the ban options with their respective ban options data for this item in the said world
+     * Trying to get the ban options with their respective ban options data for this item in the said world.
      * @param world bukkit world <i>({@link World})</i>
      * @param item banned item <i>({@link BannedItem})</i>
      * @return a map containing the ban option types and their respective ban options, or null if this item is not banned in this world
      */
     @Nullable
     public Map<BanOption, BanOptionData> getBanOptions(@NotNull final World world, @NotNull final BannedItem item) {
-        // World does not contains any banned item?
-        if (!containsKey(world)) return null;
-        // Getting map, from a Banned Item with ItemMeta, else without
-        final Map<BannedItem, Map<BanOption, BanOptionData>> map = get(world);
-        return map.get(item);
+        return !containsKey(world) ? null : get(world).get(item);
     }
 
     /**
      * Check if the item is banned.
-     * <b>Does not consider permission!</b> <i>(You'll have to use {@link BanUtils#hasPermission(HumanEntity, String, String, BanOption, BanData...)})</i>
+     * <b>Does not consider permission!</b> <i>(You'll have to use {@link BanUtils#hasPermission(Player, String, String, BanOption, BanData...)})</i>
      * @param player player involved
      * @param item the banned item
      * @param sendMessage send a message to the player if banned
@@ -123,79 +119,78 @@ public final class Blacklist extends HashMap<World, Map<BannedItem, Map<BanOptio
      */
     public boolean isBlacklisted(@NotNull final Player player, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanOption option, @Nullable final BanData... data) {
         /* Checking blacklisted */
-        // Checking by item (can include meta)
-        Map<BanOption, BanOptionData> map = getBanOptions(player.getWorld(), item);
-        // Checking by item without meta
-        if (map == null) {
-            final BannedItem itemType = new BannedItem(item, false);
-            map = getBanOptions(player.getWorld(), itemType);
-        }
+        final Map<BanOption, BanOptionData> map = getBanOptions(player.getWorld(), item);
+        if (map == null || map.isEmpty() || !map.containsKey(option)) return false;
 
-        if (map != null && map.containsKey(option)) { // Blacklisted?
-            final BanOptionData blacklisted = map.get(option);
-            // Checking custom data
-            if (data == null || Arrays.stream(data).allMatch(blacklisted::contains)) {
-                // Checking creative data?
-                if (blacklisted.containsKey(BanDataType.GAMEMODE)) {
-                    final Set<GameMode> set = blacklisted.getData(BanDataType.GAMEMODE);
-                    if (set != null && !set.contains(player.getGameMode())) return false;
+        // Checking custom data
+        final BanOptionData blacklistData = map.get(option);
+        if (data == null || Arrays.stream(data).allMatch(blacklistData::contains)) {
+            // Checking metadata?
+            if (blacklistData.containsKey(BanDataType.METADATA)) {
+                final BannedItemMeta meta = blacklistData.getMetadata();
+                if (meta != null && !meta.matches(item.toItemStack())) return false;
+            }
+
+            // Checking creative data?
+            if (blacklistData.containsKey(BanDataType.GAMEMODE)) {
+                final Set<GameMode> set = blacklistData.getData(BanDataType.GAMEMODE);
+                if (set != null && !set.contains(player.getGameMode())) return false;
+            }
+
+            // Checking cooldown?
+            if (blacklistData.containsKey(BanDataType.COOLDOWN)) {
+                final long cooldown = (long) blacklistData.get(BanDataType.COOLDOWN);
+                final Map<UUID, Long> cooldowns = blacklistData.getCooldowns();
+
+                // Not in cooldown? Adding!
+                if (!cooldowns.containsKey(player.getUniqueId())) {
+                    cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + cooldown);
+                    return false;
                 }
 
-                // Checking cooldown?
-                if (blacklisted.containsKey(BanDataType.COOLDOWN)) {
-                    final long cooldown = (long) blacklisted.get(BanDataType.COOLDOWN);
-                    final Map<UUID, Long> cooldowns = blacklisted.getCooldowns();
+                // Checking cooldown
+                final long playerCooldown = cooldowns.get(player.getUniqueId());
 
-                    // Not in cooldown? Adding!
-                    if (!cooldowns.containsKey(player.getUniqueId())) {
-                        cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + cooldown);
-                        return false;
-                    }
-
-                    // Checking cooldown
-                    final long playerCooldown = cooldowns.get(player.getUniqueId());
-
-                    // Not in cooldown anymore?
-                    if (playerCooldown < System.currentTimeMillis()) {
-                        cooldowns.remove(player.getUniqueId()); // not in cooldown anymore, cleaning up'
-                        return false;
-                    }
-
-                    // Still in cooldown
-                    if (sendMessage) {
-                        // Calling event?
-                        if (pl.getBanConfig().isUseEventApi()) {
-                            final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, option, blacklisted, data);
-                            Bukkit.getPluginManager().callEvent(e);
-                            if (e.isCancelled()) return false;
-                        }
-
-                        // Sending message
-                        final List<String> message = blacklisted.getData(BanDataType.MESSAGE);
-                        if (message != null)
-                            message.stream().map(m -> m.replace("{time}", pl.getUtils().getCooldownString(playerCooldown - System.currentTimeMillis()))).forEach(player::sendMessage);
-                        return true;
-                    }
+                // Not in cooldown anymore?
+                if (playerCooldown < System.currentTimeMillis()) {
+                    cooldowns.remove(player.getUniqueId()); // not in cooldown anymore, cleaning up'
+                    return false;
                 }
 
                 // Calling event?
                 if (pl.getBanConfig().isUseEventApi()) {
-                    final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, option, blacklisted, data);
+                    final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, option, blacklistData, data);
                     Bukkit.getPluginManager().callEvent(e);
                     if (e.isCancelled()) return false;
                 }
 
-                // Checking delete?
-                if (map.containsKey(BanOption.DELETE))
-                    Bukkit.getScheduler().runTask(BanItem.getInstance(), () -> pl.getUtils().deleteItemFromInventory(player, player.getInventory()));
-
+                // Still in cooldown
                 if (sendMessage) {
-                    String itemName = pl.getBanDatabase().getCustomItems().getName(item);
-                    if (itemName == null) itemName = item.getType().name();
-                    pl.getUtils().sendMessage(player, itemName, option, blacklisted);
+                    // Sending message
+                    final List<String> message = blacklistData.getData(BanDataType.MESSAGE);
+                    if (message != null)
+                        message.stream().map(m -> m.replace("{time}", pl.getUtils().getCooldownString(playerCooldown - System.currentTimeMillis()))).forEach(player::sendMessage);
+                    return true;
                 }
-                return true;
             }
+
+            // Calling event?
+            if (pl.getBanConfig().isUseEventApi()) {
+                final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, option, blacklistData, data);
+                Bukkit.getPluginManager().callEvent(e);
+                if (e.isCancelled()) return false;
+            }
+
+            // Checking delete?
+            if (map.containsKey(BanOption.DELETE))
+                Bukkit.getScheduler().runTask(BanItem.getInstance(), () -> pl.getUtils().deleteItemFromInventory(player, player.getInventory()));
+
+            if (sendMessage) {
+                String itemName = pl.getBanDatabase().getCustomItems().getName(item);
+                if (itemName == null) itemName = item.getType().name();
+                pl.getUtils().sendMessage(player, itemName, option, blacklistData);
+            }
+            return true;
         }
         return false;
     }
@@ -210,21 +205,8 @@ public final class Blacklist extends HashMap<World, Map<BannedItem, Map<BanOptio
      * @return true if the item is blacklisted for the player world, otherwise false
      */
     public boolean isBlacklisted(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        /* Checking blacklisted */
-        // Checking by item (can include meta)
-        Map<BanOption, BanOptionData> map = getBanOptions(world, item);
-        // Checking by item without meta
-        if (map == null) {
-            final BannedItem itemType = new BannedItem(item, false);
-            map = getBanOptions(world, itemType);
-        }
-
-        if (map != null && map.containsKey(option)) { // Blacklisted?
-            final BanOptionData blacklisted = map.get(option);
-            // Checking custom data
-            return data == null || Arrays.stream(data).allMatch(blacklisted::contains);
-        }
-        return false;
+        final BanOptionData blacklistData = getBanData(world, item, option);
+        return blacklistData != null && (data == null || Arrays.stream(data).allMatch(blacklistData::contains));
     }
 
     /**

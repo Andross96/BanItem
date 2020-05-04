@@ -6,10 +6,11 @@ import fr.andross.banitem.Options.BanData;
 import fr.andross.banitem.Options.BanDataType;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BanVersion;
-import fr.andross.banitem.Utils.Ban.BannedItem;
+import fr.andross.banitem.Utils.BanVersion;
 import fr.andross.banitem.Utils.Debug.Debug;
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.Item.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItemMeta;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 2.0.1
+ * @version 2.1
  * @author Andross
  */
 public final class BanUtils extends Listable {
@@ -73,7 +74,7 @@ public final class BanUtils extends Listable {
             for (String option : key.toUpperCase().trim().replaceAll("\\s+", "").split(",")) {
                 final Debug newDebug = d.clone();
                 try {
-                    final BanOptionData bo = getBanOptionsForItem(section, key, newDebug.add(Listable.Type.OPTION, key));
+                    final BanOptionData bo = getBanOptionsForItem(section, key, newDebug.add(Type.OPTION, key));
                     if (option.equals("*")) {
                         for (final BanOption type : getOptions()) options.put(type, bo);
                         continue;
@@ -83,7 +84,7 @@ public final class BanUtils extends Listable {
                     final BanOption banOption = BanOption.valueOf(option);
                     if (remove) ignoredOptions.add(banOption); else options.put(banOption, bo);
                 } catch (final Exception e) {
-                    newDebug.add(Listable.Type.OPTION, "&cInvalid option &e&l" + option + "&c.").sendDebug();
+                    newDebug.add(Type.OPTION, "&cUnknown option &e&l" + option + "&c.").sendDebug();
                 }
             }
         }
@@ -120,21 +121,21 @@ public final class BanUtils extends Listable {
                     break;
 
                 case "entity": {
-                    final List<EntityType> list = getList(Listable.Type.ENTITY, section.get(option), d.add(Listable.Type.ENTITY, option));
+                    final List<EntityType> list = getList(Type.ENTITY, section.get(option), d.add(Type.ENTITY, option));
                     if (!list.isEmpty())
                         banOptionData.put(BanDataType.ENTITY, new HashSet<>(list));
                     break;
                 }
 
                 case "gamemode": {
-                    final List<GameMode> list = getList(Listable.Type.GAMEMODE, section.get(option), d.add(Listable.Type.GAMEMODE, option));
+                    final List<GameMode> list = getList(Type.GAMEMODE, section.get(option), d.add(Type.GAMEMODE, option));
                     if (!list.isEmpty())
                         banOptionData.put(BanDataType.GAMEMODE, new HashSet<>(list));
                     break;
                 }
 
                 case "inventory-from": case "inventory-to": {
-                    final List<InventoryType> list = getList(Listable.Type.INVENTORY, section.get(option), d.add(Listable.Type.INVENTORY, option));
+                    final List<InventoryType> list = getList(Type.INVENTORY, section.get(option), d.add(Type.INVENTORY, option));
                     if (!list.isEmpty())
                         banOptionData.put(optionLower.equals("inventory-from") ? BanDataType.INVENTORY_FROM : BanDataType.INVENTORY_TO, new HashSet<>(list));
                     break;
@@ -145,7 +146,7 @@ public final class BanUtils extends Listable {
                     break;
 
                 case "material": {
-                    final List<BannedItem> list = getList(Listable.Type.ITEM, section.get(option), d.add(Listable.Type.ITEM, option));
+                    final List<BannedItem> list = getList(Type.ITEM, section.get(option), d.add(Type.ITEM, option));
                     if (!list.isEmpty())
                         banOptionData.put(BanDataType.MATERIAL, list.stream().map(BannedItem::getType).collect(Collectors.toSet()));
                     break;
@@ -155,6 +156,18 @@ public final class BanUtils extends Listable {
                     final List<String> messages = getStringList(section.get(option));
                     if (!messages.isEmpty())
                         banOptionData.put(BanDataType.MESSAGE, messages.stream().filter(this::isNotNullOrEmpty).map(this::color).collect(Collectors.toList()));
+                    break;
+                }
+
+                case "metadata": {
+                    try {
+                        final ConfigurationSection metadataSection = section.getConfigurationSection(option);
+                        if (metadataSection == null) continue;
+                        final BannedItemMeta meta = new BannedItemMeta(this, metadataSection, d.add(Type.METADATA, option));
+                        banOptionData.put(BanDataType.METADATA, meta);
+                    } catch (final Exception ignored) {
+                        continue; // the error is debugged with the help of the debugger
+                    }
                     break;
                 }
             }
@@ -215,7 +228,7 @@ public final class BanUtils extends Listable {
     /**
      * This method is used to send a ban message to player, if exists.
      * Mainly used for blacklist
-     * @param player send the message to {@link Player}
+     * @param player send the message to {@link HumanEntity}
      * @param itemName name of the item
      * @param option the ban option <i>(used for log)</i>
      * @param data the ban data <i>(containing the messages)</i>
@@ -228,7 +241,7 @@ public final class BanUtils extends Listable {
             final Long time = pickupCooldowns.get(player.getUniqueId());
             if (time == null) pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
             else {
-                if (time + pl.getBanConfig().getPickupCooldown() > System.currentTimeMillis()) return;
+                if (time + 1000 > System.currentTimeMillis()) return;
                 else pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
             }
         }
@@ -258,7 +271,7 @@ public final class BanUtils extends Listable {
 
         // Sending message & animation
         message.forEach(player::sendMessage);
-        pl.getBanConfig().getAnimation().runAnimation((Player) player);
+        pl.getBanConfig().getAnimation().runAnimation(player);
     }
 
     /**
@@ -276,7 +289,7 @@ public final class BanUtils extends Listable {
             final Long time = pickupCooldowns.get(player.getUniqueId());
             if (time == null) pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
             else {
-                if (time + pl.getBanConfig().getPickupCooldown() > System.currentTimeMillis()) return;
+                if (time + 1000> System.currentTimeMillis()) return;
                 else pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
             }
         }
@@ -296,7 +309,7 @@ public final class BanUtils extends Listable {
      * @param data additional data to check
      * @return true if the player has the permission to bypass the ban, otherwise false
      */
-    public boolean hasPermission(@NotNull final HumanEntity player, @Nullable final String item, @Nullable final String customName, @NotNull final BanOption option, @Nullable final BanData... data) {
+    public boolean hasPermission(@NotNull final Player player, @Nullable final String item, @Nullable final String customName, @NotNull final BanOption option, @Nullable final BanData... data) {
         final String world = player.getWorld().getName().toLowerCase();
 
         if (item != null) {

@@ -4,7 +4,7 @@ import fr.andross.banitem.Database.Blacklist;
 import fr.andross.banitem.Database.CustomItems;
 import fr.andross.banitem.Database.Whitelist;
 import fr.andross.banitem.Options.BanOption;
-import fr.andross.banitem.Utils.Ban.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;

@@ -1,6 +1,6 @@
 package fr.andross.banitem.Utils.Debug;
 
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.Listable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

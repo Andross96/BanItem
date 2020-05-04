@@ -7,16 +7,16 @@ import fr.andross.banitem.Options.BanData;
 import fr.andross.banitem.Options.BanDataType;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BannedItem;
 import fr.andross.banitem.Utils.Debug.Debug;
 import fr.andross.banitem.Utils.Debug.DebugMessage;
-import fr.andross.banitem.Utils.General.Listable;
+import fr.andross.banitem.Utils.Item.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItemMeta;
+import fr.andross.banitem.Utils.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 /**
  * Map that contains whitelistedworlds
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
 public class Whitelist extends HashMap<World, WhitelistedWorld> {
@@ -141,7 +141,7 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
 
     /**
      * Check if the item is whitelisted <i>(allowed)</i>
-     * <b>Does not consider permission!</b> <i>(You'll have to use {@link BanUtils#hasPermission(HumanEntity, String, String, BanOption, BanData...)})</i>
+     * <b>Does not consider permission!</b> <i>(You'll have to use {@link BanUtils#hasPermission(Player, String, String, BanOption, BanData...)})</i>
      * @param player player involved
      * @param item the banned item
      * @param sendMessage send a message to the player if not allowed
@@ -157,18 +157,24 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
         if (ww.getIgnored().contains(option)) return true;
 
         /* Checking whitelist */
-        // Checking by item (can include meta)?
-        Map<BanOption, BanOptionData> map = ww.get(item);
-        // Checking by item without meta?
-        if (map == null) {
-            final BannedItem itemType = new BannedItem(item, false);
-            map = ww.get(itemType);
-        }
-
-        if (map != null && map.containsKey(option)) { // In whitelist
+        final Map<BanOption, BanOptionData> map = ww.get(item);
+        if (map != null && !map.isEmpty() && map.containsKey(option)) { // In whitelist
             final BanOptionData whitelisted = map.get(option);
             // Checking custom data
             if (data == null || Arrays.stream(data).allMatch(whitelisted::contains)) {
+                // Checking metadata?
+                if (whitelisted.containsKey(BanDataType.METADATA)) {
+                    final BannedItemMeta meta = whitelisted.getMetadata();
+                    if (meta != null && !meta.matches(item.toItemStack())) {
+                        if (sendMessage) {
+                            String itemName = pl.getBanDatabase().getCustomItems().getName(item);
+                            if (itemName == null) itemName = item.getType().name();
+                            pl.getUtils().sendMessage(player, itemName, option, whitelisted);
+                        }
+                        return false;
+                    }
+                }
+
                 // Checking creative data?
                 if (whitelisted.containsKey(BanDataType.GAMEMODE)) {
                     final Set<GameMode> set = whitelisted.getData(BanDataType.GAMEMODE);

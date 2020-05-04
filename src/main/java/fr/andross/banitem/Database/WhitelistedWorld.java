@@ -2,7 +2,7 @@ package fr.andross.banitem.Database;
 
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Options.BanOptionData;
-import fr.andross.banitem.Utils.Ban.BannedItem;
+import fr.andross.banitem.Utils.Item.BannedItem;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,10 +11,10 @@ import java.util.*;
 
 /**
  * Map containing all allowed items of a world
- * @version 2.0
+ * @version 2.1
  * @author Andross
  */
-public final class WhitelistedWorld extends HashMap<BannedItem, Map<BanOption, BanOptionData>> {
+public final class WhitelistedWorld extends ItemMap {
     private final World world;
     private final List<String> messages = new ArrayList<>();
     private final Set<BanOption> ignored = new HashSet<>();
