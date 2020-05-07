@@ -11,7 +11,7 @@ import java.util.Objects;
 
 /**
  * An item wrapper, which can handle matching Material/ItemStacks with their ItemMeta and not considering the amount
- * @version 2.0
+ * @version 2.1.1
  * @author Andross
  */
 public final class BannedItem {
@@ -46,13 +46,8 @@ public final class BannedItem {
      */
     public BannedItem(@NotNull final ItemStack item, final boolean includeMeta) {
         this.m = item.getType();
-        if (!item.hasItemMeta()) {
-            this.meta = null;
-            this.includeMeta = false;
-        } else {
-            this.meta = item.getItemMeta();
-            this.includeMeta = includeMeta;
-        }
+        this.meta = item.getItemMeta();
+        this.includeMeta = includeMeta;
         data = BanVersion.v13OrMore ? 0 : item.getDurability();
     }
 
@@ -108,13 +103,13 @@ public final class BannedItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final BannedItem that = (BannedItem) o;
-        if (!includeMeta) return m == that.m;
+        if (!includeMeta) return BanVersion.v13OrMore ? m == that.m : (m == that.m && data == that.data);
         return m == that.m && Objects.equals(meta, that.meta) && (BanVersion.v13OrMore || Objects.equals(data, that.data));
     }
 
     @Override
     public int hashCode() {
-        if (!includeMeta) return m.hashCode();
+        if (!includeMeta) return BanVersion.v13OrMore ? m.hashCode() : Objects.hash(m, data);
         return BanVersion.v13OrMore ? Objects.hash(m, meta) : Objects.hash(m, meta, data);
     }
 }

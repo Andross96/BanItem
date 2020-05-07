@@ -73,14 +73,16 @@ public final class Blacklist extends HashMap<World, ItemMap> {
     }
 
     /**
-     * This will add a new entry to the blacklist
+     * This will add a new entry to the blacklist.
      * @param world bukkit world <i>({@link World})</i>
      * @param item banned item <i>({@link BannedItem})</i>
      * @param map map containing {@link BanOption} and their respective {@link BanOptionData}
      */
-    public void addNewBan(@NotNull final World world, @NotNull final BannedItem item, @Nullable final Map<BanOption, BanOptionData> map) {
+    public void addNewBan(@NotNull final World world, @NotNull final BannedItem item, @NotNull final Map<BanOption, BanOptionData> map) {
         final ItemMap itemMap = getOrDefault(world, new ItemMap());
-        itemMap.put(item, map);
+        final Map<BanOption, BanOptionData> bannedItemMap = itemMap.getOrDefault(item, new HashMap<>());
+        bannedItemMap.putAll(map);
+        itemMap.put(item, bannedItemMap);
         put(world, itemMap);
     }
 

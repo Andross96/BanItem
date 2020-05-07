@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * Map that store all the banned items, with their options and options datas.
- * @version 2.1
+ * @version 2.1.1
  * @author Andross
  */
 public class ItemMap extends HashMap<BannedItem, Map<BanOption, BanOptionData>> {
@@ -53,9 +53,10 @@ public class ItemMap extends HashMap<BannedItem, Map<BanOption, BanOptionData>> 
     public Map<BanOption, BanOptionData> get(@NotNull final Object o) {
         // Checking (can include meta)
         Map<BanOption, BanOptionData> map = super.get(o);
+
         // Checking by item without meta
         if (map == null && o instanceof BannedItem) {
-            final BannedItem itemType = new BannedItem((BannedItem)o, false);
+            final BannedItem itemType = new BannedItem(((BannedItem)o).getType());
             map = super.get(itemType);
         }
         return map;

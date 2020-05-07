@@ -1,3 +1,8 @@
+v2.1.1:
+  - Fixed multiple same items in config overriden: now correctly add items instead of override them;
+  - Fixed potion metadata for MC<1.13;
+  - Fixed durability recognition for MC<1.13;
+--------------------------------------------
 v2.1:
   - Added metadata ban data -> ban items only if they have a custom metadata (durability, displayname, lore, enchantment...);
   - Entitydrop option now correctly support the player bypass permission;

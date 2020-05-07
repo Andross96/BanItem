@@ -6,9 +6,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -25,21 +27,22 @@ import java.util.function.Predicate;
 public enum MetaType {
     DISPLAYNAME_EQUALS(o -> (o instanceof String)) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
-            return itemMeta.hasDisplayName() && itemMeta.getDisplayName().equals(o.toString());
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
+            return itemMeta != null && itemMeta.hasDisplayName() && itemMeta.getDisplayName().equals(o.toString());
         }
     },
 
     DISPLAYNAME_CONTAINS(o -> (o instanceof String)) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
-            return itemMeta.hasDisplayName() && itemMeta.getDisplayName().contains(o.toString());
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
+            return itemMeta != null && itemMeta.hasDisplayName() && itemMeta.getDisplayName().contains(o.toString());
         }
     },
 
     LORE_EQUALS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
+            if (itemMeta == null) return false;
             final List<String> itemLore = itemMeta.hasLore() ? itemMeta.getLore() : null;
             final List<String> lore = (List<String>) o;
             return lore.equals(itemLore);
@@ -48,7 +51,8 @@ public enum MetaType {
 
     LORE_CONTAINS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
+            if (itemMeta == null) return false;
             final List<String> itemLore = itemMeta.hasLore() ? itemMeta.getLore() : null;
             final List<String> lore = (List<String>) o;
             return itemLore != null && lore.stream().anyMatch(lore::contains);
@@ -57,7 +61,8 @@ public enum MetaType {
 
     DURABILITY(o -> (o instanceof Integer)) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
+            if (BanVersion.v13OrMore && itemMeta == null) return false;
             final int durability = BanVersion.v13OrMore ? ((Damageable)itemMeta).getDamage() : item.getDurability();
             return durability == (int) o;
         }
@@ -65,7 +70,7 @@ public enum MetaType {
 
     ENCHANTMENT_EQUALS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
             final Map<Enchantment, Integer> itemMap = item.getEnchantments();
             final Map<Enchantment, Integer> map = (Map<Enchantment, Integer>) o;
             return itemMap.equals(map);
@@ -74,7 +79,8 @@ public enum MetaType {
 
     ENCHANTMENT_CONTAINS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
+            if (itemMeta == null) return false;
             final Map<Enchantment, Integer> itemMap = item.getEnchantments();
             final Map<Enchantment, Integer> map = (Map<Enchantment, Integer>) o;
 
@@ -90,18 +96,23 @@ public enum MetaType {
 
     POTION(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])) {
         @Override
-        public boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o) {
-            if (!(itemMeta instanceof PotionMeta)) return false;
+        public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
             final Set<PotionEffectType> types = (Set<PotionEffectType>) o;
-            final PotionMeta pm = (PotionMeta) itemMeta;
 
             // Checking potion base?
             if (BanVersion.v9OrMore) {
+                if (!(itemMeta instanceof PotionMeta)) return false;
+                final PotionMeta pm = (PotionMeta) itemMeta;
                 final PotionEffectType effectType = pm.getBasePotionData().getType().getEffectType();
                 if (types.contains(effectType)) return true;
+            } else {
+                final Potion p = Potion.fromItemStack(item);
+                if (types.contains(p.getType().getEffectType())) return true;
             }
 
             // Checking custom effects
+            if (!(itemMeta instanceof PotionMeta)) return false;
+            final PotionMeta pm = (PotionMeta) itemMeta;
             return pm.hasCustomEffects() && pm.getCustomEffects().stream().map(PotionEffect::getType).anyMatch(types::contains);
         }
     };
@@ -128,6 +139,6 @@ public enum MetaType {
      * @param o the object to match
      * @return true if the item meta matches, otherwise false
      */
-    public abstract boolean matches(@NotNull final ItemStack item, @NotNull final ItemMeta itemMeta, @NotNull final Object o);
+    public abstract boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o);
 
 }

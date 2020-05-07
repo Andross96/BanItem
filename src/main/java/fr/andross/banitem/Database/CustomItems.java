@@ -17,7 +17,7 @@ import java.util.Map;
  * Map that contains all the custom items
  * This is a double map <i>(include a reversed map)</i>, for easier access of
  * custom items names and their respective banned item.
- * @version 2.0
+ * @version 2.1.1
  * @author Andross
  */
 public final class CustomItems extends HashMap<String, BannedItem> {
@@ -52,7 +52,7 @@ public final class CustomItems extends HashMap<String, BannedItem> {
             try {
                 final ItemStack itemStack = (ItemStack) itemsConfig.get(key);
                 if (itemStack == null) throw new Exception();
-                put(key, new BannedItem(itemStack, true));
+                put(key, new BannedItem(itemStack));
             } catch (final Exception e) {
                 sender.sendMessage(pl.getUtils().getPrefix() + pl.getUtils().color("&cInvalid custom item &e" + key + "&c in items.yml."));
             }

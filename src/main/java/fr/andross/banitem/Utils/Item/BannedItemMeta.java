@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 /**
  * This class offers a way to store and compare the item meta
- * @version 2.1
+ * @version 2.1.1
  * @author Andross
  */
 public class BannedItemMeta {
@@ -119,11 +119,8 @@ public class BannedItemMeta {
      * @return true if the item meta matches, otherwise false
      */
     public boolean matches(@NotNull final ItemStack item) {
-        if (!item.hasItemMeta()) return false;
-        final ItemMeta itemMeta = item.getItemMeta();
-        if (itemMeta == null) return false;
-
         // Matching any meta datas?
+        final ItemMeta itemMeta = item.getItemMeta();
         for (final Map.Entry<MetaType, Object> e : meta.entrySet())
             if (!e.getKey().matches(item, itemMeta, e.getValue())) return false;
 
