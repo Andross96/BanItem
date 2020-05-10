@@ -1,9 +1,11 @@
 package fr.andross.banitem.Utils.Item;
 
 import fr.andross.banitem.Utils.BanVersion;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.Potion;
@@ -71,9 +73,10 @@ public enum MetaType {
     ENCHANTMENT_EQUALS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])) {
         @Override
         public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
-            final Map<Enchantment, Integer> itemMap = item.getEnchantments();
+            if (itemMeta == null) return false;
+            final Map<Enchantment, Integer> enchantments = item.getType() == Material.ENCHANTED_BOOK ? ((EnchantmentStorageMeta) itemMeta).getStoredEnchants() : itemMeta.getEnchants();
             final Map<Enchantment, Integer> map = (Map<Enchantment, Integer>) o;
-            return itemMap.equals(map);
+            return enchantments.equals(map);
         }
     },
 
@@ -81,12 +84,12 @@ public enum MetaType {
         @Override
         public boolean matches(@NotNull final ItemStack item, @Nullable final ItemMeta itemMeta, @NotNull final Object o) {
             if (itemMeta == null) return false;
-            final Map<Enchantment, Integer> itemMap = item.getEnchantments();
+            final Map<Enchantment, Integer> enchantments = item.getType() == Material.ENCHANTED_BOOK ? ((EnchantmentStorageMeta) itemMeta).getStoredEnchants() : itemMeta.getEnchants();
             final Map<Enchantment, Integer> map = (Map<Enchantment, Integer>) o;
 
             for (final Map.Entry<Enchantment, Integer> entry : map.entrySet()) {
-                if (!itemMap.containsKey(entry.getKey())) return false;
-                final int level = itemMap.get(entry.getKey());
+                if (!enchantments.containsKey(entry.getKey())) return false;
+                final int level = enchantments.get(entry.getKey());
                 if (level != entry.getValue()) return false;
             }
 

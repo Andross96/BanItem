@@ -7,8 +7,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.potion.PotionType;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
  * @author Andross
  */
 public class Commandhelp extends BanCommand {
-    private static final List<String> types = Arrays.asList("worlds", "options", "entities", "gamemodes", "inventories");
+    private static final List<String> types = Arrays.asList("worlds", "options", "entities", "gamemodes", "inventories", "enchantments", "potions");
 
     public Commandhelp(final BanItem pl, final CommandSender sender, final String[] args) {
         super(pl, sender, args);
@@ -82,6 +84,20 @@ public class Commandhelp extends BanCommand {
                 message("&7The inventory type. They can be written");
                 message("&7complexly with commas. List:");
                 message("&7 >> " + listable.getInventories().stream().map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                break;
+            }
+
+            case "enchantments": case "enchantment": case "ench": {
+                message("&7The enchantment type. They can be written");
+                message("&7complexly with commas. List:");
+                message("&7 >> " + listable.getEnchantments().stream().map(Enchantment::getName).map(String::toLowerCase).collect(Collectors.joining(",")));
+                break;
+            }
+
+            case "potions": case "potion": case "pot": {
+                message("&7The potion type. They can be written");
+                message("&7complexly with commas. List:");
+                message("&7 >> " + listable.getPotions().stream().map(PotionType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
                 break;
             }
 

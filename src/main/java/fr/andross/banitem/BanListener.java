@@ -72,9 +72,10 @@ public final class BanListener {
 
         // Registering listeners, only if option is used
         if (blacklist.contains(BanOption.ARMORSTANDPLACE) || whitelist) {
-            if (!BanVersion.v8OrMore && !all && !whitelist) // notifying if used an option unavailable on the current minecraft version
-                sender.sendMessage(utils.color("&cCan not use the '&earmorstandplace&c' option in Minecraft < 1.8."));
-            else
+            if (!BanVersion.v8OrMore) {
+                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
+                    sender.sendMessage(utils.color("&cCan not use the '&earmorstandplace&c' option in Minecraft < 1.8."));
+            } else
                 registerEvent(PlayerArmorStandManipulateEvent.class, (li, event) -> {
                     final PlayerArmorStandManipulateEvent e = (PlayerArmorStandManipulateEvent) event;
                     if (utils.isNullOrAir(e.getPlayerItem())) return; // nothing to place
@@ -83,9 +84,10 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanOption.ARMORSTANDTAKE) || whitelist) {
-            if (!BanVersion.v8OrMore && !all && !whitelist)
-                sender.sendMessage(utils.color("&cCan not use the '&earmorstandbreak&c' option in Minecraft < 1.8."));
-            else
+            if (!BanVersion.v8OrMore) {
+                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
+                    sender.sendMessage(utils.color("&cCan not use the '&earmorstandtake&c' option in Minecraft < 1.8."));
+            } else
                 registerEvent(PlayerArmorStandManipulateEvent.class, (li, event) -> {
                     final PlayerArmorStandManipulateEvent e = (PlayerArmorStandManipulateEvent) event;
                     if (e.getArmorStandItem().getType() == Material.AIR) return;
@@ -229,9 +231,10 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanOption.GLIDE) || whitelist) {
-            if (!BanVersion.v9OrMore && !all && !whitelist)
-                sender.sendMessage(utils.color("&cCan not use the '&eglide&c' option in Minecraft < 1.9."));
-            else
+            if (!BanVersion.v9OrMore) {
+                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
+                    sender.sendMessage(utils.color("&cCan not use the '&eglide&c' option in Minecraft < 1.9."));
+            } else
                 registerEvent(org.bukkit.event.entity.EntityToggleGlideEvent.class, (li, event) -> {
                     final org.bukkit.event.entity.EntityToggleGlideEvent e = (org.bukkit.event.entity.EntityToggleGlideEvent) event;
                     if (!(e.getEntity() instanceof Player)) return;
@@ -353,9 +356,10 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanOption.SWAP) || whitelist) {
-            if (!BanVersion.v9OrMore && !all && !whitelist)
-                sender.sendMessage(utils.color("&cCan not use the '&eswap&c' option in Minecraft < 1.9."));
-            else
+            if (!BanVersion.v9OrMore) {
+                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
+                    sender.sendMessage(utils.color("&cCan not use the '&eswap&c' option in Minecraft < 1.8."));
+            } else
                 registerEvent(org.bukkit.event.player.PlayerSwapHandItemsEvent.class, (li, event) -> {
                     final org.bukkit.event.player.PlayerSwapHandItemsEvent e = (org.bukkit.event.player.PlayerSwapHandItemsEvent) event;
                     if (e.getMainHandItem() != null && api.isBanned(e.getPlayer(), e.getMainHandItem(), BanOption.SWAP)) {

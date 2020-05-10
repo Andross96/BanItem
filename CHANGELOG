@@ -1,3 +1,10 @@
+v2.1.2:
+  - Added available enchantments & potions name list in /banitem help;
+  - Fixed metadata potion names. They are also correctly debugged if not valid;  
+  - Fixed craft option;
+  - Fixed metadata enchantments for enchanted book;
+  - Fixed events activation versions compatibility: no more errors if trying to use an option unavailable for the current minecraft version;
+--------------------------------------------
 v2.1.1:
   - Fixed multiple same items in config overriden: now correctly add items instead of override them;
   - Fixed potion metadata for MC<1.13;

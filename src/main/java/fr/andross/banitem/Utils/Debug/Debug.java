@@ -12,18 +12,20 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * A debug class, which can handle and display the nodes
  * Mainly used when loading the plugin, to display any error
- * @version 2.1
+ * @version 2.1.2
  * @author Andross
  */
 public final class Debug implements Cloneable {
@@ -120,7 +122,7 @@ public final class Debug implements Cloneable {
                         }
                         case OPTION: {
                             messages.add("&7This option is unknown. Valid options:");
-                            messages.add("&7>> " + Arrays.stream(BanOption.values()).map(BanOption::getName).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + pl.getUtils().getOptions().stream().map(BanOption::getName).collect(Collectors.joining(",")));
                             continue;
                         }
                         case ITEM: {
@@ -130,33 +132,33 @@ public final class Debug implements Cloneable {
                         }
                         case ENTITY: {
                             messages.add("&7This entity is unknown. Valid entities:");
-                            messages.add("&7>> " + Arrays.stream(EntityType.values()).map(EntityType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + pl.getUtils().getEntities().stream().map(EntityType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
                             continue;
                         }
                         case GAMEMODE: {
                             messages.add("&7This gamemode is unknown. Valid gamemodes:");
-                            messages.add("&7>> " + Arrays.stream(GameMode.values()).map(GameMode::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + pl.getUtils().getGamemodes().stream().map(GameMode::name).map(String::toLowerCase).collect(Collectors.joining(",")));
                             continue;
                         }
                         case INVENTORY: {
                             messages.add("&7This inventory type is unknown. Valid inventory types:");
-                            messages.add("&7>> " + Arrays.stream(InventoryType.values()).map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + pl.getUtils().getInventories().stream().map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
                             continue;
                         }
                         case METADATA: {
                             messages.add("&7This metadata is unknown. Valid metadatas:");
-                            messages.add("&7>> " + Arrays.stream(MetaType.values()).map(MetaType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + pl.getUtils().getMetas().stream().map(MetaType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
                             continue;
                         }
                         case METADATA_ENCHANTMENT: {
                             messages.add("&7This enchantment is unknown. The synthax is Enchantment:Level");
                             messages.add("&7Valid enchantments:");
-                            messages.add("&7>> " + Arrays.stream(Enchantment.values()).map(Enchantment::getName).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + pl.getUtils().getEnchantments().stream().map(Enchantment::getName).map(String::toLowerCase).collect(Collectors.joining(",")));
                             continue;
                         }
                         case METADATA_POTION: {
                             messages.add("&7This potion is unknown. Valid potions:");
-                            messages.add("&7>> " + Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + pl.getUtils().getPotions().stream().map(PotionType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
                             continue;
                         }
                     }

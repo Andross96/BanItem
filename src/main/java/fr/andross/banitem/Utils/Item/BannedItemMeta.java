@@ -8,6 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -40,76 +41,80 @@ public class BannedItemMeta {
             }
 
             // Getting object
+            Object o;
             try {
                 // Loading object
-                Object o = section.get(key);
+                o = section.get(key);
                 if (o == null) continue;
 
                 // Validating the object
                 type.validate(o);
+            } catch (final Exception e) {
+                d.clone().add(Listable.Type.METADATA, "&cInvalid metadata value for metadata &e&l" + key + "&c.").sendDebug();
+                throw new Exception();
+            }
 
-                // Preparing the object
-                switch (type) {
-                    case DISPLAYNAME_EQUALS: case DISPLAYNAME_CONTAINS: {
-                        // Colorizing the object
-                        o = utils.color((String) o);
-                        break;
-                    }
+            // Preparing the object
+            switch (type) {
+                case DISPLAYNAME_EQUALS: case DISPLAYNAME_CONTAINS: {
+                    // Colorizing the object
+                    o = utils.color((String) o);
+                    break;
+                }
 
-                    case LORE_EQUALS: case LORE_CONTAINS: {
-                        // Colorizing the list
-                        final List<String> list = utils.getStringList(o);
-                        o = list.stream().map(utils::color).collect(Collectors.toList());
-                        break;
-                    }
+                case LORE_EQUALS: case LORE_CONTAINS: {
+                    // Colorizing the list
+                    final List<String> list = utils.getStringList(o);
+                    o = list.stream().map(utils::color).collect(Collectors.toList());
+                    break;
+                }
 
-                    case DURABILITY: break; // Nothing to prepare
+                case DURABILITY: break; // Nothing to prepare
 
-                    case ENCHANTMENT_EQUALS: case ENCHANTMENT_CONTAINS: {
-                        // Getting a map of enchantment
-                        final Map<Enchantment, Integer> map = new HashMap<>();
-                        List<String> list = utils.getStringList(o);
-                        list = utils.getSplittedList(list);
+                case ENCHANTMENT_EQUALS: case ENCHANTMENT_CONTAINS: {
+                    // Getting a map of enchantment
+                    final Map<Enchantment, Integer> map = new HashMap<>();
+                    List<String> list = utils.getStringList(o);
+                    list = utils.getSplittedList(list);
 
-                        for (final String string : list) {
+                    for (final String string : list) {
+                        try {
                             final String[] s = string.split(":");
                             final Enchantment enchantment = Enchantment.getByName(s[0].toUpperCase());
                             if (enchantment == null) throw new Exception();
                             final Integer level = Integer.valueOf(s[1]);
                             map.put(enchantment, level);
+                        } catch (final Exception e) {
+                            d.clone().add(Listable.Type.METADATA_ENCHANTMENT, "&cInvalid enchantment '" + string + "' for metadata &e&l" + key + "&c.").sendDebug();
+                            throw new Exception();
                         }
-
-                        o = map;
-                        break;
                     }
 
-                    case POTION: {
-                        List<String> list = utils.getStringList(o);
-                        list = utils.getSplittedList(list);
-                        final Set<PotionEffectType> types = new HashSet<>();
+                    o = map;
+                    break;
+                }
 
-                        for (final String potionEffectTypeName : list) {
-                            final PotionEffectType potionEffectType = PotionEffectType.getByName(potionEffectTypeName);
-                            if (potionEffectType == null) throw new Exception();
-                            types.add(potionEffectType);
+                case POTION: {
+                    List<String> list = utils.getStringList(o);
+                    list = utils.getSplittedList(list);
+                    final Set<PotionEffectType> types = new HashSet<>();
+
+                    for (final String potionEffectTypeName : list) {
+                        try {
+                            final PotionType potionEffectType = PotionType.valueOf(potionEffectTypeName.toUpperCase());
+                            types.add(potionEffectType.getEffectType());
+                        } catch (final Exception e) {
+                            d.clone().add(Listable.Type.METADATA_POTION, "&cInvalid potion '" + potionEffectTypeName + "' for metadata &e&l" + key + "&c.").sendDebug();
+                            throw new Exception();
                         }
-
-                        o = types;
-                        break;
                     }
-                }
 
-                this.meta.put(type, o);
-            } catch (final Exception e) {
-                final Listable.Type listType;
-                switch (type) {
-                    case ENCHANTMENT_CONTAINS: case ENCHANTMENT_EQUALS: listType = Listable.Type.METADATA_ENCHANTMENT; break;
-                    case POTION: listType = Listable.Type.METADATA_POTION; break;
-                    default: listType = null; break;
+                    o = types;
+                    break;
                 }
-                d.clone().add(listType == null ? Listable.Type.METADATA : listType, "&cInvalid metadata value for metadata &e&l" + key + "&c.").sendDebug();
-                throw new Exception();
             }
+
+            this.meta.put(type, o);
         }
     }
 

@@ -5,11 +5,14 @@ import fr.andross.banitem.Database.CustomItems;
 import fr.andross.banitem.Options.BanOption;
 import fr.andross.banitem.Utils.Debug.Debug;
 import fr.andross.banitem.Utils.Item.BannedItem;
+import fr.andross.banitem.Utils.Item.MetaType;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * A listable class which will attempt to create List object from gived data.
  * Mainly used to load configurations.
- * @version 2.1
+ * @version 2.1.2
  * @author Andross
  */
 public class Listable {
@@ -35,6 +38,9 @@ public class Listable {
     private final List<EntityType> entities = Arrays.asList(EntityType.values());
     private final List<GameMode> gamemodes = Arrays.asList(GameMode.values());
     private final List<InventoryType> inventories = Arrays.asList(InventoryType.values());
+    private final List<MetaType> metas = Arrays.asList(MetaType.values());
+    private final List<Enchantment> enchantments = Arrays.asList(Enchantment.values());
+    private final List<PotionType> potions = Arrays.asList(PotionType.values());
 
     public Listable(@NotNull final BanItem pl) {
         this.pl = pl;
@@ -126,7 +132,6 @@ public class Listable {
     @NotNull
     public <T> List<T> getList(@NotNull final Type type, @NotNull final List<String> strings, @Nullable final Debug d) {
         final List<T> list = new ArrayList<>();
-        final List<T> ignoredList = new ArrayList<>();
         if (strings.isEmpty()) return list;
 
         for (String key : strings) {
@@ -139,14 +144,13 @@ public class Listable {
                 if (remove) key = key.substring(1);
                 final T o = getObject(type, key);
                 if (o == null) throw new Exception();
-                if (remove) ignoredList.add(o); else list.add(o);
+                if (remove) list.remove(o); else list.add(o);
             } catch (final Exception e) {
                 if (d == null) return new ArrayList<>();
                 d.clone().add(type, "&cUnknown " + type.name().toLowerCase() + " &e&l" + key + "&c.").sendDebug();
             }
         }
 
-        list.removeAll(ignoredList);
         return list;
     }
 
@@ -281,5 +285,32 @@ public class Listable {
     @NotNull
     public List<InventoryType> getInventories() {
         return inventories;
+    }
+
+    /**
+     * List of metas types
+     * @return list of metas types
+     */
+    @NotNull
+    public List<MetaType> getMetas() {
+        return metas;
+    }
+
+    /**
+     * List of enchantments
+     * @return list of enchantments
+     */
+    @NotNull
+    public List<Enchantment> getEnchantments() {
+        return enchantments;
+    }
+
+    /**
+     * List of potions
+     * @return list of potions
+     */
+    @NotNull
+    public List<PotionType> getPotions() {
+        return potions;
     }
 }
