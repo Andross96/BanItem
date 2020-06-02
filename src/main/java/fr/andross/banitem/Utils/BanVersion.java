@@ -3,9 +3,9 @@ package fr.andross.banitem.Utils;
 import org.bukkit.Bukkit;
 
 /**
- * Class that contains some notable versions nodes, so the plugin can handle well multiple versions
+ * Class that contains some notable versions nodes, so the plugin can handle multiple versions
  * Those variables are used to check versions compatibility
- * @version 2.1
+ * @version 2.2
  * @author Andross
  */
 public final class BanVersion {
@@ -28,9 +28,4 @@ public final class BanVersion {
      * In 1.8+, armor stand event have been added.
      */
     public static final boolean v8OrMore = v9OrMore || Bukkit.getBukkitVersion().matches("(1\\.8)(.*)");
-
-    /**
-     * In 1.8, have to update player inventory when cancelling PlayerInteractEvent.
-     */
-    public static final boolean v8 = Bukkit.getBukkitVersion().matches("(1\\.8)(.*)");
 }

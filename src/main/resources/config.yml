@@ -82,6 +82,8 @@
 #      -> Special data: entity - the entity type
 #    - ENTITYINTERACT: when a player use right click with the item on an entity
 #      -> Special data: entity - the entity interacted
+#    - FILL: When a player use right click with the item on a fluid (water/lava)
+#      -> Special data: material - the fluid type
 #    - GLIDE: when a player try to use (activate) an elytra [no specific data]
 #    - HANGINGPLACE: when a player try to place a hanging entity (itemframe, painting..)
 #      -> Special data: entity - the entity created by this placing
@@ -96,6 +98,8 @@
 #      -> Special data:
 #        -> inventory-from: the inventory where the item comes from
 #        -> inventory-to: the inventory where the item goes to
+#    - UNFILL: When a player try to unfill a bucket
+#      -> Special data: material - the block type clicked
 #    - WEAR: when the player try to put the item as an armor (you'll need to use also the 'place' option) [no specific data]
 #        +——————————————————————————————————————————————————————+
 #  - Examples:

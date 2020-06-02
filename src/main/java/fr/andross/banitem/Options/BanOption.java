@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * List of available ban options
- * @version 2.0
+ * @version 2.2
  * @author Andross
  */
 public enum BanOption {
@@ -96,6 +96,12 @@ public enum BanOption {
     ENTITYINTERACT("entityinteract"),
 
     /**
+     * When a player try to fill an item (like a bucket)
+     * Special data: <b>material</b> - the {@link org.bukkit.Material} collected
+     */
+    FILL("fill"),
+
+    /**
      * When a player try to use <i>(activate)</i> an elytra
      * Special data: none
      */
@@ -145,6 +151,12 @@ public enum BanOption {
      *   - <b>inventory-to</b> - the {@link org.bukkit.event.inventory.InventoryType} where the item goes to
      */
     TRANSFER("transfer"),
+
+    /**
+     * When a player unfill a bucket
+     * Special data: <b>material</b> - the {@link org.bukkit.Material} fluid type
+     */
+    UNFILL("unfill"),
 
     /**
      * When a player try to wear an item

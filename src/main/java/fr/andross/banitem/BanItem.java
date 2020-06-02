@@ -15,10 +15,10 @@ import java.util.List;
 
 /**
  * Main plugin class
- * @version 2.1
+ * @version 2.2
  * @author Andross
  */
-public class BanItem extends JavaPlugin {
+public final class BanItem extends JavaPlugin {
     private static BanItem instance;
     private BanItemAPI api;
     private BanConfig banConfig;
@@ -31,7 +31,7 @@ public class BanItem extends JavaPlugin {
         instance = this;
         api = new BanItemAPI(this);
         // Loading plugin on next tick after worlds
-        Bukkit.getScheduler().runTaskLater(this, () -> { if(isEnabled()) load(Bukkit.getConsoleSender(), null); }, 20L);
+        Bukkit.getScheduler().runTaskLater(this, () -> { if (isEnabled()) load(Bukkit.getConsoleSender(), null); }, 20L);
     }
 
     /**
@@ -55,7 +55,7 @@ public class BanItem extends JavaPlugin {
         listener.load(sender);
 
         // Result
-        sender.sendMessage(utils.getPrefix() + utils.color("&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s)."));
+        utils.sendMessage(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s).");
     }
 
     @Override
@@ -66,19 +66,19 @@ public class BanItem extends JavaPlugin {
             // Permission?
             if (!sender.hasPermission("banitem.command.help")) {
                 final String message = getConfig().getString("no-permission");
-                if (message != null) sender.sendMessage(utils.color(message));
+                if (message != null) utils.sendMessage(sender, message);
                 return true;
             }
 
             // Help messages
-            sender.sendMessage(utils.getPrefix() + utils.color(("&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ")));
-            sender.sendMessage(utils.getPrefix() + utils.color(" &7- /bi &3add&7: add an item in blacklist."));
-            sender.sendMessage(utils.getPrefix() + utils.color(" &7- /bi &3check&7: check if any player has a blacklisted item."));
-            sender.sendMessage(utils.getPrefix() + utils.color(" &7- /bi &3customitem&7: add/remove/list custom items."));
-            sender.sendMessage(utils.getPrefix() + utils.color(" &7- /bi &3help&7: gives additional informations."));
-            sender.sendMessage(utils.getPrefix() + utils.color(" &7- /bi &3info&7: get info about your item in hand."));
-            sender.sendMessage(utils.getPrefix() + utils.color(" &7- /bi &3log&7: activate the log mode."));
-            sender.sendMessage(utils.getPrefix() + utils.color(" &7- /bi &3reload&7: reload the config."));
+            utils.sendMessage(sender,"&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
+            utils.sendMessage(sender," &7- /bi &3add&7: add an item in blacklist.");
+            utils.sendMessage(sender," &7- /bi &3check&7: check if any player has a blacklisted item.");
+            utils.sendMessage(sender," &7- /bi &3customitem&7: add/remove/list custom items.");
+            utils.sendMessage(sender," &7- /bi &3help&7: gives additional informations.");
+            utils.sendMessage(sender," &7- /bi &3info&7: get info about your item in hand.");
+            utils.sendMessage(sender," &7- /bi &3log&7: activate the log mode.");
+            utils.sendMessage(sender," &7- /bi &3reload&7: reload the config.");
         }
         return true;
     }
@@ -90,7 +90,7 @@ public class BanItem extends JavaPlugin {
         if (!sender.hasPermission("banitem.command.help")) return new ArrayList<>();
 
         // Sub command
-        if (args.length == 1) return StringUtil.copyPartialMatches(args[args.length - 1], utils.getCommands(), new ArrayList<>());
+        if (args.length == 1) return StringUtil.copyPartialMatches(args[0], utils.getCommands(), new ArrayList<>());
 
         // Running subcommand
         try {

@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 2.1
+ * @version 2.2
  * @author Andross
  */
 public final class BanUtils extends Listable {
@@ -198,29 +198,8 @@ public final class BanUtils extends Listable {
             for (int i = 0; i < inv.getSize(); i++) {
                 final ItemStack item = inv.getItem(i);
                 if (isNullOrAir(item)) continue;
-
-                // Creating banned item, one without metadata & one with metadata
-                final BannedItem bannedItemType = new BannedItem(item.getType());
-                final BannedItem bannedItem = new BannedItem(item, true);
-
-                // Checking if the type is banned?
-                Map<BanOption, BanOptionData> subMap = map.get(bannedItemType);
-                String itemName = bannedItemType.getType().name();
-                if (subMap == null) {
-                    subMap = map.get(bannedItem);
-                    itemName = customItems.getName(bannedItem);
-                }
-                if (subMap == null) continue;
-                if (!subMap.containsKey(BanOption.DELETE)) continue;
-
-                // Has permission to bypass?
-                if (hasPermission(player, item.getType().name().toLowerCase(), customItems.getName(bannedItem), BanOption.DELETE, null)) continue;
-
-                // Banned!
-                inv.clear(i);
-                // Ban message?
-                final BanOptionData data = subMap.get(BanOption.DELETE);
-                sendMessage(player, itemName == null ? "unknown" : itemName, BanOption.DELETE, data);
+                if (pl.getApi().isBanned(player, new BannedItem(item), BanOption.DELETE))
+                    inv.clear(i);
             }
         }
     }
@@ -364,6 +343,37 @@ public final class BanUtils extends Listable {
     }
 
     /**
+     * Used to check a player armor inventory
+     * @param p player
+     */
+    public void checkPlayerArmors(final Player p) {
+        final EntityEquipment ee = p.getEquipment();
+        if (ee == null) return;
+
+        final ItemStack[] items = new ItemStack[] { ee.getHelmet(), ee.getChestplate(), ee.getLeggings(), ee.getBoots() };
+        int i = -1;
+
+        for (final ItemStack item : items) {
+            i++;
+            if (isNullOrAir(item)) continue;
+            if (!pl.getApi().isBanned(p, item, BanOption.WEAR)) continue;
+
+            // Item can not be weared in this world
+            switch (i) {
+                case 0: ee.setHelmet(null); break;
+                case 1: ee.setChestplate(null); break;
+                case 2: ee.setLeggings(null); break;
+                case 3: ee.setBoots(null); break;
+                default: break;
+            }
+            final int freeSlot = p.getInventory().firstEmpty();
+            // No empty space, dropping it, else adding it into inventory
+            if (freeSlot == -1) p.getWorld().dropItemNaturally(p.getLocation(), item);
+            else p.getInventory().setItem(freeSlot, item);
+        }
+    }
+
+    /**
      * Quick utils to check if the item is null or if its type is Material.AIR
      * @param item the {@link ItemStack}
      * @return true if the ItemStack is null or AIR, otherwise false
@@ -414,12 +424,20 @@ public final class BanUtils extends Listable {
         char[] b = text.toCharArray();
         for (int i = 0; i < b.length - 1; i++) {
             if (b[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
-                char COLOR_CHAR = '\u00A7';
-                b[i] = COLOR_CHAR;
+                b[i] = '\u00A7';
                 b[i+1] = Character.toLowerCase(b[i+1]);
             }
         }
         return new String(b);
+    }
+
+    /**
+     * Sending a prefixed and colored message to sender
+     * @param sender sender
+     * @param message message
+     */
+    public void sendMessage(@NotNull final CommandSender sender, @NotNull final String message) {
+        sender.sendMessage(prefix + color(message));
     }
 
     /**

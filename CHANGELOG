@@ -1,3 +1,11 @@
+v2.2:
+  - Added 'fill' option: block when a player try to fill a bucket with a fluid;
+  - Added 'unfill' option: block when a player try to unfill a bucket;
+  - Improved & fixed wear option;
+  - Fixed delete option for items with metadata;
+  - Fixed clientside inventory visual bug if an item is banned (MC<1.12);
+  - Code cleanup
+--------------------------------------------
 v2.1.2:
   - Added available enchantments & potions name list in /banitem help;
   - Fixed metadata potion names. They are also correctly debugged if not valid;  

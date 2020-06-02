@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * Abstract sub command class
- * @version 2.0
+ * @version 2.2
  * @author Andross
  */
 public abstract class BanCommand {
@@ -34,13 +34,12 @@ public abstract class BanCommand {
         sender.sendMessage(pl.getUtils().color(String.format(header, title)));
     }
 
-
     /**
      * Send a <i>(colored)</i> message to the sender
      * @param message message to send
      */
     void message(@NotNull final String message) {
-        sender.sendMessage(pl.getUtils().getPrefix() + pl.getUtils().color(message));
+        pl.getUtils().sendMessage(sender, message);
     }
 
     /**
