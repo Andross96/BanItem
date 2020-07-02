@@ -1,3 +1,19 @@
+v2.3:
+  - Added 1.16 support;
+  - Added WorldGuard region support (http://banitem.andross.fr/doc.html#options-data-region);
+  - Added 'inventoryclick' option: can not click this item in any inventory;
+  - Added 'rename' option: can not rename the item in an anvil, or from a (configurable) rename commands;
+  - Added configurable prefix;
+  - Added support of potions levels for metadata;
+  - Added update checker (configurable);
+  - Added metrics;
+  - Updated config file with new 'options' section: multiple configurations available for some options;
+  - Better recognition for craft option;
+  - Fixed swap option (+ no more drag item into inventory);
+  - Fixed specific subcommands permissions;
+  - Whole project restructure (packages, pom...);
+  - Updated API;
+--------------------------------------------
 v2.2:
   - Added 'fill' option: block when a player try to fill a bucket with a fluid;
   - Added 'unfill' option: block when a player try to unfill a bucket;
