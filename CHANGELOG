@@ -1,3 +1,9 @@
+v2.4:
+  - New option bookedit: when the player edits or signs a book and quill item;
+  - [Config] Added wear worldguard region check (configurable): the plugin will check the player's equipment when changing regions;
+  - Fixed swap shift+click;
+  - Fixed color codes deserialization;
+--------------------------------------------
 v2.3:
   - Added 1.16 support;
   - Added WorldGuard region support (http://banitem.andross.fr/doc.html#options-data-region);

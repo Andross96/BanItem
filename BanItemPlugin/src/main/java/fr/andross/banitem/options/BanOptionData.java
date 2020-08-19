@@ -1,6 +1,24 @@
+/*
+ * BanItem - Lightweight, powerful & configurable per world ban item plugin
+ * Copyright (C) 2020 André Sustac
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package fr.andross.banitem.options;
 
 import fr.andross.banitem.utils.item.BannedItemMeta;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -16,7 +34,7 @@ import java.util.*;
  * Example: the messages, if the option should be logged, any item...
  * The data type is written as description in {@link BanDataType} description.
  * I've also included some clear api methods to get them, at the bottom.
- * @version 2.1
+ * @version 2.4
  * @author Andross
  */
 public final class BanOptionData extends HashMap<BanDataType, Object> {
@@ -81,13 +99,23 @@ public final class BanOptionData extends HashMap<BanDataType, Object> {
                 final Collection<Object> c = (Collection<Object>) entry.getValue();
                 if (c.size() == 0) continue;
                 // Could be a simple string, else serializing the list
-                if (c.size() == 1) map.put(entry.getKey().name().toLowerCase(), c.iterator().next().toString());
+                if (c.size() == 1) map.put(entry.getKey().name().toLowerCase(), serializeColorCodes(c.iterator().next().toString()));
                 else map.put(entry.getKey().name().toLowerCase(), serialize(c));
             }
-            else map.put(entry.getKey().name(), entry.getValue().toString());
+            else map.put(entry.getKey().name(), serializeColorCodes(entry.getValue().toString()));
         }
 
         return map;
+    }
+
+    /**
+     * Replace color char to readable color code
+     * @param text text to translate
+     * @return translated text
+     */
+    @Nullable
+    private String serializeColorCodes(@Nullable final String text) {
+        return text == null ? null : text.replace(ChatColor.COLOR_CHAR, '&');
     }
 
     /**
@@ -99,7 +127,7 @@ public final class BanOptionData extends HashMap<BanDataType, Object> {
     @NotNull
     public List<String> serialize(@NotNull final Collection<Object> c) {
         final List<String> list = new ArrayList<>();
-        for (final Object o : c) list.add(o.toString());
+        for (final Object o : c) list.add(serializeColorCodes(o.toString()));
         return list;
     }
 

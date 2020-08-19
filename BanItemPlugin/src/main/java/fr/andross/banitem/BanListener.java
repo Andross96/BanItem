@@ -1,10 +1,30 @@
+/*
+ * BanItem - Lightweight, powerful & configurable per world ban item plugin
+ * Copyright (C) 2020 André Sustac
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package fr.andross.banitem;
 
 import fr.andross.banitem.options.BanData;
 import fr.andross.banitem.options.BanDataType;
 import fr.andross.banitem.options.BanOption;
 import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.events.PlayerRegionChangeEvent;
+import fr.andross.banitem.utils.hooks.IWorldGuardHook;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Furnace;
@@ -38,7 +58,7 @@ import java.util.Set;
  * <p>This class is used to register only the needed listeners.
  * The listeners should be refreshed everytime you manually add/remove an option
  * from a map <i>(blacklist or whitelist)</i></p>
- * @version 2.3
+ * @version 2.4
  * @author Andross
  */
 public final class BanListener {
@@ -108,6 +128,16 @@ public final class BanListener {
                 final ItemStack itemInHand = utils.getItemInHand(damager);
                 if (api.isBanned(damager, e.getEntity().getLocation(), itemInHand, BanOption.ATTACK, new BanData(BanDataType.ENTITY, e.getEntityType()))) e.setCancelled(true);
             }, priority.contains(BanOption.ATTACK));
+        }
+
+        if (blacklist.contains(BanOption.BOOKEDIT) || whitelist) {
+            registerEvent(PlayerEditBookEvent.class, (li, event) -> {
+                final PlayerEditBookEvent e = (PlayerEditBookEvent) event;
+                if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), utils.getItemInHand(e.getPlayer()), BanOption.BOOKEDIT)) {
+                    e.setCancelled(true);
+                    e.setNewBookMeta(e.getPreviousBookMeta());
+                }
+            }, priority.contains(BanOption.BOOKEDIT));
         }
 
         if (blacklist.contains(BanOption.BREAK) || whitelist) {
@@ -456,6 +486,15 @@ public final class BanListener {
                         if (e.getHotbarButton() >= 0) item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
                         else item = e.getCursor();
                         if (!utils.isNullOrAir(item))
+                            if (api.isBanned((Player) e.getWhoClicked(), e.getWhoClicked().getLocation(), item, BanOption.SWAP)) {
+                                e.setCancelled(true);
+                                return;
+                            }
+                    }
+
+                    if (e.isShiftClick()) {
+                        final ItemStack item = e.getCurrentItem();
+                        if (!utils.isNullOrAir(item))
                             if (api.isBanned((Player) e.getWhoClicked(), e.getWhoClicked().getLocation(), item, BanOption.SWAP))
                                 e.setCancelled(true);
                     }
@@ -612,6 +651,29 @@ public final class BanListener {
                 final PlayerChangedWorldEvent e = (PlayerChangedWorldEvent) event;
                 Bukkit.getScheduler().runTask(pl, () -> utils.checkPlayerArmors(e.getPlayer()));
             }, priority.contains(BanOption.WEAR));
+
+            if (pl.getBanConfig().getOptionsConfig().isRegionCheck() && pl.getBanConfig().getHooks().isWorldGuard()) {
+                final IWorldGuardHook hook = pl.getHooks().getWorldGuardHook();
+                if (hook == null)
+                    sender.sendMessage(utils.color("&cCan not use the region checker for wear option, as worldguard is not reachable."));
+                else {
+                    // Register the region change event
+                    registerEvent(PlayerMoveEvent.class, (li, event) -> {
+                        final PlayerMoveEvent e = (PlayerMoveEvent) event;
+                        if (e.getTo() == null) return;
+                        final Location from = e.getFrom();
+                        final Location to = e.getTo();
+                        if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY() && from.getBlockZ() == to.getBlockZ()) return;
+                        if (!hook.getStandingRegions(from).equals(hook.getStandingRegions(to)))
+                            Bukkit.getPluginManager().callEvent(new PlayerRegionChangeEvent(e.getPlayer()));
+                    }, priority.contains(BanOption.WEAR));
+
+                    registerEvent(PlayerRegionChangeEvent.class, (li, event) -> {
+                        final PlayerRegionChangeEvent e = (PlayerRegionChangeEvent) event;
+                        Bukkit.getScheduler().runTask(pl, () -> utils.checkPlayerArmors(e.getPlayer()));
+                    }, priority.contains(BanOption.WEAR));
+                }
+            }
         }
 
         sender.sendMessage(pl.getBanConfig().getPrefix() + utils.color("&2Activated &e" + activated + "&2 listener(s)."));

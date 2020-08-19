@@ -1,23 +1,36 @@
-# BanItem
-BanItem is a simple lightweight & powerful per world ban item, fully configurable.
+# BanItem ![GPL-3.0](http://cdn.andross.fr/badges/license.svg) ![Stable](http://cdn.andross.fr/badges/stable.svg) ![Version](http://cdn.andross.fr/badges/v2.4.svg) ![Discord](http://cdn.andross.fr/badges/discord.svg)
 
-# Links
-* [Spigot thread](https://www.spigotmc.org/resources/banitem.67701/) / [Bukkit thread](https://dev.bukkit.org/projects/banitem-reloaded)
-* [For any bugs](https://github.com/Andross96/BanItem/issues)
+### Description
+Lightweight, powerful & configurable per world ban item plugin
+
+### Features:
+* Support all bukkit versions;
+* Blacklist: players will not be able to use the item, per option configurable;
+* Whitelist: (reversed blacklist) - all items & options will be blocked , you'll have to set which items is allowed with which option;
+* Per world configurable;
+* Per world per item permissions;
+* Per world per item per option permissions;
+* Support of custom items (items with specific item data/meta, like modded items, potions, egg spawners for old versions...);
+* Usefull commands;
+* Lightweight & activating only necessary listeners;
+* Developer API available;
+
+### How to use
+Full documentation [here](http://banitem.andross.fr/)
 
 # Developer API
 ```xml
-  <repository>
-    <id>andross-repo</id>
-    <url>http://repo.andross.fr/</url>
-  </repository>
+<repository>
+  <id>andross-repo</id>
+  <url>http://repo.andross.fr/</url>
+</repository>
 
-  <dependency>
-    <groupId>fr.andross</groupId>
-    <artifactId>BanItemParent</artifactId>
-    <version>2.3</version>
-    <scope>provided</scope>
-  </dependency>
+<dependency>
+  <groupId>fr.andross</groupId>
+  <artifactId>BanItemPlugin</artifactId>
+  <version>2.4</version>
+  <scope>provided</scope>
+</dependency>
 ```
 
 For any questions/suggestions: PM me on spigot or on discord (Andross#5254).
@@ -33,3 +46,15 @@ final BanItemAPI banItemApi = BanItemAPI.getInstance();
 // Get the BanItemAPI from BanItem instance:
 final BanItemAPI banItemApi = BanItem.getInstance().getApi();
 ```
+
+### Requirements
+* Java 1.8
+* Any bukkit based server
+
+### Links and Contacts
+* [Spigot page](https://www.spigotmc.org/resources/banitem.67701/)
+* [Bukkit page](https://dev.bukkit.org/projects/banitem-reloaded)
+* [Documentation](http://banitem.andross.fr/)
+
+For any bug/suggestions: `Andross#5254`
+

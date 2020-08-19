@@ -15,39 +15,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.options;
+package fr.andross.banitem.utils.events;
 
+import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * The ban data used into a ban check
- * The object will be an instance of the described {@link BanDataType}
- * Example: if type == BanDataType.CREATIVE, the object is a boolean.
+ * Called if the wear region check option is enabled.
+ * This is only for check purpose, no modifications can be made.
+ * Cancelling the event will not cancel the player movement.
  * @version 2.4
  * @author Andross
  */
-public final class BanData {
-    private final BanDataType type;
-    private final Object o;
+public final class PlayerRegionChangeEvent extends PlayerEvent {
+    private static final HandlerList handlers = new HandlerList();
 
-    public BanData(@NotNull final BanDataType type, @NotNull final Object o) {
-        this.type = type;
-        this.o = o;
+    public PlayerRegionChangeEvent(@NotNull final Player player) {
+        super(player);
     }
 
-    /**
-     * @return the ban data type
-     */
     @NotNull
-    public BanDataType getType() {
-        return type;
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
     }
 
-    /**
-     * @return the object, which is an instance described by the {@link BanDataType}
-     */
     @NotNull
-    public Object getObject() {
-        return o;
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 }

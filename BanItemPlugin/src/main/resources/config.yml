@@ -1,6 +1,6 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v2.3      —————————————————| #
+# |——————————————————      v2.4      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # |                   Documentation:                  | #
 # |             http://banitem.andross.fr/            | #
@@ -67,6 +67,7 @@
 #    - ARMORSTANDTAKE: when the player try to take the item from an armorstand [no specific data]
 #    - ATTACK: when the player use left click with the item in the main hand on an entity
 #      -> Special data: entity - the entity clicked
+#    - BOOKEDIT: when the player edits or signs a book and quill item [no specific data]
 #    - BREAK: when the item is breaked
 #      -> Special data: material - the item in the player hand
 #    - BREW: when the item (potion) is brewed inside a brewing stand [no specific data]
@@ -155,6 +156,9 @@ options:
   transfer:
     # Block hoppers to take/give banned item from/to inventories
     hoppers-block: false
+  wear:
+    # If the plugin have to check when a player enter or exit a WorldGuard region
+    region-check: false
 
 # Hooking with plugins
 hooks:
