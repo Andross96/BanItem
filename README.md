@@ -15,8 +15,7 @@ Lightweight, powerful & configurable per world ban item plugin
 * Lightweight & activating only necessary listeners;
 * Developer API available;
 
-### How to use
-Full documentation [here](http://banitem.andross.fr/)
+[stats](https://bstats.org/signatures/bukkit/BanItem.svg)
 
 # Developer API
 ```xml
