@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,32 +17,31 @@
  */
 package fr.andross.banitem;
 
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.actions.BanActionData;
+import fr.andross.banitem.actions.BanData;
+import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.database.Blacklist;
-import fr.andross.banitem.options.BanData;
-import fr.andross.banitem.options.BanDataType;
-import fr.andross.banitem.options.BanOption;
-import fr.andross.banitem.options.BanOptionData;
-import fr.andross.banitem.utils.BanVersion;
-import fr.andross.banitem.utils.Listable;
+import fr.andross.banitem.events.DeleteBannedItemEvent;
+import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.EnchantmentWrapper;
 import fr.andross.banitem.utils.debug.Debug;
-import fr.andross.banitem.utils.item.BannedItem;
-import fr.andross.banitem.utils.item.BannedItemMeta;
+import fr.andross.banitem.utils.statics.Chat;
+import fr.andross.banitem.utils.statics.Utils;
+import fr.andross.banitem.utils.statics.list.ListType;
+import fr.andross.banitem.utils.statics.list.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,164 +56,168 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
-public final class BanUtils extends Listable {
-    /**
-     * Map for pickup cooldowns
-     */
-    private final Map<UUID, Long> pickupCooldowns = new HashMap<>();
-
-    /**
-     * A set containing the players in log mode
-     */
+public final class BanUtils {
+    private final BanItem pl;
+    private final Map<String, String> commandsAliases = new HashMap<>();
+    private final Map<UUID, Long> messagesCooldown = new HashMap<>();
     private final Set<UUID> logging = new HashSet<>();
 
-    /**
-     * This should not be instantiate. Use {@link BanItemAPI#load(CommandSender, FileConfiguration)} instead.
-     */
-    BanUtils(@NotNull final BanItem pl) {
-        super(pl);
+    BanUtils(final BanItem pl) {
+        this.pl = pl;
+        commandsAliases.put("mi", "metaitem");
+        commandsAliases.put("rl", "reload");
     }
 
     /**
-     * Get a map of options and options data from a section
+     * Get a map of actions and actions data from a section
      * @param worlds list of worlds
      * @param section section
      * @param d debug
-     * @return a map containing the ban options and their respective data from the ConfigurationSection
+     * @return a map containing the ban actions and their respective data from the ConfigurationSection
      */
     @NotNull
-    public Map<BanOption, BanOptionData> getBanOptionsFromItemSection(@NotNull final List<World> worlds, @Nullable final ConfigurationSection section, @NotNull final Debug d) {
-        final Map<BanOption, BanOptionData> options = new HashMap<>();
-        if (section == null) return options;
-        final List<BanOption> ignoredOptions = new ArrayList<>();
+    public Map<BanAction, BanActionData> getBanActionsFromItemSection(@NotNull final List<World> worlds, @Nullable final ConfigurationSection section, @NotNull final Debug d) {
+        final Map<BanAction, BanActionData> actions = new HashMap<>();
+        if (section == null) return actions;
+        final List<BanAction> ignoredActions = new ArrayList<>();
         for (final String key : section.getKeys(false)) {
-            for (String option : key.toUpperCase().trim().replaceAll("\\s+", "").split(",")) {
+            for (String action : key.toUpperCase().trim().replaceAll("\\s+", "").split(",")) {
                 final Debug newDebug = d.clone();
                 try {
-                    final BanOptionData bo = getBanOptionsForItem(worlds, section, key, newDebug.add(Type.OPTION, key));
-                    if (option.equals("*")) {
-                        for (final BanOption type : getOptions()) options.put(type, bo);
+                    final BanActionData bo = getBanActionsForItem(worlds, section, key, newDebug.add(ListType.ACTION, key));
+                    if (action.equals("*")) {
+                        for (final BanAction banAction : BanAction.values()) actions.put(banAction, bo);
                         continue;
                     }
-                    final boolean remove = option.startsWith("!");
-                    if (remove) option = option.substring(1);
-                    final BanOption banOption = BanOption.valueOf(option);
-                    if (remove) ignoredOptions.add(banOption); else options.put(banOption, bo);
+                    final boolean remove = action.startsWith("!");
+                    if (remove) action = action.substring(1);
+                    final BanAction banAction = BanAction.valueOf(action);
+                    if (remove) ignoredActions.add(banAction); else actions.put(banAction, bo);
                 } catch (final Exception e) {
-                    newDebug.add(Type.OPTION, "&cUnknown option &e&l" + option + "&c.").sendDebug();
+                    newDebug.add(ListType.ACTION, "&cUnknown action &e&l" + action + "&c.").sendDebug();
                 }
             }
         }
-        // Removing ignored options
-        for (final BanOption type : ignoredOptions) options.remove(type);
+        // Removing ignored actions
+        ignoredActions.forEach(actions::remove);
 
-        return options;
+        return actions;
     }
 
     /**
-     * Get ban options data for a section
+     * Get ban actions data for a section
      * @param worlds list of worlds, used for regions
-     * @param itemSection the option section
+     * @param itemSection the action section
      * @param key the current data key
      * @param d debug
-     * @return options data from the section of the specific option
-     * @throws Exception if one of the data is invalid
+     * @return actions data from the section of the specific action
      */
     @NotNull
-    public BanOptionData getBanOptionsForItem(@NotNull final List<World> worlds, @NotNull final ConfigurationSection itemSection, @NotNull final String key, @NotNull final Debug d) throws Exception {
-        final BanOptionData banOptionData = new BanOptionData();
+    public BanActionData getBanActionsForItem(@NotNull final List<World> worlds, @NotNull final ConfigurationSection itemSection, @NotNull final String key, @NotNull final Debug d) {
+        final BanActionData banActionData = new BanActionData();
         final ConfigurationSection section = itemSection.getConfigurationSection(key);
         if (section == null) {
-            final List<String> messages = getStringList(itemSection.get(key));
-            if (!messages.isEmpty()) banOptionData.put(BanDataType.MESSAGE, messages.stream().filter(this::isNotNullOrEmpty).map(this::color).collect(Collectors.toList()));
-            return banOptionData;
+            final List<String> messages = Listable.getStringList(itemSection.get(key));
+            if (!messages.isEmpty()) banActionData.getMap().put(BanDataType.MESSAGE, messages.stream().filter(Utils::isNotNullOrEmpty).map(Chat::color).collect(Collectors.toList()));
+            return banActionData;
         }
 
         // Handling data
-        for (final String option : section.getKeys(false)) {
-            final String optionLower = option.toLowerCase();
-            switch (optionLower) {
-                case "cooldown":
-                    banOptionData.put(BanDataType.COOLDOWN, section.getLong("cooldown"));
+        for (final String actionData : section.getKeys(false)) {
+            final BanDataType banDataType;
+            try {
+                banDataType = BanDataType.valueOf(actionData.toUpperCase().replace("-", "_"));
+            } catch (final Exception e) {
+                d.clone().add(ListType.ACTIONDATA, "&cUnknown action data &e&l" + actionData + "&c.").sendDebug();
+                continue;
+            }
+
+            final Object o = section.get(actionData);
+            if (o == null) continue; // should not happen, but, well..
+
+            switch (banDataType) {
+                case COOLDOWN:
+                    banActionData.getMap().put(BanDataType.COOLDOWN, section.getLong("cooldown"));
                     break;
 
-                case "entity": {
-                    final List<EntityType> list = getList(Type.ENTITY, section.get(option), d.add(Type.ENTITY, option), null);
+                case ENTITY: {
+                    final List<EntityType> list = Listable.getList(ListType.ENTITY, o, d.add(ListType.ENTITY, actionData));
                     if (!list.isEmpty())
-                        banOptionData.put(BanDataType.ENTITY, new HashSet<>(list));
+                        banActionData.getMap().put(BanDataType.ENTITY, EnumSet.copyOf(list));
                     break;
                 }
 
-                case "gamemode": {
-                    final List<GameMode> list = getList(Type.GAMEMODE, section.get(option), d.add(Type.GAMEMODE, option), null);
+                case ENCHANTMENT: {
+                    final List<EnchantmentWrapper> list = Listable.getList(ListType.ENCHANTMENT, o, d.add(ListType.ENCHANTMENT, actionData));
                     if (!list.isEmpty())
-                        banOptionData.put(BanDataType.GAMEMODE, new HashSet<>(list));
+                        banActionData.getMap().put(BanDataType.ENCHANTMENT, new HashSet<>(list));
                     break;
                 }
 
-                case "inventory-from": case "inventory-to": {
-                    final List<InventoryType> list = getList(Type.INVENTORY, section.get(option), d.add(Type.INVENTORY, option), null);
+                case GAMEMODE: {
+                    final List<GameMode> list = Listable.getList(ListType.GAMEMODE, o, d.add(ListType.GAMEMODE, actionData));
                     if (!list.isEmpty())
-                        banOptionData.put(optionLower.equals("inventory-from") ? BanDataType.INVENTORY_FROM : BanDataType.INVENTORY_TO, new HashSet<>(list));
+                        banActionData.getMap().put(BanDataType.GAMEMODE, EnumSet.copyOf(list));
                     break;
                 }
 
-                case "log":
-                    banOptionData.put(BanDataType.LOG, section.getBoolean("log"));
-                    break;
-
-                case "material": {
-                    final List<BannedItem> list = getList(Type.ITEM, section.get(option), d.add(Type.ITEM, option), null);
+                case INVENTORY_FROM:
+                case INVENTORY_TO: {
+                    final List<InventoryType> list = Listable.getList(ListType.INVENTORY, o, d.add(ListType.INVENTORY, actionData));
                     if (!list.isEmpty())
-                        banOptionData.put(BanDataType.MATERIAL, list.stream().map(BannedItem::getType).collect(Collectors.toSet()));
+                        banActionData.getMap().put(banDataType, EnumSet.copyOf(list));
                     break;
                 }
 
-                case "message": {
-                    final List<String> messages = getStringList(section.get(option));
+                case LOG:
+                    banActionData.getMap().put(BanDataType.LOG, o);
+                    break;
+
+                case MATERIAL: {
+                    final List<BannedItem> list = Listable.getList(ListType.ITEM, o, d.add(ListType.ITEM, actionData));
+                    if (!list.isEmpty())
+                        banActionData.getMap().put(BanDataType.MATERIAL, list.stream().map(BannedItem::getType).collect(Collectors.toSet()));
+                    break;
+                }
+
+                case MESSAGE: {
+                    final List<String> messages = Listable.getStringList(o);
                     if (!messages.isEmpty())
-                        banOptionData.put(BanDataType.MESSAGE, messages.stream().filter(this::isNotNullOrEmpty).map(this::color).collect(Collectors.toList()));
+                        banActionData.getMap().put(BanDataType.MESSAGE, messages.stream().filter(Utils::isNotNullOrEmpty).map(Chat::color).collect(Collectors.toList()));
                     break;
                 }
 
-                case "metadata": {
-                    try {
-                        final ConfigurationSection metadataSection = section.getConfigurationSection(option);
-                        if (metadataSection == null) continue;
-                        final BannedItemMeta meta = new BannedItemMeta(this, metadataSection, d.add(Type.METADATA, option));
-                        banOptionData.put(BanDataType.METADATA, meta);
-                    } catch (final Exception ignored) {
-                        continue; // the error is debugged with the help of the debugger
-                    }
-                    break;
-                }
-
-                case "region": {
+                case REGION: {
                     if (!pl.getHooks().isWorldGuardEnabled()) {
-                        d.clone().add(Type.REGION, "&cUsed region metadata, but WorldGuard is not available.").sendDebug();
+                        d.clone().add(ListType.REGION, "&cUsed region metadata, but WorldGuard is not available.").sendDebug();
                         continue;
                     }
-
-                    final List<ProtectedRegion> regions = getList(Type.REGION, section.get(option), d.add(Type.REGION, option), worlds);
+                    final List<com.sk89q.worldguard.protection.regions.ProtectedRegion> regions = Listable.getRegionsList(pl, o, d.add(ListType.REGION, actionData), worlds);
                     if (!regions.isEmpty())
-                        banOptionData.put(BanDataType.REGION, new HashSet<>(regions));
+                        banActionData.getMap().put(BanDataType.REGION, new HashSet<>(regions));
+                    break;
+                }
+
+                case RUN: {
+                    final List<String> commands = Listable.getStringList(o);
+                    if (!commands.isEmpty())
+                        banActionData.getMap().put(BanDataType.RUN, commands);
                     break;
                 }
             }
         }
 
-        return banOptionData;
+        return banActionData;
     }
 
     /**
-     * Method to check and delete banned item from any inventories
+     * Method to check and delete banned item from the player opened inventories
      * @param player any player
-     * @param invs inventories
      */
-    public void deleteItemFromInventory(@NotNull final Player player, @NotNull final Inventory... invs) {
+    public void deleteItemFromInventoryView(@NotNull final Player player) {
         // Op or all permissions?
         if (player.isOp() || player.hasPermission("banitem.bypass.*")) return;
 
@@ -223,12 +226,33 @@ public final class BanUtils extends Listable {
         if (!blacklist.containsKey(player.getWorld())) return; // nothing banned in this world
 
         // Checking!
+        final Inventory[] invs;
+        final InventoryView iv = player.getOpenInventory();
+        final Inventory top = iv.getTopInventory();
+        final Inventory bottom = iv.getBottomInventory();
+        if (top.equals(bottom))
+            invs = new Inventory[] { top };
+        else
+            invs = new Inventory[] { top, bottom };
+
         for (final Inventory inv : invs) {
+            // Ignored inventory?
+            final String name = Chat.uncolor(iv.getTitle());
+            if (pl.getBanConfig().getIgnoredInventoryTitles().contains(name)) continue;
+
             for (int i = 0; i < inv.getSize(); i++) {
                 final ItemStack item = inv.getItem(i);
-                if (isNullOrAir(item)) continue;
-                if (pl.getApi().isBanned(player, player.getLocation(), new BannedItem(item), BanOption.DELETE))
+                if (Utils.isNullOrAir(item)) continue;
+                final BannedItem bannedItem = new BannedItem(item);
+                if (pl.getApi().isBanned(player, player.getLocation(), bannedItem, BanAction.DELETE)) {
+                    if (pl.getConfig().getBoolean("api.deletebanneditemevent")) {
+                        final DeleteBannedItemEvent event = new DeleteBannedItemEvent(player, bannedItem);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) continue;
+                    }
+
                     inv.clear(i);
+                }
             }
         }
     }
@@ -236,21 +260,23 @@ public final class BanUtils extends Listable {
     /**
      * This method is used to send a ban message to player, if exists.
      * Mainly used for blacklist
-     * @param player send the message to {@link HumanEntity}
-     * @param itemName name of the item
-     * @param option the ban option <i>(used for log)</i>
+     * @param player player involved in the action
+     * @param itemName the item name involved
+     * @param action the ban action <i>(used for log)</i>
      * @param data the ban data <i>(containing the messages)</i>
      */
-    public void sendMessage(@NotNull final Player player, @NotNull final String itemName, @NotNull final BanOption option, @Nullable final BanOptionData data) {
+    public void sendMessage(@NotNull final Player player, @NotNull final String itemName, @NotNull final BanAction action, @Nullable final BanActionData data) {
         if (data == null) return; // no message neither log
 
-        // Checking pick up cooldown, to prevent spam
-        if (option == BanOption.PICKUP) {
-            final Long time = pickupCooldowns.get(player.getUniqueId());
-            if (time == null) pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        // Checking action cooldown, to prevent spam
+        if (action == BanAction.PICKUP || action == BanAction.HOLD) {
+            // Adding in cooldown
+            if (!messagesCooldown.containsKey(player.getUniqueId()))
+                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
             else {
-                if (time + 1000 > System.currentTimeMillis()) return;
-                else pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+                final long lastTime = messagesCooldown.get(player.getUniqueId());
+                if (lastTime + 1000L > System.currentTimeMillis()) return; // not sending message again
+                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
             }
         }
 
@@ -261,17 +287,14 @@ public final class BanUtils extends Listable {
         // Logging?
         if (log && !logging.isEmpty()) {
             // Preparing message
-            final String m =  color("&7&o[BanItem] " + // prefix
+            final String m = Chat.color(pl.getBanConfig().getPrefix() + // prefix
                         player.getName() + " " + // player name
                         "(" + player.getWorld().getName() + ") " + // world
                         "[" + itemName + "]: " + // item name
-                        option.name()); // option
+                        action.name()); // action
 
             // Sending log message
-            for (final UUID uuid : logging) {
-                final Player t = Bukkit.getPlayer(uuid);
-                if (t != null) t.sendMessage(m);
-            }
+            logging.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(t -> t.sendMessage(m));
         }
 
         // No message set
@@ -285,63 +308,56 @@ public final class BanUtils extends Listable {
     /**
      * This method is used to send a ban message to player, if exists.
      * Mainly used for whitelist
-     * @param player send the message to {@link HumanEntity}
-     * @param option the ban option <i>(used for log)</i>
+     * @param player send the message to
+     * @param action the ban action <i>(used for log)</i>
      * @param messages list of messages
      */
-    public void sendMessage(@NotNull final HumanEntity player, @NotNull final BanOption option, @NotNull final List<String> messages) {
+    public void sendMessage(@NotNull final Player player, @NotNull final BanAction action, @NotNull final List<String> messages) {
         if (messages.isEmpty()) return; // no message
 
         // Checking pick up cooldown, to prevent spam
-        if (option == BanOption.PICKUP) {
-            final Long time = pickupCooldowns.get(player.getUniqueId());
-            if (time == null) pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        if (action == BanAction.PICKUP || action == BanAction.HOLD) {
+            // Adding in cooldown
+            if (!messagesCooldown.containsKey(player.getUniqueId()))
+                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
             else {
-                if (time + 1000> System.currentTimeMillis()) return;
-                else pickupCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+                final long lastTime = messagesCooldown.get(player.getUniqueId());
+                if (lastTime + 1000L > System.currentTimeMillis()) return; // not sending message again
+                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
             }
         }
 
         // Sending message & animation
         messages.forEach(player::sendMessage);
-        if (player instanceof Player) pl.getBanConfig().getAnimation().runAnimation((Player) player);
+        pl.getBanConfig().getAnimation().runAnimation(player);
     }
-
 
     /**
      * Method to check if the player has the bypass permission for either the item <i>(material name)</i> or custom name
      * @param player player to check
-     * @param item material name tolowercase of the item to check <i>(without metadata)</i>
-     * @param customName custom item name tolowercase <i>(has metadata)</i>
-     * @param option option name
+     * @param itemName name of the item
+     * @param action action name
      * @param data additional data to check
      * @return true if the player has the permission to bypass the ban, otherwise false
      */
-    public boolean hasPermission(@NotNull final Player player, @Nullable final String item, @Nullable final String customName, @NotNull final BanOption option, @Nullable final BanData... data) {
+    public boolean hasPermission(@NotNull final Player player, @NotNull final String itemName, @NotNull final BanAction action, @Nullable final BanData... data) {
         final String world = player.getWorld().getName().toLowerCase();
+        if (player.hasPermission("banitem.bypass.*")) return true;
+        if (player.hasPermission("banitem.bypass." + world + ".*")) return true;
+        if (player.hasPermission("banitem.bypass.allworlds.*")) return true;
 
-        if (item != null) {
-            if (!isNullOrEmpty(data)) {
-                for (final BanData bd : data) {
-                    if (player.hasPermission("banitem.bypass." + world + "." + item + "." + option.getName() + "." + bd.getType().getName())) return true;
-                    if (player.hasPermission("banitem.bypass.allworlds." + item + "." + option.getName() + "." + bd.getType().getName())) return true;
-                }
-            } else {
-                if (player.hasPermission("banitem.bypass." + world + "." + item + "." + option.getName())) return true;
-                if (player.hasPermission("banitem.bypass.allworlds." + item + "." + option.getName())) return true;
+        if (!Utils.isNullOrEmpty(data)) {
+            if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName() + ".*")) return true;
+            if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName() + ".*")) return true;
+            for (final BanData bd : data) {
+                if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName() + "." + bd.getType().getName())) return true;
+                if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName() + "." + bd.getType().getName())) return true;
             }
-        }
-
-        if (customName != null) {
-            if (!isNullOrEmpty(data)) {
-                for (final BanData bd : data) {
-                    if (player.hasPermission("banitem.bypass." + world + "." + customName + "." + option.getName() + "." + bd.getType().getName())) return true;
-                    return player.hasPermission("banitem.bypass.allworlds." + customName + "." + option.getName() + "." + bd.getType().getName());
-                }
-            } else {
-                if (player.hasPermission("banitem.bypass." + world + "." + customName + "." + option.getName())) return true;
-                return player.hasPermission("banitem.bypass.allworlds." + customName + "." + option.getName());
-            }
+        } else {
+            if (player.hasPermission("banitem.bypass." + world + "." + itemName + ".*")) return true;
+            if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + ".*")) return true;
+            if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName())) return true;
+            if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName())) return true;
         }
 
         return false;
@@ -384,8 +400,8 @@ public final class BanUtils extends Listable {
 
         for (final ItemStack item : items) {
             i++;
-            if (isNullOrAir(item)) continue;
-            if (!pl.getApi().isBanned(p, p.getLocation(), item, BanOption.WEAR)) continue;
+            if (Utils.isNullOrAir(item)) continue;
+            if (!pl.getApi().isBanned(p, p.getLocation(), item, BanAction.WEAR)) continue;
 
             // Item can not be weared in this world
             switch (i) {
@@ -403,83 +419,13 @@ public final class BanUtils extends Listable {
     }
 
     /**
-     * Quick utils to check if the item is null or if its type is Material.AIR
-     * @param item the {@link ItemStack}
-     * @return true if the ItemStack is null or AIR, otherwise false
-     */
-    public boolean isNullOrAir(@Nullable final ItemStack item) {
-        return item == null || item.getType() == Material.AIR;
-    }
-
-    /**
-     * Used to check if an array if null or empty.
-     * Mainly used to check varargs.
-     * @param a array
-     * @return true is the array is null or empty, otherwise false
-     */
-    public boolean isNullOrEmpty(@Nullable final Object[] a) {
-        return a == null || a.length == 0 || a[0] == null;
-    }
-
-    /**
-     * Used to check if a String is <b>not</b> null nor empty
-     * @param s the string to check
-     * @return true if the string is not null nor empty, otherwise false
-     */
-    public boolean isNotNullOrEmpty(@Nullable final String s) {
-        return s != null && !s.isEmpty();
-    }
-
-    /**
-     * Get the item from the player hand, even AIR, regardless the version
-     * @param p the {@link Player}
-     * @return the ItemStack in the player's hand, possibly AIR
-     */
-    @NotNull
-    public ItemStack getItemInHand(@NotNull final Player p) {
-        final EntityEquipment ee = p.getEquipment();
-        if (ee == null) return new ItemStack(Material.AIR);
-        final ItemStack itemInHand = BanVersion.v9OrMore ? ee.getItemInMainHand() : ee.getItemInHand();
-        return itemInHand == null ? new ItemStack(Material.AIR) : itemInHand;
-    }
-
-    /**
-     * Get the display name of the item, empty string if empty
-     * @param item the itemstack
-     * @return the display name of the item, otherwise an empty string
-     */
-    @NotNull
-    public String getItemDisplayname(@NotNull final ItemStack item) {
-        if (!item.hasItemMeta()) return "";
-        final ItemMeta itemMeta = item.getItemMeta();
-        if (itemMeta == null) return "";
-        return !itemMeta.hasDisplayName() ? "" : itemMeta.getDisplayName();
-    }
-
-    /**
-     * Translate the color codes to make the string colored
-     * @param text the text to translate
-     * @return a colored string
-     */
-    @NotNull
-    public String color(@NotNull final String text) {
-        char[] b = text.toCharArray();
-        for (int i = 0; i < b.length - 1; i++) {
-            if (b[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
-                b[i] = '\u00A7';
-                b[i+1] = Character.toLowerCase(b[i+1]);
-            }
-        }
-        return new String(b);
-    }
-
-    /**
      * Sending a prefixed and colored message to sender
      * @param sender sender
      * @param message message
      */
-    public void sendMessage(@NotNull final CommandSender sender, @NotNull final String message) {
-        sender.sendMessage(pl.getBanConfig().getPrefix() + color(message));
+    public void sendMessage(@NotNull final CommandSender sender, @Nullable final String message) {
+        if (message != null)
+            sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color(message));
     }
 
     /**
@@ -499,12 +445,21 @@ public final class BanUtils extends Listable {
     }
 
     /**
-     * Get the pick up cooldowns map
-     * @return map containing the cooldowns for pick up messages
+     * Get the sub commands aliases
+     * @return the sub commands aliases
      */
     @NotNull
-    public Map<UUID, Long> getPickupCooldowns() {
-        return pickupCooldowns;
+    public Map<String, String> getCommandsAliases() {
+        return commandsAliases;
+    }
+
+    /**
+     * Get the messages cooldown map
+     * @return map containing the cooldowns for messages
+     */
+    @NotNull
+    public Map<UUID, Long> getMessagesCooldown() {
+        return messagesCooldown;
     }
 
     /**

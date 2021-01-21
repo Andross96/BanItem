@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,22 +18,26 @@
 package fr.andross.banitem.commands;
 
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.options.BanDataType;
-import fr.andross.banitem.options.BanOption;
-import fr.andross.banitem.options.BanOptionData;
-import fr.andross.banitem.utils.BanVersion;
-import fr.andross.banitem.utils.Listable;
-import fr.andross.banitem.utils.item.BannedItem;
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.actions.BanActionData;
+import fr.andross.banitem.actions.BanDataType;
+import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.statics.Chat;
+import fr.andross.banitem.utils.statics.Utils;
+import fr.andross.banitem.utils.statics.list.ListType;
+import fr.andross.banitem.utils.statics.list.Listable;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.StringUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Sub command add
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public class Commandadd extends BanCommand {
@@ -56,58 +60,63 @@ public class Commandadd extends BanCommand {
             return;
         }
 
-        // /banitem add <options> [message]
+        // /banitem add <actions> [message]
         if (args.length < 2) {
             header("&6&lAdd");
-            message("&7Usage: &b/bi add &3<options> [message]");
-            message("&7 >> Will ban the item (type)");
-            message("&7 >> in your hand.");
-            sender.sendMessage(pl.getBanConfig().getPrefix() + pl.getUtils().color("&7 >> &oExample: /bi add place,break ") + "&cThis item is banned.");
+            message("&7Usage: &b/bi add &3<actions> [message]");
+            message("&7 >> Will ban the item (material)");
+            message("&7 >> actually in your hand");
+            message("&7 >> in your current world.");
+            sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color("&2&oExample: /bi add place,break") + " &cThis item is banned.");
+            message("&2&oPlayers will not be able to place nor break the item.");
             return;
         }
 
         // Getting player item in hand
         final Player p = (Player) sender;
-        final ItemStack item = BanVersion.v9OrMore ? p.getInventory().getItemInMainHand() : p.getInventory().getItemInHand();
+        final ItemStack item = Utils.getItemInHand(p);
 
-        // Parsing the options
-        final List<String> optionsNames = pl.getUtils().getSplittedList(args[1]);
-        final List<BanOption> options = pl.getUtils().getList(Listable.Type.OPTION, optionsNames, null, null);
-        if (options.isEmpty()) {
+        // Parsing the actions
+        final List<String> actionsNames = Listable.getSplittedList(args[1]);
+        final List<BanAction> actions = Listable.getList(ListType.ACTION, actionsNames, null);
+        if (actions.isEmpty()) {
             header("&6&lAdd");
-            message("&cInvalid options set: &e" + args[1]);
-            message("&7Valid options: &o" + Arrays.stream(BanOption.values()).map(BanOption::getName).collect(Collectors.joining(",")));
+            message("&cInvalid actions entered: &e" + args[1]);
+            message("&7Valid actions: &o" + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", "&7.")));
             return;
         }
 
+        final BanActionData actionData = new BanActionData();
+
         // Have a message?
-        final List<String> messages = new ArrayList<>();
         if (args.length > 2) {
             final StringBuilder sb = new StringBuilder();
-            for (int i = 2; i < args.length; i++){
+            for (int i = 2; i < args.length; i++) {
                 if (i > 2) sb.append(" ");
                 sb.append(args[i]);
             }
-            if (sb.length() > 0) messages.add(pl.getUtils().color(sb.toString()));
+            if (sb.length() > 0) actionData.getMap().put(BanDataType.MESSAGE, Collections.singletonList(Chat.color(sb.toString())));
         }
 
-        final BanOptionData optionData = new BanOptionData();
-        if (!messages.isEmpty()) optionData.put(BanDataType.MESSAGE, messages);
-        final Map<BanOption, BanOptionData> optionsData = new HashMap<>();
-        for (final BanOption bo : options) optionsData.put(bo, optionData);
+        final Map<BanAction, BanActionData> actionsData = new EnumMap<>(BanAction.class);
+        actions.forEach(ba -> actionsData.put(ba, actionData));
 
-        pl.getApi().addToBlacklist(new BannedItem(item, false), optionsData, p.getWorld());
-        pl.getListener().load(sender);
         header("&6&lAdd");
-        message("&2The item '&a" + item.getType().name().toLowerCase() + "&2' is now successfully banned for world &a" + p.getWorld().getName() + "&2.");
-        message("&7&oNote that you surely have the bypass permission, so the ban may not apply to you!");
+        if (pl.getApi().addToBlacklist(new BannedItem(item.getType()), actionsData, p.getWorld())) {
+            pl.getListener().load(sender);
+            message("&aSuccessfully banned &e" + item.getType().name().toLowerCase() + " &afor world &2" + p.getWorld().getName() + "&a.");
+            message("&7&oPlease note that you probably have the bypass");
+            message("&7&opermission, so the ban may not apply to you.");
+        } else {
+            message("&cAn error occured while banning the item.");
+            message("&cCheck the console for more information.");
+        }
     }
 
     @Override
     public List<String> runTab() {
-        final List<String> list = new ArrayList<>();
-        if (args.length == 2) list.add("options");
-        if (args.length > 2) list.add("message");
-        return list;
+        if (args.length == 2) return StringUtil.copyPartialMatches(args[1], Stream.of(BanAction.values()).map(BanAction::getName).collect(Collectors.toList()), new ArrayList<>());
+        if (args.length > 2) return Collections.singletonList("message");
+        return Collections.emptyList();
     }
 }

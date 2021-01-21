@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,19 +17,23 @@
  */
 package fr.andross.banitem;
 
-import fr.andross.banitem.options.BanData;
-import fr.andross.banitem.options.BanDataType;
-import fr.andross.banitem.options.BanOption;
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.actions.BanData;
+import fr.andross.banitem.actions.BanDataType;
+import fr.andross.banitem.events.PlayerRegionChangeEvent;
 import fr.andross.banitem.utils.BanVersion;
-import fr.andross.banitem.utils.events.PlayerRegionChangeEvent;
+import fr.andross.banitem.utils.EnchantmentWrapper;
+import fr.andross.banitem.utils.ItemStackBuilder;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
+import fr.andross.banitem.utils.statics.Chat;
+import fr.andross.banitem.utils.statics.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Furnace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -38,6 +42,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
@@ -48,163 +53,174 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
-import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * <p>This class is used to register only the needed listeners.
- * The listeners should be refreshed everytime you manually add/remove an option
+ * The listeners should be refreshed everytime you manually add/remove an action
  * from a map <i>(blacklist or whitelist)</i></p>
- * @version 2.4
+ * We are ignoring the deprecation warning, as these methods are used across multiple Bukkit version.
+ * @version 3.0
  * @author Andross
  */
+@SuppressWarnings("deprecation")
 public final class BanListener {
     private final BanItem pl;
-    private final PluginManager pm;
-    private final Listener listener;
+    private final Listener listener = new Listener(){};
     private int activated = 0;
 
-    /**
-     * This should not be instantiate. Use {@link BanItemAPI#load(CommandSender, FileConfiguration)} instead.
-     * @param pl the main instance
-    */
     BanListener(@NotNull final BanItem pl) {
         this.pl = pl;
-        pm = pl.getServer().getPluginManager();
-        listener = new Listener() {};
     }
 
     /**
      * (re)Loading the listeners needed for blacklist and whitelist
-     * @param sender the sender who executed
+     * @param sender the sender who executed, for debug
      */
     public void load(@NotNull final CommandSender sender) {
         // Preparing variables
         final BanItemAPI api = pl.getApi();
         final BanDatabase db = pl.getBanDatabase();
-        final BanUtils utils = pl.getUtils();
-        final Set<BanOption> priority = pl.getBanConfig().getPriority();
-        final Set<BanOption> blacklist = db.getBlacklistOptions();
-        final boolean whitelist = db.isWhitelistEnabled();
-        final boolean all = blacklist.size() == BanOption.values().length; // check if a '*' is used, if so, do not notify for version uncompatibility
+        final Set<BanAction> priority = pl.getBanConfig().getPriority();
+        final Set<BanAction> blacklist = db.getBlacklistActions();
+        final boolean whitelist = !db.getWhitelist().isEmpty();
+        final boolean all = blacklist.size() == BanAction.values().length; // check if a '*' is used, if so, do not notify for version uncompatibility
         HandlerList.unregisterAll(pl);
         activated = 0;
 
-        // Registering listeners, only if option is used
-        if (blacklist.contains(BanOption.ARMORSTANDPLACE) || whitelist) {
+        // Registering listeners, only if action is used
+        if (blacklist.contains(BanAction.ARMORSTANDPLACE) || whitelist) {
             if (!BanVersion.v8OrMore) {
-                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
-                    sender.sendMessage(utils.color("&cCan not use the '&earmorstandplace&c' option in Minecraft < 1.8."));
+                if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
+                    sender.sendMessage(Chat.color("&cCan not use the '&earmorstandplace&c' action in Minecraft < 1.8."));
             } else
                 registerEvent(PlayerArmorStandManipulateEvent.class, (li, event) -> {
                     final PlayerArmorStandManipulateEvent e = (PlayerArmorStandManipulateEvent) event;
-                    if (utils.isNullOrAir(e.getPlayerItem())) return; // nothing to place
-                    if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), e.getPlayerItem(), BanOption.ARMORSTANDPLACE)) e.setCancelled(true);
-                }, priority.contains(BanOption.ARMORSTANDPLACE));
+                    if (Utils.isNullOrAir(e.getPlayerItem())) return; // nothing to place
+                    if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), e.getPlayerItem(), true, BanAction.ARMORSTANDPLACE)) e.setCancelled(true);
+                }, priority.contains(BanAction.ARMORSTANDPLACE));
         }
 
-        if (blacklist.contains(BanOption.ARMORSTANDTAKE) || whitelist) {
+        if (blacklist.contains(BanAction.ARMORSTANDTAKE) || whitelist) {
             if (!BanVersion.v8OrMore) {
-                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
-                    sender.sendMessage(utils.color("&cCan not use the '&earmorstandtake&c' option in Minecraft < 1.8."));
+                if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
+                    sender.sendMessage(Chat.color("&cCan not use the '&earmorstandtake&c' action in Minecraft < 1.8."));
             } else
                 registerEvent(PlayerArmorStandManipulateEvent.class, (li, event) -> {
                     final PlayerArmorStandManipulateEvent e = (PlayerArmorStandManipulateEvent) event;
                     if (e.getArmorStandItem().getType() == Material.AIR) return;
-                    if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), e.getArmorStandItem(), BanOption.ARMORSTANDTAKE))
+                    if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), e.getArmorStandItem(), true, BanAction.ARMORSTANDTAKE))
                         e.setCancelled(true);
-                }, priority.contains(BanOption.ARMORSTANDTAKE));
+                }, priority.contains(BanAction.ARMORSTANDTAKE));
         }
 
-        if (blacklist.contains(BanOption.ATTACK) || whitelist) {
+        if (blacklist.contains(BanAction.ATTACK) || whitelist) {
             registerEvent(EntityDamageByEntityEvent.class, (li, event) -> {
                 if (!(event instanceof EntityDamageByEntityEvent)) return; // this event is called even for EntityDamageByBlockEvent. Weird?
                 final EntityDamageByEntityEvent e = (EntityDamageByEntityEvent) event;
                 if (!(e.getDamager() instanceof Player)) return;
                 final Player damager = (Player) e.getDamager();
-                final ItemStack itemInHand = utils.getItemInHand(damager);
-                if (api.isBanned(damager, e.getEntity().getLocation(), itemInHand, BanOption.ATTACK, new BanData(BanDataType.ENTITY, e.getEntityType()))) e.setCancelled(true);
-            }, priority.contains(BanOption.ATTACK));
+                final ItemStack itemInHand = Utils.getItemInHand(damager);
+                if (api.isBanned(damager, e.getEntity().getLocation(), itemInHand, true, BanAction.ATTACK, new BanData(BanDataType.ENTITY, e.getEntityType()))) e.setCancelled(true);
+            }, priority.contains(BanAction.ATTACK));
         }
 
-        if (blacklist.contains(BanOption.BOOKEDIT) || whitelist) {
+        if (blacklist.contains(BanAction.BOOKEDIT) || whitelist) {
             registerEvent(PlayerEditBookEvent.class, (li, event) -> {
                 final PlayerEditBookEvent e = (PlayerEditBookEvent) event;
-                if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), utils.getItemInHand(e.getPlayer()), BanOption.BOOKEDIT)) {
+                if (api.isBanned(e.getPlayer(), Utils.getItemInHand(e.getPlayer()), true, BanAction.BOOKEDIT)) {
                     e.setCancelled(true);
                     e.setNewBookMeta(e.getPreviousBookMeta());
                 }
-            }, priority.contains(BanOption.BOOKEDIT));
+            }, priority.contains(BanAction.BOOKEDIT));
         }
 
-        if (blacklist.contains(BanOption.BREAK) || whitelist) {
+        if (blacklist.contains(BanAction.BREAK) || whitelist) {
             registerEvent(PlayerInteractEvent.class, (li, event) -> {
                 final PlayerInteractEvent e = (PlayerInteractEvent) event;
                 if (e.useInteractedBlock() == Event.Result.DENY || e.useItemInHand() == Event.Result.DENY) return;
                 if (e.getAction() == Action.LEFT_CLICK_BLOCK && e.getClickedBlock() != null) {
-                    final ItemStack itemInHand = utils.getItemInHand(e.getPlayer());
-                    if (api.isBanned(e.getPlayer(), e.getClickedBlock().getLocation(), e.getClickedBlock().getType(), BanOption.BREAK, new BanData(BanDataType.MATERIAL, itemInHand.getType()))) {
+                    final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
+                    if (api.isBanned(e.getPlayer(), e.getClickedBlock().getLocation(), e.getClickedBlock().getType(), true, BanAction.BREAK, new BanData(BanDataType.MATERIAL, itemInHand.getType()))) {
                         e.setCancelled(true);
                         if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                     }
                 }
-            }, priority.contains(BanOption.BREAK));
+            }, priority.contains(BanAction.BREAK));
+
+            registerEvent(BlockBreakEvent.class, (li, event) -> {
+                final BlockBreakEvent e = (BlockBreakEvent) event;
+                final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
+                if (api.isBanned(e.getPlayer(), e.getBlock().getLocation(), e.getBlock().getType(), true, BanAction.BREAK, new BanData(BanDataType.MATERIAL, itemInHand.getType()))) {
+                    e.setCancelled(true);
+                    if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                }
+            }, priority.contains(BanAction.BREAK));
         }
 
-        if (blacklist.contains(BanOption.BREW) || whitelist) {
+        if (blacklist.contains(BanAction.BREW) || whitelist) {
             registerEvent(BrewEvent.class, (li, event) -> {
                 final BrewEvent e = (BrewEvent) event;
+                final ItemStack ingridient = e.getContents().getIngredient() == null ? null : e.getContents().getIngredient().clone();
+                final List<ItemStack> items = new ArrayList<>();
+                for (final ItemStack item : e.getContents().getContents()) {
+                    if (Utils.isNullOrAir(item)) items.add(null);
+                    else items.add(item.clone());
+                }
                 Bukkit.getScheduler().runTask(pl, () -> {
                     final BrewerInventory inv = e.getContents();
                     for (int i = 0; i < 3; i++) {
                         final ItemStack item = inv.getItem(i);
-                        if (utils.isNullOrAir(item)) continue;
-                        if (api.isBanned(e.getBlock().getWorld(), item, BanOption.BREW)) {
+                        if (Utils.isNullOrAir(item)) continue;
+                        if (api.isBanned(e.getBlock().getWorld(), item, BanAction.BREW)) {
                             if (!inv.getViewers().isEmpty())
-                                if (!api.isBanned((Player) inv.getViewers().get(0), e.getBlock().getLocation(), item, BanOption.BREW)) continue;
-                            inv.setItem(i, null);
+                                if (!api.isBanned((Player) inv.getViewers().get(0), e.getBlock().getLocation(), item, true, BanAction.BREW)) continue;
+                            inv.setItem(i, items.get(i));
+                            inv.setIngredient(ingridient);
                         }
                     }
                 });
-            }, priority.contains(BanOption.BREAK));
+            }, priority.contains(BanAction.BREW));
         }
 
-        if (blacklist.contains(BanOption.CLICK) || whitelist) {
+        if (blacklist.contains(BanAction.CLICK) || whitelist) {
             registerEvent(PlayerInteractEvent.class, (li, event) -> {
                 final PlayerInteractEvent e = (PlayerInteractEvent) event;
                 if (e.useInteractedBlock() == Event.Result.DENY || e.useItemInHand() == Event.Result.DENY) return;
                 if (e.getAction() == Action.LEFT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_AIR) {
-                    final ItemStack itemInHand = utils.getItemInHand(e.getPlayer());
+                    final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
                     if (e.getClickedBlock() != null) {
-                        if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), itemInHand, BanOption.CLICK, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
+                        if (api.isBanned(e.getPlayer(), itemInHand, true, BanAction.CLICK, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
                             e.setCancelled(true);
                             if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     } else {
-                        if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), itemInHand, BanOption.CLICK)) {
+                        if (api.isBanned(e.getPlayer(), itemInHand, true, BanAction.CLICK)) {
                             e.setCancelled(true);
                             if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     }
                 }
-            }, priority.contains(BanOption.CLICK));
+            }, priority.contains(BanAction.CLICK));
         }
 
-        if (blacklist.contains(BanOption.CONSUME) || whitelist) {
+        if (blacklist.contains(BanAction.CONSUME) || whitelist) {
             registerEvent(PlayerItemConsumeEvent.class, (li, event) -> {
                 final PlayerItemConsumeEvent e = (PlayerItemConsumeEvent) event;
-                if (utils.isNullOrAir(e.getItem())) return;
-                if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), e.getItem(), BanOption.CONSUME)) {
+                if (Utils.isNullOrAir(e.getItem())) return;
+                if (api.isBanned(e.getPlayer(), e.getItem(), true, BanAction.CONSUME)) {
                     e.setCancelled(true);
                     if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                 }
-            }, priority.contains(BanOption.CONSUME));
+            }, priority.contains(BanAction.CONSUME));
         }
 
-        if (blacklist.contains(BanOption.CRAFT) || whitelist) {
+        if (blacklist.contains(BanAction.CRAFT) || whitelist) {
             registerEvent(PrepareItemCraftEvent.class, (ll, event) -> {
                 final PrepareItemCraftEvent e = (PrepareItemCraftEvent) event;
                 if (e.getRecipe() == null) return;
@@ -212,77 +228,149 @@ public final class BanListener {
                 if (item == null) return;
                 if (!e.getViewers().isEmpty()) {
                     final Player p = (Player) e.getViewers().get(0);
-                    if (api.isBanned(p, p.getLocation(), item, BanOption.CRAFT))
+                    if (api.isBanned(p, item, true, BanAction.CRAFT))
                         e.getInventory().setResult(null);
                 }
-            }, priority.contains(BanOption.CRAFT));
+            }, priority.contains(BanAction.CRAFT));
         }
 
-        if (blacklist.contains(BanOption.DELETE)) {
+        if (blacklist.contains(BanAction.DELETE)) {
             registerEvent(InventoryOpenEvent.class, (ll, event) -> {
                         final InventoryOpenEvent e = (InventoryOpenEvent) event;
-                        utils.deleteItemFromInventory((Player) e.getPlayer(), e.getView().getTopInventory(), e.getView().getBottomInventory());
-                    }, priority.contains(BanOption.DELETE));
+                        pl.getUtils().deleteItemFromInventoryView((Player) e.getPlayer());
+                    }, priority.contains(BanAction.DELETE));
             registerEvent(InventoryCloseEvent.class, (ll, event) -> {
                 final InventoryCloseEvent e = (InventoryCloseEvent) event;
-                utils.deleteItemFromInventory((Player) e.getPlayer(), e.getView().getTopInventory(), e.getView().getBottomInventory());
-            }, priority.contains(BanOption.DELETE));
+                pl.getUtils().deleteItemFromInventoryView((Player) e.getPlayer());
+            }, priority.contains(BanAction.DELETE));
         }
 
-        if (blacklist.contains(BanOption.DISPENSE) || whitelist) {
+        if (blacklist.contains(BanAction.DISPENSE) || whitelist) {
             registerEvent(BlockDispenseEvent.class, (li, event) -> {
                 final BlockDispenseEvent e = (BlockDispenseEvent) event;
-                if (api.isBanned(e.getBlock().getWorld(), e.getItem(), BanOption.DISPENSE)) e.setCancelled(true);
-            }, priority.contains(BanOption.DISPENSE));
+                if (api.isBanned(e.getBlock().getWorld(), e.getItem(), BanAction.DISPENSE)) e.setCancelled(true);
+            }, priority.contains(BanAction.DISPENSE));
         }
 
-        if (blacklist.contains(BanOption.DROP) || whitelist) {
+        if (blacklist.contains(BanAction.DROP) || whitelist) {
             registerEvent(PlayerDropItemEvent.class, (li, event) -> {
                 final PlayerDropItemEvent e = (PlayerDropItemEvent) event;
-                if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), e.getItemDrop().getItemStack(), BanOption.DROP)) e.setCancelled(true);
-            }, priority.contains(BanOption.DROP));
+                if (api.isBanned(e.getPlayer(), e.getItemDrop().getItemStack(), true, BanAction.DROP)) e.setCancelled(true);
+            }, priority.contains(BanAction.DROP));
         }
 
-        if (blacklist.contains(BanOption.DROPS) || whitelist) {
+        if (blacklist.contains(BanAction.DROPS) || whitelist) {
             registerEvent(BlockBreakEvent.class, (li, event) -> {
                 if (!(event instanceof BlockBreakEvent)) return; // also called for FurnaceExtractEvent...
                 final BlockBreakEvent e = (BlockBreakEvent) event;
-                final ItemStack itemInHand = utils.getItemInHand(e.getPlayer());
-                if (e.getBlock().getDrops(itemInHand).stream().anyMatch(item -> api.isBanned(e.getPlayer(), e.getBlock().getLocation(), item, BanOption.DROPS, new BanData(BanDataType.MATERIAL, itemInHand.getType()))))
+                final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
+                if (e.getBlock().getDrops(itemInHand).stream().anyMatch(item -> api.isBanned(e.getPlayer(), e.getBlock().getLocation(), item, true, BanAction.DROPS, new BanData(BanDataType.MATERIAL, itemInHand.getType()))))
                     e.setDropItems(false);
-            }, priority.contains(BanOption.DROPS));
+            }, priority.contains(BanAction.DROPS));
         }
 
-        if (blacklist.contains(BanOption.ENTITYDROP) || whitelist) {
+        if (blacklist.contains(BanAction.ENCHANT) || whitelist) {
+            registerEvent(EnchantItemEvent.class, (li, event) -> {
+                if (!(event instanceof EnchantItemEvent)) return;
+                final EnchantItemEvent e = (EnchantItemEvent) event;
+                if (api.isBanned(e.getEnchanter(), e.getEnchantBlock().getLocation(), e.getItem(), true, BanAction.ENCHANT, new BanData(BanDataType.ENCHANTMENT, EnchantmentWrapper.from(e.getEnchantsToAdd()))))
+                    e.setCancelled(true);
+            }, priority.contains(BanAction.ENCHANT));
+
+            if (BanVersion.v9OrMore) {
+                // Getting denied item
+                ItemStack denied;
+                try {
+                    denied = new ItemStackBuilder(pl.getBanConfig().getConfig().getConfigurationSection("actions.enchant")).build();
+                } catch (final Exception e) {
+                    pl.getUtils().sendMessage(sender, "&cUnable to load denied item 'actions.enchant' from config: " + e.getMessage());
+                    denied = new ItemStack(Material.BARRIER);
+                }
+                final ItemStack finalDenied = denied;
+                registerEvent(PrepareAnvilEvent.class, (li, event) -> {
+                    if (!(event instanceof PrepareAnvilEvent)) return;
+                    final PrepareAnvilEvent e = (PrepareAnvilEvent) event;
+                    final ItemStack item = e.getInventory().getItem(0);
+                    if (item == null) return;
+                    final ItemStack addedItem = e.getInventory().getItem(1);
+                    if (addedItem == null) return;
+                    final Map<Enchantment, Integer> enchants = Utils.getAllEnchants(addedItem);
+                    if (enchants.isEmpty()) return;
+
+                    // Getting the player
+                    if (e.getViewers().size() == 0) return;
+                    final Player p = (Player) e.getViewers().get(0);
+                    if (api.isBanned(p, item, true, BanAction.ENCHANT, new BanData(BanDataType.ENCHANTMENT, EnchantmentWrapper.from(enchants)))) {
+                        e.setResult(finalDenied);
+                        e.getInventory().setRepairCost(0);
+                    }
+                }, priority.contains(BanAction.ENCHANT));
+            } else
+                registerEvent(InventoryClickEvent.class, (li, event) -> {
+                    final InventoryClickEvent e = (InventoryClickEvent) event;
+                    if (e.getView().getTopInventory().getType() != InventoryType.ANVIL) return;
+
+                    final ItemStack item = e.getInventory().getItem(0);
+                    if (item == null) return;
+                    final ItemStack addedItem = e.getInventory().getItem(1);
+                    if (addedItem == null) return;
+                    final Map<Enchantment, Integer> enchants = Utils.getAllEnchants(addedItem);
+                    if (enchants.isEmpty()) return;
+                    final Player p = (Player) e.getWhoClicked();
+                    if (api.isBanned(p, item, true, BanAction.ENCHANT, new BanData(BanDataType.ENCHANTMENT, EnchantmentWrapper.from(enchants)))) {
+                        e.getInventory().setItem(2, null);
+                        p.updateInventory();
+                        if (e.getRawSlot() == 2) e.setCancelled(true);
+                        return;
+                    }
+
+                    // Checking also on next tick
+                    Bukkit.getScheduler().runTask(pl, () -> {
+                        final ItemStack item2 = e.getInventory().getItem(0);
+                        if (item2 == null) return;
+                        final ItemStack addedItem2 = e.getInventory().getItem(1);
+                        if (addedItem2 == null) return;
+                        final Map<Enchantment, Integer> enchants2 = Utils.getAllEnchants(addedItem);
+                        if (enchants2.isEmpty()) return;
+                        if (api.isBanned(p, item, true, BanAction.ENCHANT, new BanData(BanDataType.ENCHANTMENT, EnchantmentWrapper.from(enchants)))) {
+                            e.getInventory().setItem(2, null);
+                            p.updateInventory();
+                            if (e.getRawSlot() == 2) e.setCancelled(true);
+                        }
+                    });
+                }, priority.contains(BanAction.ENCHANT));
+        }
+
+        if (blacklist.contains(BanAction.ENTITYDROP) || whitelist) {
             registerEvent(EntityDeathEvent.class, (li, event) -> {
                 final EntityDeathEvent e = (EntityDeathEvent) event;
                 final Player killer = e.getEntity().getKiller();
-                if (killer != null) e.getDrops().removeIf(i -> api.isBanned(killer, e.getEntity().getLocation(), i, BanOption.ENTITYDROP, new BanData(BanDataType.ENTITY, e.getEntity().getType())));
-                else e.getDrops().removeIf(i -> api.isBanned(e.getEntity().getWorld(), i, BanOption.ENTITYDROP, new BanData(BanDataType.ENTITY, e.getEntity().getType())));
-            }, priority.contains(BanOption.ENTITYDROP));
+                if (killer != null) e.getDrops().removeIf(i -> api.isBanned(killer, e.getEntity().getLocation(), i, true, BanAction.ENTITYDROP, new BanData(BanDataType.ENTITY, e.getEntity().getType())));
+                else e.getDrops().removeIf(i -> api.isBanned(e.getEntity().getWorld(), i, BanAction.ENTITYDROP, new BanData(BanDataType.ENTITY, e.getEntity().getType())));
+            }, priority.contains(BanAction.ENTITYDROP));
         }
 
-        if (blacklist.contains(BanOption.ENTITYINTERACT) || whitelist) {
+        if (blacklist.contains(BanAction.ENTITYINTERACT) || whitelist) {
             registerEvent(PlayerInteractEntityEvent.class, (li, event) -> {
                 final PlayerInteractEntityEvent e = (PlayerInteractEntityEvent) event;
                 if (BanVersion.v9OrMore && e.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) return;
-                if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), utils.getItemInHand(e.getPlayer()), BanOption.ENTITYINTERACT, new BanData(BanDataType.ENTITY, e.getRightClicked().getType()))) e.setCancelled(true);
-            }, priority.contains(BanOption.ENTITYINTERACT));
+                if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), Utils.getItemInHand(e.getPlayer()), true, BanAction.ENTITYINTERACT, new BanData(BanDataType.ENTITY, e.getRightClicked().getType()))) e.setCancelled(true);
+            }, priority.contains(BanAction.ENTITYINTERACT));
         }
 
-        if (blacklist.contains(BanOption.FILL) || whitelist) {
+        if (blacklist.contains(BanAction.FILL) || whitelist) {
             registerEvent(PlayerBucketFillEvent.class, (li, event) -> {
                 final PlayerBucketFillEvent e = (PlayerBucketFillEvent) event;
-                final ItemStack item = utils.getItemInHand(e.getPlayer());
-                if (api.isBanned(e.getPlayer(), e.getBlockClicked().getLocation(), item, BanOption.FILL, new BanData(BanDataType.MATERIAL, e.getBlockClicked().getType())))
+                final ItemStack item = Utils.getItemInHand(e.getPlayer());
+                if (api.isBanned(e.getPlayer(), e.getBlockClicked().getLocation(), item, true, BanAction.FILL, new BanData(BanDataType.MATERIAL, e.getBlockClicked().getType())))
                     e.setCancelled(true);
-            }, priority.contains(BanOption.FILL));
+            }, priority.contains(BanAction.FILL));
         }
 
-        if (blacklist.contains(BanOption.GLIDE) || whitelist) {
+        if (blacklist.contains(BanAction.GLIDE) || whitelist) {
             if (!BanVersion.v9OrMore) {
-                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
-                    sender.sendMessage(utils.color("&cCan not use the '&eglide&c' option in Minecraft < 1.9."));
+                if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
+                    sender.sendMessage(Chat.color("&cCan not use the '&eglide&c' action in Minecraft < 1.9."));
             } else
                 registerEvent(org.bukkit.event.entity.EntityToggleGlideEvent.class, (li, event) -> {
                     final org.bukkit.event.entity.EntityToggleGlideEvent e = (org.bukkit.event.entity.EntityToggleGlideEvent) event;
@@ -292,7 +380,7 @@ public final class BanListener {
                     if (ee == null) return;
                     final ItemStack item = ee.getChestplate();
                     if (item == null) return;
-                    if (api.isBanned(p, p.getLocation(), item, BanOption.GLIDE)) {
+                    if (api.isBanned(p, item, true, BanAction.GLIDE)) {
                         p.setGliding(false);
                         p.setSneaking(true);
 
@@ -304,7 +392,7 @@ public final class BanListener {
 
                             // Already removed?
                             final ItemStack chestplate = ee.getChestplate();
-                            if (utils.isNullOrAir(chestplate)) return;
+                            if (Utils.isNullOrAir(chestplate)) return;
 
                             // Put chestplate in inventory
                             final int freeSlot = p.getInventory().firstEmpty();
@@ -319,33 +407,119 @@ public final class BanListener {
                             ee.setChestplate(null);
                         });
                     }
-                }, priority.contains(BanOption.GLIDE));
+                }, priority.contains(BanAction.GLIDE));
         }
 
-        if (blacklist.contains(BanOption.HANGINGPLACE) || whitelist) {
+        if (blacklist.contains(BanAction.HANGINGPLACE) || whitelist) {
             registerEvent(HangingPlaceEvent.class, (li, event) -> {
                 final HangingPlaceEvent e = (HangingPlaceEvent) event;
                 if (e.getPlayer() == null) return;
-                final ItemStack item = utils.getItemInHand(e.getPlayer());
-                if (api.isBanned(e.getPlayer(), e.getEntity().getLocation(), item, BanOption.HANGINGPLACE, new BanData(BanDataType.ENTITY, e.getEntity().getType()))) e.setCancelled(true);
-            }, priority.contains(BanOption.HANGINGPLACE));
+                final ItemStack item = Utils.getItemInHand(e.getPlayer());
+                if (api.isBanned(e.getPlayer(), e.getEntity().getLocation(), item, true, BanAction.HANGINGPLACE, new BanData(BanDataType.ENTITY, e.getEntity().getType())))
+                    e.setCancelled(true);
+            }, priority.contains(BanAction.HANGINGPLACE));
         }
 
-        if (blacklist.contains(BanOption.INTERACT) || whitelist) {
+        if (blacklist.contains(BanAction.HOLD) || whitelist) {
+            registerEvent(PlayerItemHeldEvent.class, (li, event) -> {
+                final PlayerItemHeldEvent e = (PlayerItemHeldEvent) event;
+                final ItemStack item = e.getPlayer().getInventory().getItem(e.getNewSlot());
+                if (item != null && api.isBanned(e.getPlayer(), item, true, BanAction.HOLD))
+                    e.setCancelled(true);
+            }, priority.contains(BanAction.HOLD));
+
+            registerEvent(InventoryDragEvent.class, (li, event) -> {
+                final InventoryDragEvent e = (InventoryDragEvent) event;
+                final Player p = (Player) e.getWhoClicked();
+                final ItemStack item = e.getOldCursor();
+                if (e.getInventorySlots().contains(p.getInventory().getHeldItemSlot()) && api.isBanned(p, item, true, BanAction.HOLD))
+                    e.setCancelled(true);
+            }, priority.contains(BanAction.HOLD));
+
+            registerEvent(InventoryClickEvent.class, (li, event) -> {
+                final InventoryClickEvent e = (InventoryClickEvent) event;
+                final Player p = (Player) e.getWhoClicked();
+                final int heldItemSlot = p.getInventory().getHeldItemSlot();
+
+                // Hotkey?
+                if (e.getHotbarButton() == heldItemSlot) {
+                    final ItemStack item = p.getInventory().getItem(e.getSlot());
+                    if (item != null && api.isBanned(p, item, true, BanAction.HOLD)) {
+                        e.setCancelled(true);
+                        return;
+                    }
+                } else if (e.getHotbarButton() > -1) {
+                    if (e.getSlot() == heldItemSlot) {
+                        final ItemStack item = p.getInventory().getItem(e.getHotbarButton());
+                        if (item != null && api.isBanned(p, item, true, BanAction.HOLD)) {
+                            e.setCancelled(true);
+                            return;
+                        }
+                    }
+                }
+
+                // Shift click from another inventory?
+                if (!e.getView().getTopInventory().equals(e.getView().getBottomInventory()) && e.getView().getTopInventory().equals(e.getClickedInventory()) && e.isShiftClick()) {
+                    final ItemStack item = e.getCurrentItem();
+                    if (item == null) return;
+                    final List<Integer> changedSlots = Utils.getChangedSlots(p.getInventory(), item);
+                    if (changedSlots.contains(heldItemSlot) && api.isBanned(p, item, true, BanAction.HOLD)) {
+                        e.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Click?
+                if (e.getSlot() == heldItemSlot) {
+                    final ItemStack cursor = e.getCursor();
+                    if (cursor != null && api.isBanned(p, cursor, true, BanAction.HOLD))
+                        e.setCancelled(true);
+                }
+            }, priority.contains(BanAction.HOLD));
+
+            // Pickup
+            // >=1.12: EntityPickupItemEvent
+            // <1.12: PlayerPickupItemEvent
+            final EventExecutor ee;
+            final Class<? extends Event> clazz;
+            if (BanVersion.v12OrMore) {
+                clazz = org.bukkit.event.entity.EntityPickupItemEvent.class;
+                ee = (li, event) -> {
+                    final org.bukkit.event.entity.EntityPickupItemEvent e = (org.bukkit.event.entity.EntityPickupItemEvent) event;
+                    if (!(e.getEntity() instanceof Player)) return;
+                    final Player p = (Player) e.getEntity();
+                    final int toSlot = p.getInventory().firstEmpty();
+                    if (toSlot == p.getInventory().getHeldItemSlot() && api.isBanned(p, e.getItem().getLocation(), e.getItem().getItemStack(), true, BanAction.HOLD))
+                        e.setCancelled(true);
+                };
+            } else {
+                clazz = org.bukkit.event.player.PlayerPickupItemEvent.class;
+                ee = (li, event) -> {
+                    final org.bukkit.event.player.PlayerPickupItemEvent e = (org.bukkit.event.player.PlayerPickupItemEvent) event;
+                    final Player p = e.getPlayer();
+                    final int toSlot = p.getInventory().firstEmpty();
+                    if (toSlot == p.getInventory().getHeldItemSlot() && api.isBanned(p, e.getItem().getLocation(), e.getItem().getItemStack(), true, BanAction.HOLD))
+                        e.setCancelled(true);
+                };
+            }
+            registerEvent(clazz, ee, priority.contains(BanAction.HOLD));
+        }
+
+        if (blacklist.contains(BanAction.INTERACT) || whitelist) {
             registerEvent(PlayerInteractEvent.class, (li, event) -> {
                 final PlayerInteractEvent e = (PlayerInteractEvent) event;
                 if (e.useInteractedBlock() == Event.Result.DENY || e.useItemInHand() == Event.Result.DENY) return;
                 if (e.getClickedBlock() != null && e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    final ItemStack item = utils.getItemInHand(e.getPlayer());
-                    if (api.isBanned(e.getPlayer(), e.getClickedBlock().getLocation(), e.getClickedBlock().getType(), BanOption.INTERACT, new BanData(BanDataType.MATERIAL, item.getType()))) {
+                    final ItemStack item = Utils.getItemInHand(e.getPlayer());
+                    if (api.isBanned(e.getPlayer(), e.getClickedBlock().getLocation(), e.getClickedBlock().getType(), true, BanAction.INTERACT, new BanData(BanDataType.MATERIAL, item.getType()))) {
                         if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                         e.setCancelled(true);
                     }
                 }
-            }, priority.contains(BanOption.INTERACT));
+            }, priority.contains(BanAction.INTERACT));
         }
 
-        if (blacklist.contains(BanOption.INVENTORYCLICK) || whitelist) {
+        if (blacklist.contains(BanAction.INVENTORYCLICK) || whitelist) {
             registerEvent(InventoryClickEvent.class, (li, event) -> {
                 final InventoryClickEvent e = (InventoryClickEvent) event;
                 if (e.getClickedInventory() == null) return;
@@ -361,15 +535,15 @@ public final class BanListener {
                     item = e.getCurrentItem();
                 }
 
-                if (!utils.isNullOrAir(item))
-                    if (api.isBanned((Player) e.getWhoClicked(), e.getWhoClicked().getLocation(), item, BanOption.INVENTORYCLICK, new BanData(BanDataType.INVENTORY_FROM, inv.getType())))
+                if (!Utils.isNullOrAir(item))
+                    if (api.isBanned((Player) e.getWhoClicked(), item, true, BanAction.INVENTORYCLICK, new BanData(BanDataType.INVENTORY_FROM, inv.getType())))
                         e.setCancelled(true);
-            }, priority.contains(BanOption.INVENTORYCLICK));
+            }, priority.contains(BanAction.INVENTORYCLICK));
         }
 
-        if (blacklist.contains(BanOption.PICKUP) || whitelist) {
+        if (blacklist.contains(BanAction.PICKUP) || whitelist) {
             // Pickup cooldown map clearing
-            registerEvent(PlayerQuitEvent.class, (li, event) -> utils.getPickupCooldowns().remove(((PlayerQuitEvent) event).getPlayer().getUniqueId()), priority.contains(BanOption.PICKUP));
+            registerEvent(PlayerQuitEvent.class, (li, event) -> pl.getUtils().getMessagesCooldown().remove(((PlayerQuitEvent) event).getPlayer().getUniqueId()), priority.contains(BanAction.PICKUP));
 
             // >=1.12: EntityPickupItemEvent
             // <1.12: PlayerPickupItemEvent
@@ -380,39 +554,39 @@ public final class BanListener {
                 ee = (li, event) -> {
                     final org.bukkit.event.entity.EntityPickupItemEvent e = (org.bukkit.event.entity.EntityPickupItemEvent) event;
                     if (!(e.getEntity() instanceof Player)) return;
-                    if (api.isBanned((Player) e.getEntity(), e.getItem().getLocation(), e.getItem().getItemStack(), BanOption.PICKUP)) e.setCancelled(true);
+                    if (api.isBanned((Player) e.getEntity(), e.getItem().getLocation(), e.getItem().getItemStack(), true, BanAction.PICKUP)) e.setCancelled(true);
                 };
             } else {
                 clazz = org.bukkit.event.player.PlayerPickupItemEvent.class;
                 ee = (li, event) -> {
                     final org.bukkit.event.player.PlayerPickupItemEvent e = (org.bukkit.event.player.PlayerPickupItemEvent) event;
-                    if (api.isBanned(e.getPlayer(), e.getItem().getLocation(), e.getItem().getItemStack(), BanOption.PICKUP)) e.setCancelled(true);
+                    if (api.isBanned(e.getPlayer(), e.getItem().getLocation(), e.getItem().getItemStack(), true, BanAction.PICKUP)) e.setCancelled(true);
                 };
             }
-            registerEvent(clazz, ee, priority.contains(BanOption.PICKUP));
+            registerEvent(clazz, ee, priority.contains(BanAction.PICKUP));
         }
 
-        if (blacklist.contains(BanOption.PLACE) || whitelist) {
+        if (blacklist.contains(BanAction.PLACE) || whitelist) {
             registerEvent(PlayerInteractEvent.class, (li, event) -> {
                 final PlayerInteractEvent e = (PlayerInteractEvent) event;
-                if (utils.isNullOrAir(e.getItem())) return;
+                if (Utils.isNullOrAir(e.getItem())) return;
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) {
                     if (e.getClickedBlock() != null) {
-                        if (api.isBanned(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()).getLocation(), e.getItem(), BanOption.PLACE, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
+                        if (api.isBanned(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()).getLocation(), e.getItem(), true, BanAction.PLACE, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
                             e.setCancelled(true);
                             if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     } else {
-                        if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), e.getItem(), BanOption.PLACE)) {
+                        if (api.isBanned(e.getPlayer(), e.getItem(), true, BanAction.PLACE)) {
                             e.setCancelled(true);
                             if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     }
                 }
-            }, priority.contains(BanOption.PLACE));
+            }, priority.contains(BanAction.PLACE));
         }
 
-        if (blacklist.contains(BanOption.RENAME) || whitelist) {
+        if (blacklist.contains(BanAction.RENAME) || whitelist) {
             registerEvent(InventoryClickEvent.class, (li, event) -> {
                 final InventoryClickEvent e = (InventoryClickEvent) event;
                 if (e.getClickedInventory() == null) return;
@@ -421,62 +595,63 @@ public final class BanListener {
 
                 // Getting item
                 final ItemStack item = inv.getItem(0);
-                if (utils.isNullOrAir(item)) return;
+                if (Utils.isNullOrAir(item)) return;
 
                 // Getting result
                 final ItemStack result = inv.getItem(2);
-                if (utils.isNullOrAir(result)) return;
+                if (Utils.isNullOrAir(result)) return;
 
                 // Comparing display names
-                final String itemName = utils.getItemDisplayname(item);
-                final String resultName = utils.getItemDisplayname(result);
+                final String itemName = Utils.getItemDisplayname(item);
+                final String resultName = Utils.getItemDisplayname(result);
 
                 if (!itemName.equals(resultName))
-                    if (api.isBanned((Player) e.getWhoClicked(), e.getWhoClicked().getLocation(), item, BanOption.RENAME))
+                    if (api.isBanned((Player) e.getWhoClicked(), item, true, BanAction.RENAME))
                         e.setCancelled(true);
 
-            }, priority.contains(BanOption.RENAME));
+            }, priority.contains(BanAction.RENAME));
 
-            registerEvent(PlayerCommandPreprocessEvent.class, (li, event) -> {
-                final PlayerCommandPreprocessEvent e = (PlayerCommandPreprocessEvent) event;
-                final List<String> renameCommands = pl.getBanConfig().getOptionsConfig().getRenameCommands();
-                for (final String command : renameCommands)
-                    if (e.getMessage().startsWith(command))
-                        if (api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), utils.getItemInHand(e.getPlayer()), BanOption.RENAME)) {
-                            e.setCancelled(true);
-                            return;
-                        }
-            }, priority.contains(BanOption.RENAME));
+            final List<String> renameCommands = pl.getBanConfig().getConfig().getStringList("actions.rename");
+            if (renameCommands.size() > 0)
+                registerEvent(PlayerCommandPreprocessEvent.class, (li, event) -> {
+                    final PlayerCommandPreprocessEvent e = (PlayerCommandPreprocessEvent) event;
+                    for (final String command : renameCommands)
+                        if (e.getMessage().toLowerCase().startsWith(command.toLowerCase()))
+                            if (api.isBanned(e.getPlayer(), Utils.getItemInHand(e.getPlayer()), true, BanAction.RENAME)) {
+                                e.setCancelled(true);
+                                return;
+                            }
+                }, priority.contains(BanAction.RENAME));
         }
 
-        if (blacklist.contains(BanOption.SMELT) || whitelist) {
+        if (blacklist.contains(BanAction.SMELT) || whitelist) {
             registerEvent(FurnaceSmeltEvent.class, (li, event) -> {
                 if (!(event instanceof FurnaceSmeltEvent)) return;
                 final FurnaceSmeltEvent e = (FurnaceSmeltEvent) event;
                 final ItemStack item = e.getSource();
                 final Furnace f = (Furnace) e.getBlock().getState();
-                if (api.isBanned(f.getWorld(), item, BanOption.SMELT)) {
+                if (api.isBanned(f.getWorld(), item, BanAction.SMELT)) {
                     if (!f.getInventory().getViewers().isEmpty())
-                        if (!api.isBanned((Player) f.getInventory().getViewers().get(0), f.getLocation(), item, BanOption.SMELT)) return;
+                        if (!api.isBanned((Player) f.getInventory().getViewers().get(0), f.getLocation(), item, true, BanAction.SMELT)) return;
                     e.setCancelled(true);
                 }
-            }, priority.contains(BanOption.SMELT));
+            }, priority.contains(BanAction.SMELT));
         }
 
-        if (blacklist.contains(BanOption.SWAP) || whitelist) {
+        if (blacklist.contains(BanAction.SWAP) || whitelist) {
             if (!BanVersion.v9OrMore) {
-                if (!all && !whitelist) // notifying if used an option unavailable on the current minecraft version
-                    sender.sendMessage(utils.color("&cCan not use the '&eswap&c' option in Minecraft < 1.8."));
+                if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
+                    sender.sendMessage(Chat.color("&cCan not use the '&eswap&c' action in Minecraft < 1.8."));
             } else {
                 registerEvent(org.bukkit.event.player.PlayerSwapHandItemsEvent.class, (li, event) -> {
                     final org.bukkit.event.player.PlayerSwapHandItemsEvent e = (org.bukkit.event.player.PlayerSwapHandItemsEvent) event;
-                    if (e.getMainHandItem() != null && api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), e.getMainHandItem(), BanOption.SWAP)) {
+                    if (e.getMainHandItem() != null && api.isBanned(e.getPlayer(), e.getMainHandItem(), true, BanAction.SWAP)) {
                         e.setCancelled(true);
                         return;
                     }
-                    if (e.getOffHandItem() != null && api.isBanned(e.getPlayer(), e.getPlayer().getLocation(), e.getOffHandItem(), BanOption.SWAP))
+                    if (e.getOffHandItem() != null && api.isBanned(e.getPlayer(), e.getOffHandItem(), true, BanAction.SWAP))
                         e.setCancelled(true);
-                }, priority.contains(BanOption.SWAP));
+                }, priority.contains(BanAction.SWAP));
 
                 registerEvent(InventoryClickEvent.class, (li, event) -> {
                     final InventoryClickEvent e = (InventoryClickEvent) event;
@@ -485,8 +660,8 @@ public final class BanListener {
                         final ItemStack item;
                         if (e.getHotbarButton() >= 0) item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
                         else item = e.getCursor();
-                        if (!utils.isNullOrAir(item))
-                            if (api.isBanned((Player) e.getWhoClicked(), e.getWhoClicked().getLocation(), item, BanOption.SWAP)) {
+                        if (!Utils.isNullOrAir(item))
+                            if (api.isBanned((Player) e.getWhoClicked(), item, true, BanAction.SWAP)) {
                                 e.setCancelled(true);
                                 return;
                             }
@@ -494,25 +669,25 @@ public final class BanListener {
 
                     if (e.isShiftClick()) {
                         final ItemStack item = e.getCurrentItem();
-                        if (!utils.isNullOrAir(item))
-                            if (api.isBanned((Player) e.getWhoClicked(), e.getWhoClicked().getLocation(), item, BanOption.SWAP))
+                        if (!Utils.isNullOrAir(item))
+                            if (api.isBanned((Player) e.getWhoClicked(), item, true, BanAction.SWAP))
                                 e.setCancelled(true);
                     }
-                }, priority.contains(BanOption.SWAP));
+                }, priority.contains(BanAction.SWAP));
 
                 registerEvent(InventoryDragEvent.class, (li, event) -> {
                     final InventoryDragEvent e = (InventoryDragEvent) event;
                     if (e.getRawSlots().contains(45)) {
                         final ItemStack item = e.getNewItems().get(45);
-                        if (!utils.isNullOrAir(item))
-                            if (api.isBanned((Player) e.getWhoClicked(), e.getWhoClicked().getLocation(), item, BanOption.SWAP))
+                        if (!Utils.isNullOrAir(item))
+                            if (api.isBanned((Player) e.getWhoClicked(), item, true, BanAction.SWAP))
                                 e.setCancelled(true);
                     }
-                }, priority.contains(BanOption.SWAP));
+                }, priority.contains(BanAction.SWAP));
             }
         }
 
-        if (blacklist.contains(BanOption.TRANSFER) || whitelist) {
+        if (blacklist.contains(BanAction.TRANSFER) || whitelist) {
             // Clicking
             registerEvent(InventoryClickEvent.class, (li, event) -> {
                 final InventoryClickEvent e = (InventoryClickEvent) event;
@@ -524,8 +699,8 @@ public final class BanListener {
 
                 if (top.getType() != InventoryType.CRAFTING && e.getClick() == ClickType.DOUBLE_CLICK) { // Trying to get all items for a banned one?
                     final ItemStack item = e.getCursor();
-                    if (!utils.isNullOrAir(item))
-                        if (api.isBanned(p, p.getLocation(), item, BanOption.TRANSFER)) {
+                    if (!Utils.isNullOrAir(item))
+                        if (api.isBanned(p, item, true, BanAction.TRANSFER)) {
                             e.setCancelled(true);
                             return;
                         }
@@ -534,30 +709,30 @@ public final class BanListener {
                 if (e.getClickedInventory().equals(bottom)) { // Player Inventory clicked
                     if (e.isShiftClick() && e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
                         final ItemStack item = e.getCurrentItem();
-                        if (utils.isNullOrAir(item)) return;
+                        if (Utils.isNullOrAir(item)) return;
                         // Banned?
-                        if (api.isBanned(p, p.getLocation(), item, BanOption.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, bottom.getType()), new BanData(BanDataType.INVENTORY_TO, top.getType())))
+                        if (api.isBanned(p, item, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, bottom.getType()), new BanData(BanDataType.INVENTORY_TO, top.getType())))
                             e.setCancelled(true);
                     }
                 } else { // Top container clicked
                     // Shift
                     if (e.isShiftClick() && e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
                         final ItemStack item = e.getCurrentItem();
-                        if (utils.isNullOrAir(item)) return;
-                        if (api.isBanned(p, p.getLocation(), item, BanOption.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, top.getType()), new BanData(BanDataType.INVENTORY_TO, bottom.getType())))
+                        if (Utils.isNullOrAir(item)) return;
+                        if (api.isBanned(p, item, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, top.getType()), new BanData(BanDataType.INVENTORY_TO, bottom.getType())))
                             e.setCancelled(true);
                     } else {
                         // Hot bar click?
                         if (e.getHotbarButton() > -1) {
                             final ItemStack hotBarItem = bottom.getItem(e.getHotbarButton());
-                            if (!utils.isNullOrAir(hotBarItem) && api.isBanned(p, p.getLocation(), hotBarItem, BanOption.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, bottom.getType()))) {
+                            if (!Utils.isNullOrAir(hotBarItem) && api.isBanned(p, hotBarItem, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, bottom.getType()))) {
                                 e.setCancelled(true);
                                 return;
                             }
 
                             // Trying to swap with an item from the top inventory?
                             final ItemStack item = top.getItem(e.getRawSlot());
-                            if (!utils.isNullOrAir(item) && api.isBanned(p, p.getLocation(), item, BanOption.TRANSFER, new BanData(BanDataType.INVENTORY_TO, bottom.getType()))) {
+                            if (!Utils.isNullOrAir(item) && api.isBanned(p, item, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_TO, bottom.getType()))) {
                                 e.setCancelled(true);
                                 return;
                             }
@@ -568,22 +743,22 @@ public final class BanListener {
                         final ItemStack cursorItem = e.getCursor();
 
                         // Trying to place the cursor item?
-                        if (!utils.isNullOrAir(cursorItem)) {
-                            if (api.isBanned(p, p.getLocation(), cursorItem, BanOption.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, bottom.getType()), new BanData(BanDataType.INVENTORY_TO, top.getType()))) {
+                        if (!Utils.isNullOrAir(cursorItem)) {
+                            if (api.isBanned(p, cursorItem, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, bottom.getType()), new BanData(BanDataType.INVENTORY_TO, top.getType()))) {
                                 e.setCancelled(true);
                                 return;
                             }
                         }
 
                         // Trying to get the item from top?
-                        if (!utils.isNullOrAir(clickedItem)) {
-                            if (api.isBanned(p, p.getLocation(), clickedItem, BanOption.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, top.getType()), new BanData(BanDataType.INVENTORY_TO, bottom.getType())))
+                        if (!Utils.isNullOrAir(clickedItem)) {
+                            if (api.isBanned(p, clickedItem, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, top.getType()), new BanData(BanDataType.INVENTORY_TO, bottom.getType())))
                                 e.setCancelled(true);
                         }
                     }
                 }
 
-            }, priority.contains(BanOption.TRANSFER));
+            }, priority.contains(BanAction.TRANSFER));
 
             // Dragging
             registerEvent(InventoryDragEvent.class, (li, event) -> {
@@ -591,71 +766,71 @@ public final class BanListener {
                 final Player p = (Player) e.getWhoClicked();
                 // In is own inventory?
                 if (e.getView().getTopInventory().getType() == InventoryType.CRAFTING) return;
-                if (utils.isNullOrAir(e.getOldCursor())) return;
-                if (api.isBanned(p, p.getLocation(), e.getOldCursor(), BanOption.TRANSFER))
+                if (Utils.isNullOrAir(e.getOldCursor())) return;
+                if (api.isBanned(p, e.getOldCursor(), true, BanAction.TRANSFER))
                     e.setCancelled(true);
-            }, priority.contains(BanOption.TRANSFER));
+            }, priority.contains(BanAction.TRANSFER));
 
             // Hoppers block?
-            if (pl.getBanConfig().getOptionsConfig().isHoppersBlock())
+            if (pl.getBanConfig().getConfig().getBoolean("actions.transfer.hoppers-block"))
                 registerEvent(InventoryMoveItemEvent.class, (li, event) -> {
                     final InventoryMoveItemEvent e = (InventoryMoveItemEvent) event;
                     if (e.getSource().getHolder() instanceof BlockState) {
                         final BlockState bs = (BlockState) e.getSource().getHolder();
-                        if (api.isBanned(bs.getWorld(), e.getItem(), BanOption.TRANSFER,
+                        if (api.isBanned(bs.getWorld(), e.getItem(), BanAction.TRANSFER,
                                 new BanData(BanDataType.INVENTORY_FROM, e.getSource().getType()),
                                 new BanData(BanDataType.INVENTORY_TO, e.getDestination().getType())))
                             e.setCancelled(true);
                     }
-                }, priority.contains(BanOption.TRANSFER));
+                }, priority.contains(BanAction.TRANSFER));
         }
 
-        if (blacklist.contains(BanOption.UNFILL) || whitelist) {
+        if (blacklist.contains(BanAction.UNFILL) || whitelist) {
             registerEvent(PlayerBucketEmptyEvent.class, (li, event) -> {
                 final PlayerBucketEmptyEvent e = (PlayerBucketEmptyEvent) event;
-                final ItemStack item = utils.getItemInHand(e.getPlayer());
-                if (api.isBanned(e.getPlayer(), e.getBlockClicked().getLocation(), item, BanOption.UNFILL, new BanData(BanDataType.MATERIAL, e.getBlockClicked().getType()))) {
+                final ItemStack item = Utils.getItemInHand(e.getPlayer());
+                if (api.isBanned(e.getPlayer(), e.getBlockClicked().getLocation(), item, true, BanAction.UNFILL, new BanData(BanDataType.MATERIAL, e.getBlockClicked().getType()))) {
                     e.setCancelled(true);
                     e.getPlayer().updateInventory();
                 }
-            }, priority.contains(BanOption.FILL));
+            }, priority.contains(BanAction.FILL));
         }
 
-        if (blacklist.contains(BanOption.WEAR) || whitelist) {
+        if (blacklist.contains(BanAction.WEAR) || whitelist) {
             registerEvent(InventoryClickEvent.class, (li, event) -> {
                 final InventoryClickEvent e = (InventoryClickEvent) event;
                 if (e.getInventory().getType() != InventoryType.PLAYER && e.getInventory().getType() != InventoryType.CRAFTING) return;
 
                 // Armor interaction?
                 if (e.getRawSlot() >= 5 && e.getRawSlot() <= 8) {
-                    Bukkit.getScheduler().runTask(pl, () -> utils.checkPlayerArmors((Player)e.getWhoClicked()));
+                    Bukkit.getScheduler().runTask(pl, () -> pl.getUtils().checkPlayerArmors((Player)e.getWhoClicked()));
                     return;
                 }
 
                 // Trying to shift click item to armor?
                 final ItemStack currentItem = e.getCurrentItem();
-                if (e.isShiftClick() && !utils.isNullOrAir(currentItem)) {
-                    Bukkit.getScheduler().runTask(pl, () -> utils.checkPlayerArmors((Player)e.getWhoClicked()));
+                if (e.isShiftClick() && !Utils.isNullOrAir(currentItem)) {
+                    Bukkit.getScheduler().runTask(pl, () -> pl.getUtils().checkPlayerArmors((Player)e.getWhoClicked()));
                     return;
                 }
 
                 // Trying to use hotbar button?
                 if (e.getRawSlot() >= 5 && e.getRawSlot() <= 8 && e.getHotbarButton() > -1) {
                     final ItemStack item = e.getView().getBottomInventory().getItem(e.getHotbarButton());
-                    if (!utils.isNullOrAir(item))
-                        Bukkit.getScheduler().runTask(pl, () -> utils.checkPlayerArmors((Player)e.getWhoClicked()));
+                    if (!Utils.isNullOrAir(item))
+                        Bukkit.getScheduler().runTask(pl, () -> pl.getUtils().checkPlayerArmors((Player)e.getWhoClicked()));
                 }
-            }, priority.contains(BanOption.WEAR));
+            }, priority.contains(BanAction.WEAR));
 
             registerEvent(PlayerChangedWorldEvent.class, (li, event) -> {
                 final PlayerChangedWorldEvent e = (PlayerChangedWorldEvent) event;
-                Bukkit.getScheduler().runTask(pl, () -> utils.checkPlayerArmors(e.getPlayer()));
-            }, priority.contains(BanOption.WEAR));
+                Bukkit.getScheduler().runTask(pl, () -> pl.getUtils().checkPlayerArmors(e.getPlayer()));
+            }, priority.contains(BanAction.WEAR));
 
-            if (pl.getBanConfig().getOptionsConfig().isRegionCheck() && pl.getBanConfig().getHooks().isWorldGuard()) {
+            if (pl.getBanConfig().getConfig().getBoolean("actions.wear.region-check") && pl.getHooks().isWorldGuardEnabled()) {
                 final IWorldGuardHook hook = pl.getHooks().getWorldGuardHook();
                 if (hook == null)
-                    sender.sendMessage(utils.color("&cCan not use the region checker for wear option, as worldguard is not reachable."));
+                    sender.sendMessage(Chat.color("&cCan not use the region checker for wear action, as worldguard is not reachable."));
                 else {
                     // Register the region change event
                     registerEvent(PlayerMoveEvent.class, (li, event) -> {
@@ -666,17 +841,15 @@ public final class BanListener {
                         if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY() && from.getBlockZ() == to.getBlockZ()) return;
                         if (!hook.getStandingRegions(from).equals(hook.getStandingRegions(to)))
                             Bukkit.getPluginManager().callEvent(new PlayerRegionChangeEvent(e.getPlayer()));
-                    }, priority.contains(BanOption.WEAR));
+                    }, priority.contains(BanAction.WEAR));
 
                     registerEvent(PlayerRegionChangeEvent.class, (li, event) -> {
                         final PlayerRegionChangeEvent e = (PlayerRegionChangeEvent) event;
-                        Bukkit.getScheduler().runTask(pl, () -> utils.checkPlayerArmors(e.getPlayer()));
-                    }, priority.contains(BanOption.WEAR));
+                        Bukkit.getScheduler().runTask(pl, () -> pl.getUtils().checkPlayerArmors(e.getPlayer()));
+                    }, priority.contains(BanAction.WEAR));
                 }
             }
         }
-
-        sender.sendMessage(pl.getBanConfig().getPrefix() + utils.color("&2Activated &e" + activated + "&2 listener(s)."));
     }
 
     /**
@@ -686,22 +859,13 @@ public final class BanListener {
      * @param priority if the event should have maximum priority
      */
     private void registerEvent(@NotNull final Class<? extends Event> c, @NotNull final EventExecutor ee, final boolean priority) {
-        pm.registerEvent(c, listener, (priority ? EventPriority.LOWEST : EventPriority.NORMAL), ee, pl, !priority);
+        Bukkit.getPluginManager().registerEvent(c, listener, (priority ? EventPriority.LOWEST : EventPriority.NORMAL), ee, pl, !priority);
         activated++;
     }
 
     /**
-     * Get the current listener object used
-     * @return the current listener object
-     */
-    @NotNull
-    public Listener getListener() {
-        return listener;
-    }
-
-    /**
-     * Get the amount of listeners activated
-     * @return the amount of listeners activated
+     * Get the amount of events listened
+     * @return the amount of events listened
      */
     public int getActivated() {
         return activated;

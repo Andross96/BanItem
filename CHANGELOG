@@ -1,3 +1,38 @@
+v3.0:
+  - NEW:
+    - Custom items:
+      - they are now customizable bannable items created in customitems.yml;
+	  - they can have configurable item metas, this allows easier bans;
+    - Meta items:
+	  - previously named "custom items";
+	  - items that match the exact item meta;
+    - Renamed "options" to "actions"
+  - ADDED:
+    - Added "enchant" action: when a player enchants the item, with anvil or enchantment table;
+    - Added "hold" action: when the player holds the item;
+	- Added support of hex codes for 1.16+ (ex: "&#1258DA")
+    - Added regex for item names & worlds names using a hashtag (#):
+      - Example: "#world" will get world, world_nether & world_the_end;
+    - Added '/bi load <filename>' to load differents configurations files;
+    - Added '/bi addeverywhere' to ban an item in all worlds;
+    - Added 'run' action data, it's a commands list executed when a banned action is done;
+    - Added "modeldata-equals" for custom items: to matches items with model datas (MC>=1.14);
+    - Added "lore_line_contains" for custom items: if a string from a line of the lore matches;
+	- Added an option in config to cancel the delete action in some inventory (using titles);
+	- Added friendly enchantments names for all versions;
+  - Permissions:
+    - Enhanced permissions checks & compatibility;
+	- should now be fully compatible with GroupManager;
+	- Added "banitem.bypass.*"
+	- Added "banitem.bypass.world.*"
+	- Added "banitem.bypass.allworlds.*"
+  - Fixes:
+    - Fixed brewing action (ingridients/potions);
+	- Fixed a bug with break action;
+  - API:
+    - Added a "DeleteBannedItemEvent" : run when an item should be deleted from a player inventoryview;
+  - Multiple Code & Performance enhancements;
+--------------------------------------------
 v2.4:
   - New option bookedit: when the player edits or signs a book and quill item;
   - [Config] Added wear worldguard region check (configurable): the plugin will check the player's equipment when changing regions;

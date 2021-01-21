@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,13 +21,13 @@ import fr.andross.banitem.BanItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Sub command log
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public class Commandlog extends BanCommand {
@@ -64,6 +64,6 @@ public class Commandlog extends BanCommand {
 
     @Override
     public List<String> runTab() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }

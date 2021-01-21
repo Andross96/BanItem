@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,9 +17,12 @@
  */
 package fr.andross.banitem.database;
 
-import fr.andross.banitem.options.BanOption;
-import fr.andross.banitem.options.BanOptionData;
-import fr.andross.banitem.utils.item.BannedItem;
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.actions.BanActionData;
+import fr.andross.banitem.actions.BanDataType;
+import fr.andross.banitem.database.items.Items;
+import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.items.CustomBannedItem;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,22 +31,22 @@ import java.util.*;
 
 /**
  * Map containing all allowed items of a world
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
-public final class WhitelistedWorld extends ItemMap {
+public final class WhitelistedWorld extends Items {
     private final World world;
     private final List<String> messages = new ArrayList<>();
-    private final Set<BanOption> ignored = new HashSet<>();
+    private final Set<BanAction> ignored = EnumSet.noneOf(BanAction.class);
 
     /**
      * This constructor should not be used like this <i>(as it will not been stored into the Whitelist map)</i>
      * Use {@link Whitelist#createNewWhitelistedWorld(World, List, List)} instead.
      * @param world bukkit world
      * @param messages list of messages to send if the item is not allowed
-     * @param ignored list of ignored options
+     * @param ignored list of ignored actions
      */
-    public WhitelistedWorld(@NotNull final World world, @Nullable final List<String> messages, @Nullable final List<BanOption> ignored) {
+    public WhitelistedWorld(@NotNull final World world, @Nullable final List<String> messages, @Nullable final List<BanAction> ignored) {
         this.world = world;
         if (messages != null) this.messages.addAll(messages);
         if (ignored != null) this.ignored.addAll(ignored);
@@ -51,14 +54,23 @@ public final class WhitelistedWorld extends ItemMap {
 
     /**
      * This will add a new entry to the whitelist
-     *
      * @param item banned item <i>({@link BannedItem})</i>
-     * @param options map containing {@link BanOption} and their respective {@link BanOptionData}
+     * @param map map containing {@link BanAction} and their respective {@link BanActionData}
      */
-    public void addNewEntry(@NotNull final BannedItem item, @NotNull final Map<BanOption, BanOptionData> options) {
-        final Map<BanOption, BanOptionData> map = getOrDefault(item, new HashMap<>());
-        map.putAll(options);
-        put(item, map);
+    public void addNewEntry(@NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> map) {
+        if (item instanceof CustomBannedItem) {
+            final CustomBannedItem customBannedItem = (CustomBannedItem) item;
+            final Map<BanAction, BanActionData> bannedItemMap = customItems.getOrDefault(customBannedItem, new HashMap<>());
+            for (final Map.Entry<BanAction, BanActionData> e : map.entrySet()) {
+                e.getValue().getMap().put(BanDataType.CUSTOMNAME, customBannedItem.getName());
+                bannedItemMap.put(e.getKey(), e.getValue());
+            }
+            customItems.put(customBannedItem, bannedItemMap);
+        } else {
+            final Map<BanAction, BanActionData> bannedItemMap = items.getOrDefault(item, new HashMap<>());
+            bannedItemMap.putAll(map);
+            items.put(item, bannedItemMap);
+        }
     }
 
     /**
@@ -78,17 +90,10 @@ public final class WhitelistedWorld extends ItemMap {
     }
 
     /**
-     * @return set of ignored options, empty if none configured
+     * @return set of ignored actions, empty if none configured
      */
     @NotNull
-    public Set<BanOption> getIgnored() {
+    public Set<BanAction> getIgnored() {
         return ignored;
-    }
-
-    /**
-     * @return total amount of items allowed in this world
-     */
-    public int getTotal() {
-        return values().size();
     }
 }

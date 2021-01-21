@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,18 +18,19 @@
 package fr.andross.banitem.commands;
 
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.utils.item.BannedItem;
+import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.statics.Utils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Sub command info
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public class Commandinfo extends BanCommand {
@@ -54,20 +55,20 @@ public class Commandinfo extends BanCommand {
 
         // Showing item info
         final Player p = (Player) sender;
-        final ItemStack item = pl.getUtils().getItemInHand(p);
+        final ItemStack item = Utils.getItemInHand(p);
 
         header("&6&lInfo");
-        final String itemName = item.getType().name().toLowerCase();
-        final String customItemName = pl.getBanDatabase().getCustomItems().getName(new BannedItem(item));
-        message("&7Material name: &e" + itemName);
-        if (customItemName != null) message("&7Custom item name: &e" + customItemName);
-        message("&7Permission: ");
-        message(" &7>> &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + (customItemName != null ? customItemName.toLowerCase() : itemName) + ".option.*");
+        final String materialName = item.getType().name().toLowerCase();
+        message("&7Material name: &e" + materialName);
+        final String metaItemName = pl.getBanDatabase().getMetaItems().getKey(new BannedItem(item));
+        if (metaItemName != null) message("&7Meta item name: &e" + metaItemName);
+        message("&7Permission example:");
+        message(" &7>> &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + (metaItemName != null ? metaItemName.toLowerCase() : materialName) + ".action.*");
     }
 
     @Nullable
     @Override
     public List<String> runTab() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }

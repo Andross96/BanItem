@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,18 +17,16 @@
  */
 package fr.andross.banitem.utils.debug;
 
-import fr.andross.banitem.BanItem;
-import fr.andross.banitem.options.BanOption;
-import fr.andross.banitem.utils.Listable;
-import fr.andross.banitem.utils.item.MetaType;
+import fr.andross.banitem.BanConfig;
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.utils.statics.Chat;
+import fr.andross.banitem.utils.statics.list.ListType;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,18 +38,18 @@ import java.util.stream.Collectors;
 /**
  * A debug class, which can handle and display the nodes
  * Mainly used when loading the plugin, to display any error
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public final class Debug implements Cloneable {
-    private final BanItem pl;
+    private final BanConfig banConfig;
     private final CommandSender sender;
     private List<DebugMessage> nodes = new ArrayList<>();
 
-    public Debug(@NotNull final BanItem pl, @NotNull final CommandSender sender, final DebugMessage... dm) {
-        this.pl = pl;
+    public Debug(@NotNull final BanConfig banConfig, @NotNull final CommandSender sender, final DebugMessage... dm) {
+        this.banConfig = banConfig;
         this.sender = sender;
-        add(dm);
+        if (dm != null) add(dm);
     }
 
     /**
@@ -60,7 +58,7 @@ public final class Debug implements Cloneable {
      * @param node message
      * @return this object
      */
-    public Debug add(@Nullable final Listable.Type type, @NotNull final String node) {
+    public Debug add(@Nullable final ListType type, @NotNull final String node) {
         this.nodes.add(new DebugMessage(type, node));
         return this;
     }
@@ -97,7 +95,7 @@ public final class Debug implements Cloneable {
      * @return a simple message with the debug result
      */
     public String getSimpleDebug() {
-        final StringBuilder sb = new StringBuilder(pl.getBanConfig().getPrefix() + "&7[");
+        final StringBuilder sb = new StringBuilder(banConfig.getPrefix() + "&7[");
 
         for (int i = 0; i < nodes.size(); i++) {
             final String node = nodes.get(i).getNode();
@@ -106,7 +104,7 @@ public final class Debug implements Cloneable {
             if (i < nodes.size() - 2) sb.append(" >> ");
         }
 
-        return pl.getUtils().color(sb.toString());
+        return Chat.color(sb.toString());
     }
 
     /**
@@ -116,7 +114,7 @@ public final class Debug implements Cloneable {
     public List<String> getBetterDebug() {
         final List<String> messages = new ArrayList<>();
         messages.add("&c------------------------");
-        messages.add(pl.getBanConfig().getPrefix() + "&cError:");
+        messages.add(banConfig.getPrefix() + "&cError:");
         int i = 0;
         for (final DebugMessage dm : nodes) {
             i++;
@@ -132,49 +130,36 @@ public final class Debug implements Cloneable {
                     switch (dm.getType()) {
                         case WORLD: {
                             messages.add("&7This world is unknown. Valid worlds:");
-                            messages.add("&7>> " + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", ".")));
                             continue;
                         }
-                        case OPTION: {
-                            messages.add("&7This option is unknown. Valid options:");
-                            messages.add("&7>> " + pl.getUtils().getOptions().stream().map(BanOption::getName).collect(Collectors.joining(",")));
+                        case ACTION: {
+                            messages.add("&7This action is unknown. Valid actions:");
+                            messages.add("&7>> " + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", ".")));
+                            continue;
+                        }
+                        case ACTIONDATA: {
+                            messages.add("&7This action data is unknown.");
                             continue;
                         }
                         case ITEM: {
-                            messages.add("&7This material or custom item is unknown.");
+                            messages.add("&7This item is unknown.");
                             messages.add("&7In game, you can use '/bi info' with your item in hand to get this info.");
                             continue;
                         }
                         case ENTITY: {
                             messages.add("&7This entity is unknown. Valid entities:");
-                            messages.add("&7>> " + pl.getUtils().getEntities().stream().map(EntityType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + Arrays.stream(EntityType.values()).map(EntityType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", ".")));
                             continue;
                         }
                         case GAMEMODE: {
                             messages.add("&7This gamemode is unknown. Valid gamemodes:");
-                            messages.add("&7>> " + pl.getUtils().getGamemodes().stream().map(GameMode::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + Arrays.stream(GameMode.values()).map(GameMode::name).map(String::toLowerCase).collect(Collectors.joining(",", "", ".")));
                             continue;
                         }
                         case INVENTORY: {
                             messages.add("&7This inventory type is unknown. Valid inventory types:");
-                            messages.add("&7>> " + pl.getUtils().getInventories().stream().map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
-                            continue;
-                        }
-                        case METADATA: {
-                            messages.add("&7This metadata is unknown. Valid metadatas:");
-                            messages.add("&7>> " + pl.getUtils().getMetas().stream().map(MetaType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
-                            continue;
-                        }
-                        case METADATA_ENCHANTMENT: {
-                            messages.add("&7This enchantment is unknown. The synthax is Enchantment:Level");
-                            messages.add("&7Valid enchantments:");
-                            messages.add("&7>> " + pl.getUtils().getEnchantments().stream().map(Enchantment::getName).map(String::toLowerCase).collect(Collectors.joining(",")));
-                            continue;
-                        }
-                        case METADATA_POTION: {
-                            messages.add("&7This potion is unknown. The synthax is Potion:Level");
-                            messages.add("&7Valid potions:");
-                            messages.add("&7>> " + pl.getUtils().getPotions().stream().map(PotionType::name).map(String::toLowerCase).collect(Collectors.joining(",")));
+                            messages.add("&7>> " + Arrays.stream(InventoryType.values()).map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", ".")));
                             continue;
                         }
                         case REGION: {
@@ -188,14 +173,14 @@ public final class Debug implements Cloneable {
         }
 
         messages.add("&c------------------------");
-        return messages.stream().map(pl.getUtils()::color).collect(Collectors.toList());
+        return messages.stream().map(Chat::color).collect(Collectors.toList());
     }
 
     /**
      * Send this debug message to the sender
      */
     public void sendDebug() {
-        if (!pl.getBanConfig().isBetterDebug()) sender.sendMessage(getSimpleDebug());
+        if (!banConfig.getConfig().getBoolean("better-debug")) sender.sendMessage(getSimpleDebug());
         else getBetterDebug().forEach(sender::sendMessage);
     }
 
@@ -205,7 +190,7 @@ public final class Debug implements Cloneable {
             final Debug d = (Debug) super.clone();
             d.setNodes(new ArrayList<>(nodes));
             return d;
-        } catch (CloneNotSupportedException e) {
+        } catch (final CloneNotSupportedException e) {
             throw new Error(e);
         }
     }

@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,41 +17,44 @@
  */
 package fr.andross.banitem;
 
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.actions.BanActionData;
+import fr.andross.banitem.actions.BanData;
 import fr.andross.banitem.database.Blacklist;
-import fr.andross.banitem.database.CustomItems;
 import fr.andross.banitem.database.Whitelist;
 import fr.andross.banitem.database.WhitelistedWorld;
-import fr.andross.banitem.options.BanData;
-import fr.andross.banitem.options.BanOption;
-import fr.andross.banitem.options.BanOptionData;
-import fr.andross.banitem.utils.item.BannedItem;
+import fr.andross.banitem.database.items.CustomItems;
+import fr.andross.banitem.database.items.Items;
+import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.statics.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * BanItemAPI
  * <p><b><u>IMPORTANT:</u></b></p>
  * <p>This api is loaded on next tick after server load, to allow other custom worlds plugins to load worlds.
  * So this API is <u>not</u> available on server load, but will be on next available tick!</p>
- * <p>If you add/remove any option from a map <i>(blacklist/whitelist)</i>, you have to reload the plugin listeners
- * so it can handle correctly the options, using {@link BanListener#load(CommandSender)} ()}</p>
+ * <p>If you add/remove any action from a map <i>(blacklist/whitelist)</i>, you have to reload the plugin listeners
+ * so it can handle correctly the actions, using {@link BanListener#load(CommandSender)} ()}</p>
  * @author Andross
- * @version 2.4
+ * @version 3.0
  */
-public class BanItemAPI {
+public final class BanItemAPI {
     private static BanItemAPI instance;
     private final BanItem pl;
 
@@ -81,7 +84,7 @@ public class BanItemAPI {
     ------------------------------*/
 
     /**
-     * Get the BanItem database, containing <b>blacklist</b>, <b>whitelist</b> and <b>custom items</b>.
+     * Get the BanItem database, containing <b>blacklist</b>, <b>whitelist</b>, <b>custom items</b> and <b>meta items</b>.
      * @return the BanDatabase object
      */
     @NotNull
@@ -92,87 +95,199 @@ public class BanItemAPI {
     /**
      * (re)Loading the plugin with this configuration file
      * @param sender command sender <i>(send the message debug to)</i>
-     * @param config the file configuration to load. If null, using (and reloading) the default config
+     * @param configFile the file configuration to load. If null, using (and reloading) the default config
      */
-    public void load(@NotNull final CommandSender sender, @Nullable FileConfiguration config) {
-        pl.load(sender, config);
+    public void load(@NotNull final CommandSender sender, @Nullable final File configFile) {
+        pl.load(sender, configFile);
+    }
+
+    /*------------------------------
+     * **********************
+     *     MATERIAL CHECK
+     * **********************
+    ------------------------------*/
+
+    /**
+     * Check if the material is banned, in both blacklist and whitelist.
+     * This also consider the player bypass permissions.
+     * @param player the {@link Player} involved into this action
+     * @param m the {@link Material} used
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
+     */
+    public boolean isBanned(@NotNull final Player player, @NotNull final Material m, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, null, new BannedItem(m), false, action, data);
     }
 
     /**
-     * Check if the item is banned, in both blacklist and whitelist, sending a message to the player if it's the case.
+     * Check if the material is banned, in both blacklist and whitelist.
      * This also consider the player bypass permissions.
-     * @param player the {@link org.bukkit.entity.Player} involved into this action
-     * @param location the effective location where the action occurs
-     * @param material the {@link Material} involved into this action
-     * @param option the {@link BanOption} option to check
-     * @param data optional ban datas
-     * @return true if this item is banned for those characteristics, otherwise false
+     * @param player the {@link Player} involved into this action
+     * @param loc the effective {@link Location} of the action
+     * @param m the {@link Material} used
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final Player player, @NotNull final Location location, @NotNull final Material material, @NotNull final BanOption option, @Nullable final BanData... data) {
-        return isBanned(player, location, new BannedItem(material), true, option, data);
+    public boolean isBanned(@NotNull final Player player, @Nullable final Location loc, @NotNull final Material m, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, loc, new BannedItem(m), false, action, data);
     }
 
     /**
-     * Check if the item is banned, in both blacklist and whitelist, sending a message to the player if it's the case.
+     * Check if the material is banned, in both blacklist and whitelist.
      * This also consider the player bypass permissions.
-     * @param player the {@link org.bukkit.entity.Player} involved into this action
-     * @param location the effective location where the action occurs
-     * @param item the {@link org.bukkit.inventory.ItemStack} involved into this action
-     * @param option the {@link BanOption} option to check
-     * @param data optional ban datas
-     * @return true if this item is banned for those characteristics, otherwise false
+     * @param player the {@link Player} involved into this action
+     * @param m the {@link Material} used
+     * @param sendMessage if the banned message should be send to the player
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final Player player, @NotNull final Location location, @NotNull final ItemStack item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        return isBanned(player, location, new BannedItem(item), true, option, data);
+    public boolean isBanned(@NotNull final Player player, @NotNull final Material m, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, null, new BannedItem(m), sendMessage, action, data);
     }
 
     /**
-     * Check if the item is banned, in both blacklist and whitelist, sending a message to the player if it's the case.
+     * Check if the material is banned, in both blacklist and whitelist.
      * This also consider the player bypass permissions.
-     * @param player the {@link org.bukkit.entity.Player} involved into this action
-     * @param location the effective location where the action occurs
-     * @param item the {@link BannedItem} involved into this action
-     * @param option the {@link BanOption} option to check
-     * @param data optional ban datas
-     * @return true if this item is banned for those characteristics, otherwise false
+     * @param player the {@link Player} involved into this action
+     * @param loc the effective {@link Location} of the action
+     * @param m the {@link Material} used
+     * @param sendMessage if the banned message should be send to the player
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final Player player, @NotNull final Location location, @NotNull final BannedItem item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        return isBanned(player, location, item, true, option, data);
+    public boolean isBanned(@NotNull final Player player, @Nullable final Location loc, @NotNull final Material m, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, loc, new BannedItem(m), sendMessage, action, data);
+    }
+
+
+    /*------------------------------
+     * **********************
+     *     ITEMSTACK CHECK
+     * **********************
+    ------------------------------*/
+
+    /**
+     * Check if the ItemStack is banned, in both blacklist and whitelist.
+     * This also consider the player bypass permissions.
+     * @param player the {@link Player} involved into this action
+     * @param item the {@link ItemStack} used
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
+     */
+    public boolean isBanned(@NotNull final Player player, @NotNull final ItemStack item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, null, new BannedItem(item), false, action, data);
     }
 
     /**
-     * Check if the item is banned, in both blacklist and whitelist, sending a message or not to the player.
+     * Check if the ItemStack is banned, in both blacklist and whitelist.
      * This also consider the player bypass permissions.
-     * @param player the {@link org.bukkit.entity.Player} involved into this action
-     * @param location the effective location where the action occurs
-     * @param item the {@link org.bukkit.inventory.ItemStack} involved into this action
-     * @param sendMessage if the item is banned, send the ban message configured
-     * @param option the {@link BanOption} option to check
-     * @param data optional ban datas
-     * @return true if this item is banned for those characteristics, otherwise false
+     * @param player the {@link Player} involved into this action
+     * @param loc the effective {@link Location} of the action
+     * @param item the {@link ItemStack} used
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final Player player, @NotNull final Location location, @NotNull final ItemStack item, final boolean sendMessage, @NotNull final BanOption option, @Nullable final BanData... data) {
-        return isBanned(player, location, new BannedItem(item), sendMessage, option, data);
+    public boolean isBanned(@NotNull final Player player, @Nullable final Location loc, @NotNull final ItemStack item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, loc, new BannedItem(item), false, action, data);
     }
 
     /**
-     * Check if the item is banned, in both blacklist and whitelist, sending a message or not to the player.
+     * Check if the ItemStack is banned, in both blacklist and whitelist.
      * This also consider the player bypass permissions.
-     * @param player the {@link org.bukkit.entity.Player} involved into this action
-     * @param location the effective location where the action occurs
-     * @param item the {@link BannedItem} involved into this action
-     * @param sendMessage if the item is banned, send the ban message configured
-     * @param option the {@link BanOption} option to check
-     * @param data optional ban datas
-     * @return true if this item is banned for those characteristics, otherwise false
+     * @param player the {@link Player} involved into this action
+     * @param item the {@link ItemStack} used
+     * @param sendMessage if the banned message should be send to the player
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final Player player, @NotNull final Location location, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanOption option, @Nullable final BanData... data) {
-        // Checking permission bypass
-        if (pl.getUtils().hasPermission(player, item.getType().name().toLowerCase(), pl.getBanDatabase().getCustomItems().getName(item), option, data)) return false;
-        // Checking blacklist?
-        if (pl.getBanDatabase().getBlacklist().isBlacklisted(player, location, item, sendMessage, option, data)) return true;
-        // Checking whitelist?
-        return !pl.getBanDatabase().getWhitelist().isWhitelisted(player, location, item, sendMessage, option, data);
+    public boolean isBanned(@NotNull final Player player, @NotNull final ItemStack item, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, null, new BannedItem(item), sendMessage, action, data);
+    }
+
+    /**
+     * Check if the ItemStack is banned, in both blacklist and whitelist.
+     * This also consider the player bypass permissions.
+     * @param player the {@link Player} involved into this action
+     * @param loc the effective {@link Location} of the action
+     * @param item the {@link ItemStack} used
+     * @param sendMessage if the banned message should be send to the player
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
+     */
+    public boolean isBanned(@NotNull final Player player, @Nullable final Location loc, @NotNull final ItemStack item, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, loc, new BannedItem(item), sendMessage, action, data);
+    }
+
+
+    /*------------------------------
+     * **********************
+     *     BANNEDITEM CHECK
+     * **********************
+    ------------------------------*/
+
+    /**
+     * Check if the BannedItem object is banned, in both blacklist and whitelist.
+     * This also consider the player bypass permissions.
+     * @param player the {@link Player} involved into this action
+     * @param item the {@link BannedItem} object
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
+     */
+    public boolean isBanned(@NotNull final Player player, @NotNull final BannedItem item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, null, item, false, action, data);
+    }
+
+    /**
+     * Check if the BannedItem object is banned, in both blacklist and whitelist.
+     * This also consider the player bypass permissions.
+     * @param player the {@link Player} involved into this action
+     * @param loc the effective {@link Location} of the action
+     * @param item the {@link BannedItem} object
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
+     */
+    public boolean isBanned(@NotNull final Player player, @Nullable final Location loc, @NotNull final BannedItem item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, loc, item, false, action, data);
+    }
+
+    /**
+     * Check if the BannedItem object is banned, in both blacklist and whitelist.
+     * This also consider the player bypass permissions.
+     * @param player the {@link Player} involved into this action
+     * @param item the {@link BannedItem} object
+     * @param sendMessage if the banned message should be send to the player
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
+     */
+    public boolean isBanned(@NotNull final Player player, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(player, null, item, sendMessage, action, data);
+    }
+
+    /**
+     * Check if the BannedItem object is banned, in both blacklist and whitelist.
+     * This also consider the player bypass permissions.
+     * @param player the {@link Player} involved into this action
+     * @param loc the effective {@link Location} of the action
+     * @param item the {@link BannedItem} object
+     * @param sendMessage if the banned message should be send to the player
+     * @param action the {@link BanAction} to check
+     * @param data optional action datas, leave it blank if not needed for the action
+     * @return true if this item is banned, otherwise false
+     */
+    public boolean isBanned(@NotNull final Player player, @Nullable final Location loc, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        if (pl.getBanDatabase().getBlacklist().isBlacklisted(player, loc, item, sendMessage, action, data)) return true;
+        return !pl.getBanDatabase().getWhitelist().isWhitelisted(player, loc, item, sendMessage, action, data);
     }
 
     /**
@@ -180,12 +295,12 @@ public class BanItemAPI {
      * This method is mainly used to check dispensers <i>dispense</i> and hoppers <i>transfer</i>
      * @param world bukkit world <i>({@link World})</i>
      * @param material the involved material
-     * @param option the ban option to check
-     * @param data the ban option datas to check
+     * @param action the ban action to check
+     * @param data the ban action datas to check
      * @return true if the item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final World world, @NotNull final Material material, @NotNull final BanOption option, @Nullable final BanData... data) {
-        return isBanned(world, new BannedItem(material), option, data);
+    public boolean isBanned(@NotNull final World world, @NotNull final Material material, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(world, new BannedItem(material), action, data);
     }
 
     /**
@@ -193,12 +308,12 @@ public class BanItemAPI {
      * This method is mainly used to check dispensers <i>dispense</i> and hoppers <i>transfer</i>
      * @param world bukkit world <i>({@link World})</i>
      * @param item the involved ItemStack
-     * @param option the ban option to check
-     * @param data the ban option datas to check
+     * @param action the ban action to check
+     * @param data the ban action datas to check
      * @return true if the item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final World world, @NotNull final ItemStack item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        return isBanned(world, new BannedItem(item), option, data);
+    public boolean isBanned(@NotNull final World world, @NotNull final ItemStack item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return isBanned(world, new BannedItem(item), action, data);
     }
 
     /**
@@ -206,75 +321,65 @@ public class BanItemAPI {
      * This method is mainly used to check dispensers <i>dispense</i> and hoppers <i>transfer</i>
      * @param world bukkit world <i>({@link World})</i>
      * @param item the involved item
-     * @param option the ban option to check
-     * @param data the ban option datas to check
+     * @param action the ban action to check
+     * @param data the ban action datas to check
      * @return true if the item is banned, otherwise false
      */
-    public boolean isBanned(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        // Checking blacklist?
-        if (pl.getBanDatabase().getBlacklist().isBlacklisted(world, item, option, data)) return true;
-        // Checking whitelist?
-        return !pl.getBanDatabase().getWhitelist().isWhitelisted(world, item, option, data);
+    public boolean isBanned(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        if (pl.getBanDatabase().getBlacklist().isBlacklisted(world, item, action, data)) return true;
+        return !pl.getBanDatabase().getWhitelist().isWhitelisted(world, item, action, data);
     }
 
     /**
      * Check if the item is blacklisted, sending a message or not to the player.
-     * @param player the {@link org.bukkit.entity.Player} involved into this action
+     * @param player the {@link Player} involved into this action
      * @param location the effective location where the action occurs
      * @param item the {@link BannedItem} involved into this action
      * @param sendMessage if the item is banned, send the ban message configured
-     * @param option the {@link BanOption} option to check
-     * @param data optional ban datas
+     * @param action the {@link BanAction} action to check
+     * @param data additional ban datas
      * @return true if this item is banned for those characteristics, otherwise false
      */
-    public boolean isBlacklisted(@NotNull final Player player, @NotNull final Location location, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanOption option, @Nullable final BanData... data) {
-        // Checking permission bypass
-        if (pl.getUtils().hasPermission(player, item.getType().name().toLowerCase(), pl.getBanDatabase().getCustomItems().getName(item), option)) return false;
-        // Checking blacklist
-        return pl.getBanDatabase().getBlacklist().isBlacklisted(player, location, item, sendMessage, option, data);
+    public boolean isBlacklisted(@NotNull final Player player, @NotNull final Location location, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return pl.getBanDatabase().getBlacklist().isBlacklisted(player, location, item, sendMessage, action, data);
     }
 
     /**
      * Check if the item is blacklisted, not involving a player
      * @param world bukkit world <i>({@link World})</i>
      * @param item the involved item
-     * @param option the ban option to check
-     * @param data the ban option datas to check
+     * @param action the ban action to check
+     * @param data the ban action datas to check
      * @return true if the item is banned, otherwise false
      */
-    public boolean isBlacklisted(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        // Checking blacklist?
-        return pl.getBanDatabase().getBlacklist().isBlacklisted(world, item, option, data);
+    public boolean isBlacklisted(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return pl.getBanDatabase().getBlacklist().isBlacklisted(world, item, action, data);
     }
 
     /**
      * Check if the item is whitelisted <i>(allowed)</i>, sending a message or not to the player.
-     * @param player the {@link org.bukkit.entity.Player} involved into this action
+     * @param player the {@link Player} involved into this action
      * @param location the effective location where the action occurs
      * @param item the {@link BannedItem} involved into this action
      * @param sendMessage if the item is banned, send the ban message configured
-     * @param option the {@link BanOption} option to check
+     * @param action the {@link BanAction} action to check
      * @param data optional ban datas
      * @return true if this item is allowed, otherwise false
      */
-    public boolean isWhitelisted(@NotNull final Player player, @NotNull final Location location, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanOption option, @Nullable final BanData... data) {
-        // Checking permission bypass
-        if (pl.getUtils().hasPermission(player, item.getType().name().toLowerCase(), pl.getBanDatabase().getCustomItems().getName(item), option, data)) return true;
-        // Checking blacklist
-        return pl.getBanDatabase().getWhitelist().isWhitelisted(player, location, item, sendMessage, option, data);
+    public boolean isWhitelisted(@NotNull final Player player, @NotNull final Location location, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return pl.getBanDatabase().getWhitelist().isWhitelisted(player, location, item, sendMessage, action, data);
     }
 
     /**
      * Check if the item is whitelisted, not involving a player
      * @param world bukkit world <i>({@link World})</i>
      * @param item the involved item
-     * @param option the ban option to check
-     * @param data the ban option datas to check
+     * @param action the ban action to check
+     * @param data the ban action datas to check
      * @return true if the item is allowed, otherwise false
      */
-    public boolean isWhitelisted(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        // Checking whitelist?
-        return pl.getBanDatabase().getWhitelist().isWhitelisted(world, item, option, data);
+    public boolean isWhitelisted(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        return pl.getBanDatabase().getWhitelist().isWhitelisted(world, item, action, data);
     }
 
 
@@ -293,53 +398,85 @@ public class BanItemAPI {
     }
 
     /**
-     * Add a new banned item to blacklisted worlds and save the config.yml file. <i>(comments in file may be removed)</i>
-     *
+     * Add a new banned item to blacklist and save the config file used.
      * @param item the item to ban
-     * @param options a map containing options and their respective data
-     * @param worlds worlds where the ban apply, all worlds if null
+     * @param actions a map containing actions and their respective data
+     * @param worlds worlds where the ban apply. If null, including all worlds
+     * @return true if the item is successfully added, otherwise false
      */
-    public void addToBlacklist(@NotNull final BannedItem item, @NotNull final Map<BanOption, BanOptionData> options, @Nullable final World... worlds) {
+    public boolean addToBlacklist(@NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> actions, @Nullable final World... worlds) {
         // Preparing variables
-        final List<World> appliedWorlds = worlds == null ? Bukkit.getWorlds() : Arrays.asList(worlds);
-        // Getting the name of the item
-        final CustomItems items = getDatabase().getCustomItems();
-        final String name = items.getReversed().containsKey(item) ? items.getReversed().get(item) : item.getType().name().toLowerCase();
+        final boolean allWorlds = Utils.isNullOrEmpty(worlds);
+        final List<World> appliedWorlds = allWorlds ? Bukkit.getWorlds() : Arrays.asList(worlds);
+        final String name = pl.getBanDatabase().getNameTest(item);
 
-        for (final World world : appliedWorlds) {
-            // Adding in map
-            getDatabase().getBlacklist().addNewBan(world, item, options);
-            // Adding in file
-            pl.getConfig().set("blacklist." + world.getName() + "." + name, null);
-            for (Map.Entry<BanOption, BanOptionData> entry : options.entrySet()) {
-                pl.getConfig().set("blacklist." + world.getName() + "." + name + "." + entry.getKey().name().toLowerCase(), entry.getValue().serialize());
+        // Adding in map
+        appliedWorlds.forEach(w -> getDatabase().getBlacklist().addNewBan(w, item, actions));
+
+        // Adding in config
+        if (allWorlds) {
+            // If all data are equals, we can unify them
+            if (Utils.areAllEquals(actions.values())) {
+                final Map<String, Object> serializedData = actions.values().iterator().next().serialize();
+                final String actionNames = actions.size() == BanAction.values().length ? "*" : actions.keySet().stream()
+                        .map(BanAction::getName)
+                        .map(String::toLowerCase)
+                        .collect(Collectors.joining(","));
+                pl.getBanConfig().getConfig().set("blacklist.*." + name + "." + actionNames, serializedData);
+            } else
+                actions.forEach((k, v) -> pl.getConfig().set("blacklist.*." + name + "." + k.name().toLowerCase(), v.serialize()));
+        } else {
+            // If all data are equals, we can unify them
+            if (Utils.areAllEquals(actions.values())) {
+                final Map<String, Object> serializedData = actions.values().iterator().next().serialize();
+                final String actionNames = actions.size() == BanAction.values().length ? "*" : actions.keySet().stream()
+                        .map(BanAction::getName)
+                        .map(String::toLowerCase)
+                        .collect(Collectors.joining(","));
+                for (final World world : appliedWorlds)
+                    pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name + "." + actionNames, serializedData);
+            } else {
+                for (final World world : appliedWorlds) {
+                    pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name, null);
+                    actions.forEach((k, v) -> pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name + "." + k.name().toLowerCase(), v.serialize()));
+                }
             }
         }
-        pl.saveConfig();
+        return pl.getBanConfig().saveConfig();
     }
 
     /**
-     * Remove the banned item from blacklisted worlds and save the config.yml file. <i>(comments in file may be removed)</i>
-     *
+     * Remove the banned item from blacklisted worlds and save the config file used.
      * @param item the banned item to remove
      * @param worlds worlds where the banned item can be present, all worlds if null
+     * @return true if the item is successfully removed, otherwise false
      */
-    public void removeFromBlacklist(@NotNull final BannedItem item, @Nullable final World... worlds) {
+    public boolean removeFromBlacklist(@NotNull final BannedItem item, @Nullable final World... worlds) {
         // Preparing variables
-        final List<World> appliedWorlds = worlds == null ? Bukkit.getWorlds() : Arrays.asList(worlds);
-        // Getting the name of the item
-        final CustomItems items = getDatabase().getCustomItems();
-        final String name = items.getReversed().containsKey(item) ? items.getReversed().get(item) : item.getType().name().toLowerCase();
+        final List<World> appliedWorlds = Utils.isNullOrEmpty(worlds) ? Bukkit.getWorlds() : Arrays.asList(worlds);
+        final BannedItem typeItem = new BannedItem(item.getType());
+        final String name = pl.getBanDatabase().getNameTest(item);
+        final String typeName = item.getType().name().toLowerCase();
 
+        boolean removed = false;
         for (final World world : appliedWorlds) {
-            // Removing from map
-            final Map<BannedItem, Map<BanOption, BanOptionData>> map = getDatabase().getBlacklist().get(world);
-            if (map == null) continue; // nothing in this world
-            map.remove(item);
-            // Removing from file
-            pl.getConfig().set("blacklist." + world.getName() + "." + name, null);
+            final Items map = getDatabase().getBlacklist().get(world);
+            if (map == null) continue;
+            if (map.getItems().remove(typeItem) != null) {
+                removed = true;
+                pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + typeName, null);
+            }
+            if (map.getItems().remove(item) != null) {
+                removed = true;
+                pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name, null);
+            }
         }
-        pl.saveConfig();
+        if (removed) {
+            // Removing from '*' configuration
+            pl.getBanConfig().getConfig().set("blacklist.*." + name, null);
+            pl.getBanConfig().getConfig().set("blacklist.*." + typeName, null);
+            return pl.getBanConfig().saveConfig();
+        } else return true;
     }
 
     /*------------------------------
@@ -357,45 +494,43 @@ public class BanItemAPI {
     }
 
     /**
-     * Add an item on the whitelist of a world and save in config
-     *
+     * Add an item on the whitelist of a world and save in the used config
      * @param ww the whitelistedworld object, recoverable from {@link Whitelist}
      * @param item the item to add
-     * @param options map of ban options and their respective data
+     * @param actions map of ban actions and their respective data
+     * @return true if successfully added, otherwise false
      */
-    public void addToWhitelist(@NotNull final WhitelistedWorld ww, @NotNull final BannedItem item, @NotNull final Map<BanOption, BanOptionData> options) {
+    public boolean addToWhitelist(@NotNull final WhitelistedWorld ww, @NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> actions) {
         // Adding in map
-        getWhitelist().addNewException(ww, item, options);
+        getWhitelist().addNewException(ww, item, actions);
 
         // Adding in config
         // Getting the name of the item
-        final CustomItems items = getDatabase().getCustomItems();
-        final String name = items.getReversed().containsKey(item) ? items.getReversed().get(item) : item.getType().name().toLowerCase();
+        final String name = pl.getBanDatabase().getNameTest(item);
 
-        final ConfigurationSection section = pl.getConfig().createSection("whitelist." + ww.getWorld().getName() + "." + name);
-        for (Map.Entry<BanOption, BanOptionData> entry : options.entrySet()) {
+        final ConfigurationSection section = pl.getBanConfig().getConfig().createSection("whitelist." + ww.getWorld().getName() + "." + name);
+        for (Map.Entry<BanAction, BanActionData> entry : actions.entrySet()) {
             section.set(entry.getKey().getName(), entry.getValue().serialize());
         }
-        pl.getConfig().set("whitelist." + ww.getWorld().getName() + "." + name, section);
-        pl.saveConfig();
+        pl.getBanConfig().getConfig().set("whitelist." + ww.getWorld().getName() + "." + name, section);
+        return pl.getBanConfig().saveConfig();
     }
 
     /**
      * Remove the item from the whitelist and save in config.yml <i>(comments in file may be removed)</i>
-     *
      * @param ww the whitelisted world
      * @param item the item
+     * @return true if successfully removed, otherwise false
      */
-    public void removeFromWhitelist(@NotNull final WhitelistedWorld ww, @NotNull final BannedItem item) {
+    public boolean removeFromWhitelist(@NotNull final WhitelistedWorld ww, @NotNull final BannedItem item) {
         // Removing from map
-        ww.remove(item);
+        if (ww.getItems().remove(item) == null) return true; // Nothing to remove
 
         // Removing from config
         // Getting the name of the item
-        final CustomItems items = getDatabase().getCustomItems();
-        final String name = items.getReversed().containsKey(item) ? items.getReversed().get(item) : item.getType().name().toLowerCase();
-        pl.getConfig().set("whitelist." + ww.getWorld().getName() + "." + name, null);
-        pl.saveConfig();
+        final String name = pl.getBanDatabase().getNameTest(item);
+        pl.getBanConfig().getConfig().set("whitelist." + ww.getWorld().getName() + "." + name, null);
+        return pl.getBanConfig().saveConfig();
     }
 
 
@@ -413,60 +548,65 @@ public class BanItemAPI {
         return getDatabase().getCustomItems();
     }
 
+    /*------------------------------
+     * **********************
+     *     META ITEMS
+     * **********************
+    ------------------------------*/
+
     /**
-     * Get a cloned ItemStack for the custom item named <b>customName</b>.
+     * Get a BannedItem object for the meta item named <b>metaName</b>.
      *
-     * @param customName the name of the custom item
-     * @return a cloned ItemStack of the custom item if exists, otherwise null
+     * @param metaName the name of the meta item
+     * @return a BannedItem object of the meta item if exists, otherwise null
      */
     @Nullable
-    public ItemStack getCustomItem(@NotNull final String customName) {
-        final BannedItem bi = getDatabase().getCustomItems().get(customName);
-        return bi == null ? null : bi.toItemStack();
+    public BannedItem getCustomItem(@NotNull final String metaName) {
+        return getDatabase().getMetaItems().get(metaName);
     }
 
     /**
-     * Try to get the custom item name of the given <b>item</b>.
+     * Try to get the meta item name of the given <b>item</b>.
      *
      * @param item the ItemStack
-     * @return the name of saved the custom item if exists, otherwise null
+     * @return the name of saved the meta item if exists, otherwise null
      */
     @Nullable
-    public String getCustomItemName(@NotNull final ItemStack item) {
-        return getCustomItemName(new BannedItem(item));
+    public String getMetaItemName(@NotNull final ItemStack item) {
+        return getMetaItemName(new BannedItem(item));
     }
 
     /**
-     * Try to get the custom item name of the given <b>item</b>.
+     * Try to get the meta item name of the given <b>item</b>.
      *
      * @param item the item
-     * @return the name of saved the custom item if exists, otherwise null
+     * @return the name of saved the meta item if exists, otherwise null
      */
     @Nullable
-    public String getCustomItemName(@NotNull final BannedItem item) {
-        return getCustomItems().getName(item);
+    public String getMetaItemName(@NotNull final BannedItem item) {
+        return getDatabase().getMetaItems().getKey(item);
     }
 
     /**
-     * Add an ItemStack as a custom item and save it in items.yml
+     * Add an ItemStack as a meta item and save it in metaitems.yml
      * <p>
      * <b>Will replace existing value</b>
      *
      * @param name the name of the custom ItemStack
      * @param item the custom ItemStack
-     * @throws Exception if any error occurs (any null value or unable to save the items.yml file)
+     * @throws Exception if any error occurs (any null value or unable to save the metaitems.yml file)
      */
-    public void addCustomItem(@NotNull final String name, @NotNull final ItemStack item) throws Exception {
-        getDatabase().addCustomItem(name, item);
+    public void addMetaItem(@NotNull final String name, @NotNull final ItemStack item) throws Exception {
+        getDatabase().addMetaItem(name, item);
     }
 
     /**
-     * Remove the custom ItemStack named <b>name</b>
+     * Remove the meta ItemStack named <b>name</b>
      *
      * @param name the name of the custom ItemStack
-     * @throws Exception if any error occurs (any null value or unable to save the items.yml file)
+     * @throws Exception if any error occurs (any null value or unable to save the metaitems.yml file)
      */
-    public void removeCustomItem(@NotNull final String name) throws Exception {
-        getDatabase().removeCustomItem(name);
+    public void removeMetaItem(@NotNull final String name) throws Exception {
+        getDatabase().removeMetaItem(name);
     }
 }

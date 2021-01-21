@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,20 +17,20 @@
  */
 package fr.andross.banitem.utils.debug;
 
-import fr.andross.banitem.utils.Listable;
+import fr.andross.banitem.utils.statics.list.ListType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * A debug message with its type
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public final class DebugMessage {
-    private final Listable.Type type;
+    private final ListType type;
     private final String node;
 
-    public DebugMessage(@Nullable final Listable.Type type, @NotNull final String node) {
+    public DebugMessage(@Nullable final ListType type, @NotNull final String node) {
         this.type = type;
         this.node = node;
     }
@@ -40,7 +40,7 @@ public final class DebugMessage {
      * @return the type of node, null if its not an important node
      */
     @Nullable
-    public Listable.Type getType() {
+    public ListType getType() {
         return type;
     }
 

@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,12 +21,13 @@ import fr.andross.banitem.BanItem;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Sub command reload
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public class Commandreload extends BanCommand {
@@ -44,12 +45,13 @@ public class Commandreload extends BanCommand {
         }
 
         header("&6&lReload");
-        pl.getApi().load(sender, null);
+        final File config = pl.getBanConfig().getConfigFile();
+        pl.getApi().load(sender, config.getName().equals("config.yml") ? null : config);
     }
 
     @Nullable
     @Override
     public List<String> runTab() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }

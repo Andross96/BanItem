@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,27 +22,38 @@ import org.bukkit.Bukkit;
 /**
  * Class that contains some notable versions nodes, so the plugin can handle multiple versions
  * Those variables are used to check versions compatibility
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public final class BanVersion {
     /**
-     * In 1.13+, MaterialData are totally removed from ItemStack, and the durability is part of ItemMeta
+     * in 1.16+, color codes now support HEX
      */
-    public static final boolean v13OrMore = Bukkit.getBukkitVersion().matches("(1\\.13)(.*)|(1\\.14)(.*)|(1\\.15)(.*)|(1\\.16)(.*)");
+    public static final boolean v16OrMore = Bukkit.getBukkitVersion().matches("(1\\.16)(.*)");
+
+    /**
+     * In 1.14+, CustomModelData has been added
+     */
+    public static final boolean v14OrMore = Bukkit.getBukkitVersion().matches("(1\\.14)(.*)|(1\\.15)(.*)") || v16OrMore;
+
+    /**
+     * In 1.13+, MaterialData are totally removed from ItemStack, and the durability is part of ItemMeta.
+     * Added NamespacedKey enchantments
+     */
+    public static final boolean v13OrMore = Bukkit.getBukkitVersion().matches("(1\\.13)(.*)") || v14OrMore;
 
     /**
      * In 1.12+, the PlayerPickupItemEvent is now deprecated, and should use the EntityPickupItemEvent
      */
-    public static final boolean v12OrMore = v13OrMore || Bukkit.getBukkitVersion().matches("(1\\.12)(.*)");
+    public static final boolean v12OrMore = Bukkit.getBukkitVersion().matches("(1\\.12)(.*)") || v13OrMore;
 
     /**
-     * In 1.9+, the off hand have been added. Also added PotionMeta#getBasePotionData()
+     * In 1.9+, the off hand have been added. Also added PotionMeta#getBasePotionData(). Also added PrepareAnvilEvent.
      */
-    public static final boolean v9OrMore = v12OrMore || Bukkit.getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)");
+    public static final boolean v9OrMore = Bukkit.getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)|(1\\.11)(.*)") || v12OrMore;
 
     /**
      * In 1.8+, armor stand event have been added.
      */
-    public static final boolean v8OrMore = v9OrMore || Bukkit.getBukkitVersion().matches("(1\\.8)(.*)");
+    public static final boolean v8OrMore = Bukkit.getBukkitVersion().matches("(1\\.8)(.*)") || v9OrMore;
 }

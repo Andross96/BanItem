@@ -1,6 +1,6 @@
 name: BanItem
 main: fr.andross.banitem.BanItem
-version: '2.4'
+version: '3.0'
 author: Andross
 description: Ban item
 api-version: '1.13'
@@ -16,9 +16,12 @@ permissions:
     description: use /banitem command.
     children:
       banitem.command.add: true
+      banitem.command.addeverywhere: true
       banitem.command.check: true
-      banitem.command.customitem: true
       banitem.command.help: true
-      banitem.command.log: true
       banitem.command.info: true
+      banitem.command.load: true
+      banitem.command.log: true
+      banitem.command.metaitem: true
       banitem.command.reload: true
+      banitem.command.remove: true

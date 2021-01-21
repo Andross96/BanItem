@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,23 +18,24 @@
 package fr.andross.banitem;
 
 import fr.andross.banitem.commands.BanCommand;
-import fr.andross.banitem.config.BanConfig;
-import org.bstats.bukkit.Metrics;
+import fr.andross.banitem.utils.metrics.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Main plugin class
- * @version 2.4
+ * BanItemPlugin
+ * @version 3.0
  * @author Andross
  */
 public final class BanItem extends JavaPlugin {
@@ -60,30 +61,26 @@ public final class BanItem extends JavaPlugin {
             load(Bukkit.getConsoleSender(), null);
 
             // Update checker
-            if (banConfig.isCheckUpdate())
+            if (banConfig.getConfig().getBoolean("check-update"))
                 Bukkit.getScheduler().runTaskAsynchronously(this, utils::checkForUpdate);
         }, 20L);
     }
 
     /**
-     * (re)Loading the plugin with this configuration file
+     * (re)Loading the plugin with this configuration file.
+     * If no config file set, using the default config.yml one.
      * @param sender command sender <i>(send the message debug to)</i>
-     * @param config the file configuration to load. If null, using (and reloading) the default config
+     * @param configFile the file configuration to load. If null, using (and reloading) the default config
      */
-    protected void load(@NotNull final CommandSender sender, @Nullable FileConfiguration config) {
+    protected void load(@NotNull final CommandSender sender, @Nullable final File configFile) {
         // (re)Loading config
-        if (config == null) {
-            saveDefaultConfig();
-            reloadConfig();
-            config = getConfig();
-        }
-        banConfig = new BanConfig(this, sender, config);
+        banConfig = new BanConfig(this, sender, configFile);
 
         // (re)Loading hooks
         hooks = new BanHooks(this, sender);
 
         // (re)Loading database
-        banDatabase = new BanDatabase(this, sender, config);
+        banDatabase = new BanDatabase(this, sender, banConfig.getConfig());
 
         // (re)Loading listeners
         listener.load(sender);
@@ -94,26 +91,38 @@ public final class BanItem extends JavaPlugin {
 
     @Override
     public boolean onCommand(@NotNull final CommandSender sender, @NotNull final Command command, final @NotNull String label, @NotNull final String[] args) {
-        try {
-            BanCommand.runCommand(this, args[0], sender, args);
-        } catch (final Exception e) {
-            // Permission?
-            if (!sender.hasPermission("banitem.command.help")) {
-                final String message = getConfig().getString("no-permission");
-                if (message != null) utils.sendMessage(sender, message);
+        if (args.length > 0)
+            try {
+                final String subCommandName = args[0].toLowerCase();
+                final String subCommand = utils.getCommandsAliases().getOrDefault(subCommandName, subCommandName);
+                final BanCommand banCommand = (BanCommand) Class.forName("fr.andross.banitem.commands.Command" + subCommand)
+                        .getDeclaredConstructor(BanItem.class, CommandSender.class, String[].class)
+                        .newInstance(this, sender, args);
+                banCommand.run();
                 return true;
+            } catch (final Exception ignored) {
+                // We do not care!
             }
 
-            // Help messages
-            utils.sendMessage(sender,"&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
-            utils.sendMessage(sender," &7- /bi &3add&7: add an item in blacklist.");
-            utils.sendMessage(sender," &7- /bi &3check&7: check if any player has a blacklisted item.");
-            utils.sendMessage(sender," &7- /bi &3customitem&7: add/remove/list custom items.");
-            utils.sendMessage(sender," &7- /bi &3help&7: gives additional informations.");
-            utils.sendMessage(sender," &7- /bi &3info&7: get info about your item in hand.");
-            utils.sendMessage(sender," &7- /bi &3log&7: activate the log mode.");
-            utils.sendMessage(sender," &7- /bi &3reload&7: reload the config.");
+        // Trying to show help?
+        if (!sender.hasPermission("banitem.command.help")) {
+            final String message = getConfig().getString("no-permission");
+            if (message != null) utils.sendMessage(sender, message);
+            return true;
         }
+
+        // Help messages
+        utils.sendMessage(sender,"&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
+        utils.sendMessage(sender," &7- /bi &3add&7: add an item in blacklist for current world.");
+        utils.sendMessage(sender," &7- /bi &3addeverywhere&7: add an item in blacklist for all worlds.");
+        utils.sendMessage(sender," &7- /bi &3check&7: check if any player has a blacklisted item.");
+        utils.sendMessage(sender," &7- /bi &3metaitem&7: add/remove/list meta items.");
+        utils.sendMessage(sender," &7- /bi &3help&7: gives additional informations.");
+        utils.sendMessage(sender," &7- /bi &3info&7: get info about your item in hand.");
+        utils.sendMessage(sender," &7- /bi &3load&7: load a specific config file.");
+        utils.sendMessage(sender," &7- /bi &3log&7: activate the log mode.");
+        utils.sendMessage(sender," &7- /bi &3reload&7: reload the config.");
+        utils.sendMessage(sender," &7- /bi &3remove&7: remove and unban the item if banned.");
         return true;
     }
 
@@ -121,16 +130,21 @@ public final class BanItem extends JavaPlugin {
     @Override
     public List<String> onTabComplete(@NotNull final CommandSender sender, @NotNull final Command command, @NotNull final String alias, @NotNull final String[] args) {
         // Has permission?
-        if (!sender.hasPermission("banitem.command.help")) return new ArrayList<>();
+        if (!sender.hasPermission("banitem.command.help")) return Collections.emptyList();
 
         // Sub command
-        if (args.length == 1) return StringUtil.copyPartialMatches(args[0], utils.getCommands(), new ArrayList<>());
+        if (args.length == 1) return StringUtil.copyPartialMatches(args[0], Arrays.asList("add", "addeverywhere", "check", "help", "info", "load", "log", "metaitem", "reload", "remove"), new ArrayList<>());
 
         // Running subcommand
         try {
-            return BanCommand.runTab(this, args[0], sender, args);
+            final String subCommandName = args[0].toLowerCase();
+            final String subCommand = utils.getCommandsAliases().getOrDefault(subCommandName, subCommandName);
+            final BanCommand banCommand = (BanCommand) Class.forName("fr.andross.banitem.commands.Command" + subCommand)
+                    .getDeclaredConstructor(BanItem.class, CommandSender.class, String[].class)
+                    .newInstance(this, sender, args);
+            return banCommand.runTab();
         } catch (final Exception e) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 
@@ -154,8 +168,8 @@ public final class BanItem extends JavaPlugin {
     }
 
     /**
-     * Get a the ban config
-     * @return the ban config
+     * Get a the ban config helper
+     * @return the ban config helper
      */
     @NotNull
     public BanConfig getBanConfig() {
@@ -189,8 +203,8 @@ public final class BanItem extends JavaPlugin {
     }
 
     /**
-     * The listener class
-     * @return listener class of the plugin
+     * Get the class that handle the listeners
+     * @return the class that handle the listeners
      */
     @NotNull
     public BanListener getListener() {

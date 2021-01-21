@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,8 +17,8 @@
  */
 package fr.andross.banitem.utils;
 
-import fr.andross.banitem.BanUtils;
-import fr.andross.banitem.config.BanConfig;
+import fr.andross.banitem.BanConfig;
+import fr.andross.banitem.utils.statics.Chat;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * Animation class
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public final class BanAnimation {
@@ -46,19 +46,11 @@ public final class BanAnimation {
     private int amount = 10;
 
     /**
-     * Empty animation
+     * Loading a ban animation.
+     * @param sender the sender using this
+     * @param banConfig the ban configuration used
      */
-    public BanAnimation() { }
-
-    /**
-     * Loading ban animation.
-     * This should not be used externally.
-     * Use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, FileConfiguration)} instead.
-     * @param utils ban utils
-     * @param sender the sender of this request
-     * @param banConfig the ban config instance
-     */
-    public BanAnimation(@NotNull final BanUtils utils, @NotNull final CommandSender sender, @NotNull final BanConfig banConfig) {
+    public BanAnimation(@NotNull final CommandSender sender, @NotNull final BanConfig banConfig) {
         final FileConfiguration config = banConfig.getConfig();
 
         // Sound
@@ -70,7 +62,7 @@ public final class BanAnimation {
                 pitch = config.getInt("sound.pitch");
                 worldSound = config.getBoolean("sound.worldSound");
             } catch (final Exception e) {
-                sender.sendMessage(banConfig.getPrefix() + utils.color("&cInvalid sound parameters set in config.yml."));
+                sender.sendMessage(banConfig.getPrefix() + Chat.color("&cInvalid sound parameters set in " + banConfig.getConfigName() + "."));
             }
         }
         // Particle
@@ -80,7 +72,7 @@ public final class BanAnimation {
                 particle = Particle.valueOf(config.getString("particle.type"));
                 amount = config.getInt("particle.amount");
             } catch (final Exception e) {
-                sender.sendMessage(banConfig.getPrefix() + utils.color("&cInvalid particle parameters set in config.yml."));
+                sender.sendMessage(banConfig.getPrefix() + Chat.color("&cInvalid particle parameters set in " + banConfig.getConfigName() + "."));
             }
         }
     }

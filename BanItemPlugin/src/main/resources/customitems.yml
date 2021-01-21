@@ -1,0 +1,60 @@
+# +———————————————————————————————————————————————————+ #
+# |——————————     BANITEM CONFIGURATION     ——————————| #
+# |——————————————————      v3.0      —————————————————| #
+# +———————————————————————————————————————————————————+ #
+# |                   Documentation:                  | #
+# |             https://banitem.andross.fr/           | #
+# +———————————————————————————————————————————————————+ #
+# For any bugs/suggestions: Andross#5254
+# +——————————————————————————————————————————————————————————————————————————————————————————————+
+# This file is used to create custom items bans.
+# The custom items are items created manually, here in this config file, to ban easily items with
+# specific metadatas.
+# Let's say you want to ban any diamond sword which have enchantment unbreaking 3.
+# --------
+# 1. You have to create the custom item:
+#   customItemName:
+#     material: DIAMOND_SWORD
+#     enchantment-contains: 'unbreaking:3'
+#   # The custom item created, you'll can add it into the blacklist (config.yml) with name 'customItemName':
+# 2. Add the custom item into the blacklist (config.yml)
+#   blacklist:
+#    world:
+#     customItemName:
+#      attack: '&cYou can not attack with this sword.'
+## Thats it! Players will not be able to attack with any diamond sword which have enchantment unbreaking 3.
+# --------
+# List of metadata:
+#  -> DISPLAYNAME-EQUALS: String
+#    -> if the displayname of the item is equals to the String
+#  -> DISPLAYNAME-CONTAINS: String
+#    -> if the displayname of the item contains the String
+#  -> LORE-EQUALS: String or List of String
+#    -> if the lore of the item is exactly equal to the lore written
+#    -> Example:
+#      -> lore-equals:
+#         - 'Line 1'
+#         - 'Line 2'
+#  -> LORE-CONTAINS: String or List of String
+#    -> if any line in the lore of the item contains any line of the string written
+#  -> LORE-LINE-CONTAINS: String
+#    -> if any line in the lore of the item contains the string written
+#  -> DURABILITY: Integer (number)
+#    -> if the durability of the item matches
+#  -> ENCHANTMENT-EQUALS: String or List of String
+#    -> if the enchantments of the item matches exactly the ones written
+#    -> The synthax is 'Enchantment:Level', or simply 'enchantment' to include all levels
+#    -> Setting a level <= 0 will ignore the enchantment level
+#    -> Example:
+#      -> enchantment-equals: 'unbreaking:3,efficiency:5'
+#  -> ENCHANTMENT-CONTAINS: String or List of String
+#    -> if the item contains one of the written enchantments
+#    -> Same rules as enchantment-equals above
+#  -> POTION: String or List of String
+#    -> if the item contains one of the written potion effect
+#    -> The synthax is 'Potion:Level' (level 1 or 2), or simply 'potion' to include all levels
+#    -> Setting a level <= will ignore the potion level
+#    -> Example:
+#      -> potion: 'speed:-1'
+#  -> MODELDATA-EQUALS: String
+#    -> if the item modeldata is equals to the one written (for MC>=1.14)

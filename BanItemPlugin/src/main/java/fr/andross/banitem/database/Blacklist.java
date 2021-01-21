@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,19 +18,23 @@
 package fr.andross.banitem.database;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import fr.andross.banitem.BanConfig;
+import fr.andross.banitem.BanDatabase;
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.BanUtils;
-import fr.andross.banitem.options.BanData;
-import fr.andross.banitem.options.BanDataType;
-import fr.andross.banitem.options.BanOption;
-import fr.andross.banitem.options.BanOptionData;
-import fr.andross.banitem.utils.Listable;
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.actions.BanActionData;
+import fr.andross.banitem.actions.BanData;
+import fr.andross.banitem.actions.BanDataType;
+import fr.andross.banitem.database.items.Items;
+import fr.andross.banitem.events.PlayerBanItemEvent;
+import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.items.CustomBannedItem;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
-import fr.andross.banitem.utils.events.PlayerBanItemEvent;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
-import fr.andross.banitem.utils.item.BannedItem;
-import fr.andross.banitem.utils.item.BannedItemMeta;
+import fr.andross.banitem.utils.statics.Utils;
+import fr.andross.banitem.utils.statics.list.ListType;
+import fr.andross.banitem.utils.statics.list.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -44,50 +48,51 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Map that contains the blacklisted items and their options
- * @version 2.4
+ * Map that contains the blacklisted items
+ * @version 3.0
  * @author Andross
  */
-public final class Blacklist extends HashMap<World, ItemMap> {
+public final class Blacklist extends HashMap<World, Items> {
     private final BanItem pl;
 
     /**
      * Constructor for a blacklist map
      * @param pl the main instance
+     * @param database the database instance
+     * @param sender {@link CommandSender} to send the debug messages to
      * @param section {@link ConfigurationSection} which contains the blacklist node
-     * @param sender {@link CommandSender} who to send the debug messages
      */
-    public Blacklist(@NotNull final BanItem pl, @NotNull final CommandSender sender, @Nullable final ConfigurationSection section) {
+    public Blacklist(@NotNull final BanItem pl, @NotNull final BanDatabase database, @NotNull final CommandSender sender, @Nullable final ConfigurationSection section) {
         this.pl = pl;
-
-        // Loading blacklist
         if (section == null) return;
 
+        // Loading blacklist
+        final BanConfig banConfig = pl.getBanConfig();
         for (final String worldKey : section.getKeys(false)) { // Looping through worlds
             // Getting world(s)
-            final List<World> worlds = pl.getUtils().getList(Listable.Type.WORLD, worldKey, new Debug(pl, sender, new DebugMessage(null, "config.yml"), new DebugMessage(null, "blacklist"), new DebugMessage(Listable.Type.WORLD, worldKey)));
+            final List<World> worlds = Listable.getWorlds(worldKey, new Debug(banConfig, sender, new DebugMessage(null, banConfig.getConfigName()), new DebugMessage(null, "blacklist"), new DebugMessage(ListType.WORLD, worldKey)));
             if (worlds.isEmpty()) continue;
 
-            // Checking the banned item
-            final ConfigurationSection materialsCs = section.getConfigurationSection(worldKey);
-            if (materialsCs == null) continue;
-            for (final String materialKey : materialsCs.getKeys(false)) {
+            // Getting items(s)
+            final ConfigurationSection itemsCs = section.getConfigurationSection(worldKey);
+            if (itemsCs == null) continue; // should not happen, but, well..
+            for (final String itemKey : itemsCs.getKeys(false)) {
                 // Preparing debugger
-                final Debug d = new Debug(pl, sender, new DebugMessage(null, "config.yml"), new DebugMessage(null, "blacklist"), new DebugMessage(Listable.Type.WORLD, worldKey), new DebugMessage(Listable.Type.ITEM, materialKey));
+                final Debug d = new Debug(banConfig, sender, new DebugMessage(null, banConfig.getConfigName()), new DebugMessage(null, "blacklist"), new DebugMessage(ListType.WORLD, worldKey), new DebugMessage(ListType.ITEM, itemKey));
 
-                // Getting Items
-                final List<BannedItem> items = pl.getUtils().getList(Listable.Type.ITEM, materialKey, d);
+                // Getting Item(s)
+                final List<BannedItem> items = Listable.getItems(database, itemKey, d);
                 if (items.isEmpty()) continue;
 
-                // Getting Options
-                final ConfigurationSection optionsCs = materialsCs.getConfigurationSection(materialKey);
-                final Map<BanOption, BanOptionData> options = pl.getUtils().getBanOptionsFromItemSection(worlds, optionsCs, d);
-                if (options.isEmpty()) continue;
+                // Getting Actions & Actions data
+                final ConfigurationSection actionCs = itemsCs.getConfigurationSection(itemKey);
+                final Map<BanAction, BanActionData> actions = pl.getUtils().getBanActionsFromItemSection(worlds, actionCs, d);
+                if (actions.isEmpty()) continue;
 
                 // Adding into the map
                 for (final World w : worlds)
                     for (final BannedItem item : items)
-                        addNewBan(w, item, options);
+                        addNewBan(w, item, actions);
             }
         }
     }
@@ -96,85 +101,91 @@ public final class Blacklist extends HashMap<World, ItemMap> {
      * This will add a new entry to the blacklist.
      * @param world bukkit world <i>({@link World})</i>
      * @param item banned item <i>({@link BannedItem})</i>
-     * @param map map containing {@link BanOption} and their respective {@link BanOptionData}
+     * @param map map containing {@link BanAction} and their respective {@link BanActionData}
      */
-    public void addNewBan(@NotNull final World world, @NotNull final BannedItem item, @NotNull final Map<BanOption, BanOptionData> map) {
-        final ItemMap itemMap = getOrDefault(world, new ItemMap());
-        final Map<BanOption, BanOptionData> bannedItemMap = itemMap.getOrDefault(item, new HashMap<>());
-        bannedItemMap.putAll(map);
-        itemMap.put(item, bannedItemMap);
-        put(world, itemMap);
+    public void addNewBan(@NotNull final World world, @NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> map) {
+        final Items items = getOrDefault(world, new Items());
+        if (item instanceof CustomBannedItem) {
+            final CustomBannedItem customBannedItem = (CustomBannedItem) item;
+            final Map<BanAction, BanActionData> bannedItemMap = items.getCustomItems().getOrDefault(customBannedItem, new HashMap<>());
+            for (final Entry<BanAction, BanActionData> e : map.entrySet()) {
+                e.getValue().getMap().put(BanDataType.CUSTOMNAME, customBannedItem.getName());
+                bannedItemMap.put(e.getKey(), e.getValue());
+            }
+            items.getCustomItems().put(customBannedItem, bannedItemMap);
+            put(world, items);
+        } else {
+            final Map<BanAction, BanActionData> bannedItemMap = items.getItems().getOrDefault(item, new HashMap<>());
+            bannedItemMap.putAll(map);
+            items.getItems().put(item, bannedItemMap);
+            put(world, items);
+        }
     }
 
     /**
-     * Try to get the ban options data for this item, considering the item meta.
+     * Try to get the ban actions data for this item with this action.
      * @param world bukkit world <i>({@link World})</i>
      * @param item banned item <i>({@link BannedItem})</i>
-     * @param option the ban option type asked <i>({@link BanOption})</i>
-     * @return the {@link BanOptionData} object if the item is banned, or null if there is no banned option for this item with this option in this world
+     * @param action the ban action <i>({@link BanAction})</i>
+     * @return the {@link BanActionData} object if the item is banned, or null if there is no banned action for this item with this action in this world
      */
     @Nullable
-    public BanOptionData getBanData(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option) {
-        return !containsKey(world) ? null : get(world).getExact(item, option);
+    public BanActionData getBanData(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanAction action) {
+        return !containsKey(world) ? null : get(world).get(item, action);
     }
 
     /**
-     * Trying to get the ban options with their respective ban options data for this item in the said world.
+     * Trying to get the ban actions with their respective ban actions data for this item in the said world.
      * @param world bukkit world <i>({@link World})</i>
      * @param item banned item <i>({@link BannedItem})</i>
-     * @return a map containing the ban option types and their respective ban options, or null if this item is not banned in this world
+     * @return a map containing the ban action types and their respective ban actions, or null if this item is not banned in this world
      */
     @Nullable
-    public Map<BanOption, BanOptionData> getBanOptions(@NotNull final World world, @NotNull final BannedItem item) {
+    public Map<BanAction, BanActionData> getBanActions(@NotNull final World world, @NotNull final BannedItem item) {
         return !containsKey(world) ? null : get(world).get(item);
     }
 
     /**
-     * Check if the item is banned.
-     * <b>Does not consider permission!</b> <i>(You'll have to use {@link BanUtils#hasPermission(Player, String, String, BanOption, BanData...)})</i>
+     * Check if the action with the item is blacklisted for the player.
      * @param player player involved
-     * @param location the effective location where the action occurs
+     * @param location the effective location where the action occurs, using player location if null
      * @param item the banned item
      * @param sendMessage send a message to the player if banned
-     * @param option ban option
-     * @param data optional ban data
+     * @param action action to check
+     * @param data some ban data
      * @return true if the item is blacklisted for the player world, otherwise false
      */
-    public boolean isBlacklisted(@NotNull final Player player, @NotNull final Location location, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanOption option, @Nullable final BanData... data) {
+    public boolean isBlacklisted(@NotNull final Player player, @Nullable final Location location, @NotNull final BannedItem item, final boolean sendMessage, @NotNull final BanAction action, @Nullable final BanData... data) {
         /* Checking blacklisted */
-        final Map<BanOption, BanOptionData> map = getBanOptions(player.getWorld(), item);
-        if (map == null || map.isEmpty() || !map.containsKey(option)) return false;
+        final Map<BanAction, BanActionData> map = getBanActions(player.getWorld(), item);
+        if (map == null || map.isEmpty() || !map.containsKey(action)) return false;
 
         // Checking custom data
-        final BanOptionData blacklistData = map.get(option);
-        if (data == null || Arrays.stream(data).allMatch(blacklistData::contains)) {
-            // Checking metadata?
-            if (blacklistData.containsKey(BanDataType.METADATA)) {
-                final BannedItemMeta meta = blacklistData.getMetadata();
-                if (meta != null && !meta.matches(item.toItemStack())) return false;
-            }
-
+        final BanActionData blacklistData = map.get(action);
+        final Map<BanDataType, Object> dataMap = blacklistData.getMap();
+        if (Utils.isNullOrEmpty(data) || Arrays.stream(data).allMatch(blacklistData::contains)) {
             // Checking creative data?
-            if (blacklistData.containsKey(BanDataType.GAMEMODE)) {
+            if (dataMap.containsKey(BanDataType.GAMEMODE)) {
                 final Set<GameMode> set = blacklistData.getData(BanDataType.GAMEMODE);
                 if (set != null && !set.contains(player.getGameMode())) return false;
             }
 
             // Checking region data?
-            if (blacklistData.containsKey(BanDataType.REGION)) {
+            if (dataMap.containsKey(BanDataType.REGION)) {
                 final IWorldGuardHook hook = pl.getHooks().getWorldGuardHook();
                 if (hook != null) {
                     final Set<ProtectedRegion> regions = blacklistData.getData(BanDataType.REGION);
                     if (regions != null && !regions.isEmpty()) {
-                        final Set<ProtectedRegion> standingRegions = hook.getStandingRegions(location);
+                        final Set<ProtectedRegion> standingRegions = hook.getStandingRegions(location == null ? player.getLocation() : location);
                         if (regions.stream().noneMatch(standingRegions::contains)) return false;
                     }
                 }
             }
 
             // Checking cooldown?
-            if (blacklistData.containsKey(BanDataType.COOLDOWN)) {
-                final long cooldown = (long) blacklistData.get(BanDataType.COOLDOWN);
+            long playerCooldown = -1L;
+            if (dataMap.containsKey(BanDataType.COOLDOWN)) {
+                final long cooldown = (long) dataMap.get(BanDataType.COOLDOWN);
                 final Map<UUID, Long> cooldowns = blacklistData.getCooldowns();
 
                 // Not in cooldown? Adding!
@@ -184,49 +195,55 @@ public final class Blacklist extends HashMap<World, ItemMap> {
                 }
 
                 // Checking cooldown
-                final long playerCooldown = cooldowns.get(player.getUniqueId());
+                playerCooldown = cooldowns.get(player.getUniqueId());
 
                 // Not in cooldown anymore?
                 if (playerCooldown < System.currentTimeMillis()) {
                     cooldowns.remove(player.getUniqueId()); // not in cooldown anymore, cleaning up'
                     return false;
                 }
-
-                // Calling event?
-                if (pl.getBanConfig().isUseEventApi()) {
-                    final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, option, blacklistData, data);
-                    Bukkit.getPluginManager().callEvent(e);
-                    if (e.isCancelled()) return false;
-                }
-
-                // Still in cooldown
-                if (sendMessage) {
-                    // Sending message
-                    final List<String> message = blacklistData.getData(BanDataType.MESSAGE);
-                    if (message != null)
-                        message.stream().map(m -> m.replace("{time}", pl.getUtils().getCooldownString(playerCooldown - System.currentTimeMillis()))).forEach(player::sendMessage);
-                    return true;
-                }
             }
 
+            // Bypass permission?
+            final String itemName = dataMap.containsKey(BanDataType.CUSTOMNAME) ? (String) dataMap.get(BanDataType.CUSTOMNAME) : item.getType().name().toLowerCase();
+            if (pl.getUtils().hasPermission(player, itemName, action, data))
+                return false;
+
             // Calling event?
-            if (pl.getBanConfig().isUseEventApi()) {
-                final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, option, blacklistData, data);
+            if (pl.getBanConfig().getConfig().getBoolean("api.playerbanitemevent")) {
+                final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, action, blacklistData, data);
                 Bukkit.getPluginManager().callEvent(e);
                 if (e.isCancelled()) return false;
             }
 
             // Checking delete?
-            if (map.containsKey(BanOption.DELETE))
-                Bukkit.getScheduler().runTask(BanItem.getInstance(), () -> pl.getUtils().deleteItemFromInventory(player, player.getInventory()));
+            if (map.containsKey(BanAction.DELETE))
+                Bukkit.getScheduler().runTask(pl, () -> pl.getUtils().deleteItemFromInventoryView(player));
 
             if (sendMessage) {
-                String itemName = pl.getBanDatabase().getCustomItems().getName(item);
-                if (itemName == null) itemName = item.getType().name();
-                pl.getUtils().sendMessage(player, itemName, option, blacklistData);
+                if (playerCooldown > 0) {
+                    final List<String> message = blacklistData.getData(BanDataType.MESSAGE);
+                    if (message != null) {
+                        final long finalCooldown = playerCooldown;
+                        message.stream().map(m -> m.replace("{time}", pl.getUtils().getCooldownString(finalCooldown - System.currentTimeMillis()))).forEach(player::sendMessage);
+                    }
+                } else
+                    pl.getUtils().sendMessage(player, itemName, action, blacklistData);
+            }
+
+            // Run?
+            if (dataMap.containsKey(BanDataType.RUN)) {
+                final List<String> commands = blacklistData.getData(BanDataType.RUN);
+                if (commands != null)
+                    for (final String command : commands)
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                command.replace("{player}", player.getName())
+                                        .replace("{world}", player.getWorld().getName())
+                                        .replace("{itemname}", itemName));
             }
             return true;
         }
+
         return false;
     }
 
@@ -235,12 +252,12 @@ public final class Blacklist extends HashMap<World, ItemMap> {
      * This method is mainly used to check dispensers <i>dispense</i> and hoppers <i>transfer</i>
      * @param world bukkit world
      * @param item the banned item
-     * @param option ban option
+     * @param action ban action
      * @param data optional ban data
      * @return true if the item is blacklisted for the player world, otherwise false
      */
-    public boolean isBlacklisted(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanOption option, @Nullable final BanData... data) {
-        final BanOptionData blacklistData = getBanData(world, item, option);
+    public boolean isBlacklisted(@NotNull final World world, @NotNull final BannedItem item, @NotNull final BanAction action, @Nullable final BanData... data) {
+        final BanActionData blacklistData = getBanData(world, item, action);
         return blacklistData != null && (data == null || Arrays.stream(data).allMatch(blacklistData::contains));
     }
 
@@ -248,8 +265,6 @@ public final class Blacklist extends HashMap<World, ItemMap> {
      * @return the total amount of banned items in all worlds
      */
     public int getTotal() {
-        int count = 0;
-        for (final Map<BannedItem, Map<BanOption, BanOptionData>> map : values()) count += map.size();
-        return count;
+        return values().stream().mapToInt(Items::getTotal).sum();
     }
 }

@@ -1,11 +1,11 @@
 /*
  * BanItem - Lightweight, powerful & configurable per world ban item plugin
- * Copyright (C) 2020 André Sustac
+ * Copyright (C) 2021 André Sustac
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your action) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,13 +18,12 @@
 package fr.andross.banitem.commands;
 
 import fr.andross.banitem.BanItem;
+import fr.andross.banitem.actions.BanAction;
+import fr.andross.banitem.actions.BanActionData;
 import fr.andross.banitem.database.Blacklist;
-import fr.andross.banitem.database.ItemMap;
-import fr.andross.banitem.options.BanDataType;
-import fr.andross.banitem.options.BanOption;
-import fr.andross.banitem.options.BanOptionData;
-import fr.andross.banitem.utils.item.BannedItem;
-import fr.andross.banitem.utils.item.BannedItemMeta;
+import fr.andross.banitem.database.items.Items;
+import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.statics.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -35,7 +34,7 @@ import java.util.*;
 
 /**
  * Sub command check
- * @version 2.4
+ * @version 3.0
  * @author Andross
  */
 public class Commandcheck extends BanCommand {
@@ -57,26 +56,17 @@ public class Commandcheck extends BanCommand {
         final Set<String> players = new HashSet<>();
         final Blacklist blacklist = pl.getBanDatabase().getBlacklist();
         for (final Player p : pl.getServer().getOnlinePlayers()) {
-            final ItemMap map = blacklist.get(p.getWorld());
+            final Items map = blacklist.get(p.getWorld());
             if (map == null) continue; // nothing banned in this world
 
             // Checking player inventory
             final PlayerInventory inv = p.getInventory();
-            item: for (int i = 0; i < inv.getSize(); i++) {
+            for (int i = 0; i < inv.getSize(); i++) {
                 final ItemStack item = inv.getItem(i);
-                if (pl.getUtils().isNullOrAir(item)) continue;
+                if (Utils.isNullOrAir(item)) continue;
 
-                final Map<BanOption, BanOptionData> data = map.get(new BannedItem(item));
+                final Map<BanAction, BanActionData> data = map.get(new BannedItem(item));
                 if (data == null || data.isEmpty()) continue;
-
-                // Checking metadata
-                for (final BanOption option : data.keySet()) {
-                    final BanOptionData optionData = data.get(option);
-                    if (optionData.containsKey(BanDataType.METADATA)) {
-                        final BannedItemMeta meta = optionData.getMetadata();
-                        if (meta != null && !meta.matches(item)) continue item;
-                    }
-                }
 
                 // Blacklisted!
                 if (delete) inv.clear(i);
@@ -101,8 +91,6 @@ public class Commandcheck extends BanCommand {
 
     @Override
     public List<String> runTab() {
-        final List<String> list = new ArrayList<>();
-        if (args.length == 2) list.add("delete");
-        return list;
+        return args.length == 2 ?  Collections.singletonList("delete") : Collections.emptyList();
     }
 }
