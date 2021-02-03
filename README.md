@@ -1,4 +1,4 @@
-# BanItem ![GPL-3.0](http://cdn.andross.fr/badges/license.svg) ![Stable](http://cdn.andross.fr/badges/stable.svg) ![Version](http://cdn.andross.fr/badges/v3.0.svg) ![Discord](http://cdn.andross.fr/badges/discord.svg)
+# BanItem ![GPL-3.0](http://cdn.andross.fr/badges/license.svg) ![Stable](http://cdn.andross.fr/badges/stable.svg) ![Version](http://cdn.andross.fr/badges/v3.0.1.svg) ![Discord](http://cdn.andross.fr/badges/discord.svg)
 
 ### Description
 Lightweight, powerful & configurable per world ban item plugin
@@ -10,7 +10,7 @@ Lightweight, powerful & configurable per world ban item plugin
 * Per world configurable;
 * Per world per item permissions;
 * Per world per item per option permissions;
-* Support of custom items (items with specific item data/meta, like modded items, potions, egg spawners for old versions...);
+* Support of custom/modded items (items with specific item data/meta, like modded items, potions, egg spawners for old versions...);
 * Usefull commands;
 * Lightweight & activating only necessary listeners;
 * Developer API available;
@@ -27,7 +27,7 @@ Lightweight, powerful & configurable per world ban item plugin
 <dependency>
   <groupId>fr.andross</groupId>
   <artifactId>BanItemPlugin</artifactId>
-  <version>3.0</version>
+  <version>3.0.1</version>
   <scope>provided</scope>
 </dependency>
 ```
