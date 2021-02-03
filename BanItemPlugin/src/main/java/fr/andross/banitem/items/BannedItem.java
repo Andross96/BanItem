@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.items;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.statics.BanVersion;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;

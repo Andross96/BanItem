@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.utils;
 
+import fr.andross.banitem.utils.statics.BanVersion;
 import fr.andross.banitem.utils.statics.Chat;
 import fr.andross.banitem.utils.statics.EnchantmentHelper;
 import org.bukkit.Material;

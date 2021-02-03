@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.utils.statics;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.hooks.OldItemUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -34,11 +34,14 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
  * An utility class
- * @version 3.0
+ * @version 3.0.1
  * @author Andross
  */
 public final class Utils {
@@ -221,5 +224,17 @@ public final class Utils {
         }
 
         return Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * Check if the item is unbreakable (support multiple versions)
+     * @param item the itemStack
+     * @return true if the item is unbreakable, otherwise false
+     */
+    public static boolean isItemUnbreakable(@NotNull final ItemStack item) {
+        if (!item.hasItemMeta()) return false;
+        final ItemMeta itemMeta = item.getItemMeta();
+        if (itemMeta == null) return false;
+        return BanVersion.v11OrMore ? itemMeta.isUnbreakable() : OldItemUtils.isUnbreakable(item);
     }
 }

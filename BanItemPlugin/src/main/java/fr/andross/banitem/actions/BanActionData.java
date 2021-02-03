@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.actions;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.statics.BanVersion;
 import fr.andross.banitem.utils.EnchantmentWrapper;
 import fr.andross.banitem.utils.statics.Chat;
 import org.bukkit.GameMode;

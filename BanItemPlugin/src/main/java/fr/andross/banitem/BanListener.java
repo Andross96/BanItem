@@ -21,7 +21,7 @@ import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.actions.BanData;
 import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.events.PlayerRegionChangeEvent;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.statics.BanVersion;
 import fr.andross.banitem.utils.EnchantmentWrapper;
 import fr.andross.banitem.utils.ItemStackBuilder;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
@@ -154,6 +154,7 @@ public final class BanListener {
             }, priority.contains(BanAction.BREAK));
 
             registerEvent(BlockBreakEvent.class, (li, event) -> {
+                if (!(event instanceof BlockBreakEvent)) return; // // also called for FurnaceExtractEvent...
                 final BlockBreakEvent e = (BlockBreakEvent) event;
                 final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
                 if (api.isBanned(e.getPlayer(), e.getBlock().getLocation(), e.getBlock().getType(), true, BanAction.BREAK, new BanData(BanDataType.MATERIAL, itemInHand.getType()))) {

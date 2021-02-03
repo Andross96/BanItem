@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.utils;
 
+import fr.andross.banitem.utils.statics.BanVersion;
 import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.NotNull;
 

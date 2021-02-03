@@ -112,7 +112,7 @@ public final class Listable {
 
     /**
      * Get a list of type. This should <b>not</b> be used for Items, World nor Regions.
-     * Use instead {@link #getItems(BanDatabase, Object, Debug)}, {@link #getWorlds(Object, Debug)}, 
+     * Use instead {@link #getItems(BanDatabase, Object, Debug)}, {@link #getWorlds(Object, Debug)},
      * and {@link #getRegionsList(BanItem, Object, Debug, Collection)}, 
      * @param type type of data
      * @param obj object to get a list from

@@ -18,6 +18,7 @@
 package fr.andross.banitem.utils;
 
 import fr.andross.banitem.BanConfig;
+import fr.andross.banitem.utils.statics.BanVersion;
 import fr.andross.banitem.utils.statics.Chat;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

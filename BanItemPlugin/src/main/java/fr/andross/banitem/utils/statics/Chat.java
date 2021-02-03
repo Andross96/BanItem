@@ -17,7 +17,6 @@
  */
 package fr.andross.banitem.utils.statics;
 
-import fr.andross.banitem.utils.BanVersion;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

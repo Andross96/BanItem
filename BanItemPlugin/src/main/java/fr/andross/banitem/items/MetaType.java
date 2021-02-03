@@ -34,6 +34,7 @@ public enum MetaType {
     LORE_CONTAINS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])),
     LORE_LINE_CONTAINS(o -> (o instanceof String)),
     DURABILITY(o -> (o instanceof Integer)),
+    UNBREAKABLE(Boolean.class::isInstance),
     ENCHANTMENT_EQUALS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])),
     ENCHANTMENT_CONTAINS(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])),
     POTION(o -> (o instanceof String) || (o instanceof List) || (o instanceof String[])),

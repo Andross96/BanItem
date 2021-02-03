@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.items;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.statics.BanVersion;
 import fr.andross.banitem.utils.statics.Chat;
 import fr.andross.banitem.utils.statics.EnchantmentHelper;
 import fr.andross.banitem.utils.statics.Utils;
@@ -218,6 +218,12 @@ public final class CustomBannedItem extends BannedItem {
                 case DURABILITY:
                     final int dura = !BanVersion.v13OrMore ? item.getDurability() : ((Damageable) itemMeta).getDamage();
                     if (dura != (int) e.getValue()) return false;
+                    break;
+
+                case UNBREAKABLE:
+                    final boolean isItemUnbreakable = Utils.isItemUnbreakable(item);
+                    final boolean value = (boolean) e.getValue();
+                    if (isItemUnbreakable != value) return false;
                     break;
 
                 case ENCHANTMENT_EQUALS: {

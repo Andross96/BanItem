@@ -1,3 +1,7 @@
+v3.0.1:
+ - Added "unbreakable" metadata for custom items: check if the item is unbreakable;
+ - Fixed FurnaceExtractEvent error with "break" action;
+--------------------------------------------
 v3.0:
   - NEW:
     - Custom items:
