@@ -17,11 +17,12 @@
  */
 package fr.andross.banitem.actions;
 
+import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple enum indicating what kind of data is used
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public enum BanDataType {
@@ -38,7 +39,7 @@ public enum BanDataType {
     CUSTOMNAME("customname"),
 
     /**
-     * Type: Set of {@link fr.andross.banitem.utils.EnchantmentWrapper}
+     * Type: Set of {@link EnchantmentWrapper}
      * Used to check if the enchantments are banned on an item
      */
     ENCHANTMENT("enchantment"),

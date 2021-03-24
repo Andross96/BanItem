@@ -20,8 +20,8 @@ package fr.andross.banitem.database.items;
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.items.CustomBannedItem;
 import fr.andross.banitem.utils.DoubleMap;
-import fr.andross.banitem.utils.statics.Chat;
-import org.bukkit.Material;
+import fr.andross.banitem.utils.debug.Debug;
+import fr.andross.banitem.utils.debug.DebugMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,12 +29,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * Map that contains all the custom items
  * This is a double map <i>(include a reversed map)</i>, for easier access of
  * custom items names and their respective banned item.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
@@ -57,24 +58,10 @@ public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
         for (final String key : config.getKeys(false)) {
             final ConfigurationSection section = config.getConfigurationSection(key);
             if (section == null) continue;
-
-            final String materialName = section.getString("material");
-            if (materialName == null) {
-                sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color("&c[CustomItems] No material set for custom item &e" + key + "&c in customitems.yml."));
-                continue;
-            }
-
-            final Material material = Material.matchMaterial(materialName);
-            if (material == null) {
-                sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color("&c[CustomItems] Invalid material set for custom item &e" + key + "&c in customitems.yml."));
-                continue;
-            }
-
-            try {
-                put(key, new CustomBannedItem(material, key.toLowerCase(), section));
-            } catch (final Exception e) {
-                sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color("&c[CustomItems] Invalid custom item &e" + key + "&c in customitems.yml: &c" + e.getMessage()));
-            }
+            final Debug d = new Debug(pl.getBanConfig(), sender, new DebugMessage("customitems.yml"), new DebugMessage(key));
+            final CustomBannedItem customBannedItem = new CustomBannedItem(key.toLowerCase(Locale.ROOT), section, d);
+            if (customBannedItem.isValid())
+                put(key, customBannedItem);
         }
     }
 

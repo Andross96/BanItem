@@ -15,21 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.utils.statics;
+package fr.andross.banitem.utils.enchantments;
 
-import fr.andross.banitem.utils.EnchantmentWrapper;
+import fr.andross.banitem.utils.BanVersion;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * An enchantment helper class to retrieve correct Bukkit enchantments object across versions
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class EnchantmentHelper {
@@ -122,5 +121,12 @@ public final class EnchantmentHelper {
         for (int i = 1; i < enchantment.getMaxLevel(); i++)
             list.add(new EnchantmentWrapper(enchantment, i));
         return list;
+    }
+
+    @NotNull
+    public static List<String> getEnchantmentsNames() {
+        return BanVersion.v13OrMore ?
+                Arrays.stream(Enchantment.values()).map(Enchantment::getKey).map(NamespacedKey::getKey).collect(Collectors.toList()) :
+                Arrays.stream(Enchantment.values()).map(Enchantment::getName).collect(Collectors.toList());
     }
 }

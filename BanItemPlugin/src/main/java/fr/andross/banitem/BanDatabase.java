@@ -37,7 +37,7 @@ import java.util.Set;
 
 /**
  * Class that contains all the maps
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanDatabase {
@@ -109,7 +109,7 @@ public final class BanDatabase {
     }
 
     @NotNull
-    public String getNameTest(@NotNull final BannedItem bannedItem) {
+    public String getName(@NotNull final BannedItem bannedItem) {
         if (bannedItem instanceof CustomBannedItem) {
             final CustomBannedItem customBannedItem = (CustomBannedItem) bannedItem;
             final String name = customItems.getKey(customBannedItem);

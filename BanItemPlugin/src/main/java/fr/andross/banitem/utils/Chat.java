@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.utils.statics;
+package fr.andross.banitem.utils;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 /**
  * A chat utility class
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class Chat {

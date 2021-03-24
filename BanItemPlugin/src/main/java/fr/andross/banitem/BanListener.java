@@ -21,12 +21,12 @@ import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.actions.BanData;
 import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.events.PlayerRegionChangeEvent;
-import fr.andross.banitem.utils.statics.BanVersion;
-import fr.andross.banitem.utils.EnchantmentWrapper;
+import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.ItemStackBuilder;
+import fr.andross.banitem.utils.Utils;
+import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -65,7 +65,7 @@ import java.util.Set;
  * The listeners should be refreshed everytime you manually add/remove an action
  * from a map <i>(blacklist or whitelist)</i></p>
  * We are ignoring the deprecation warning, as these methods are used across multiple Bukkit version.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 @SuppressWarnings("deprecation")
@@ -850,6 +850,9 @@ public final class BanListener {
                     }, priority.contains(BanAction.WEAR));
                 }
             }
+
+            // Scanner?
+            pl.getUtils().getWearScanner().setEnabled(pl.getBanConfig().getConfig().getBoolean("actions.wear.scanner"));
         }
     }
 

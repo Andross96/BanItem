@@ -24,12 +24,13 @@ import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.database.Blacklist;
 import fr.andross.banitem.events.DeleteBannedItemEvent;
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.EnchantmentWrapper;
+import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.Utils;
-import fr.andross.banitem.utils.statics.list.ListType;
-import fr.andross.banitem.utils.statics.list.Listable;
+import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
+import fr.andross.banitem.utils.list.ListType;
+import fr.andross.banitem.utils.list.Listable;
+import fr.andross.banitem.utils.scanners.WearScanner;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -56,17 +57,19 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanUtils {
     private final BanItem pl;
+    private final WearScanner wearScanner;
     private final Map<String, String> commandsAliases = new HashMap<>();
     private final Map<UUID, Long> messagesCooldown = new HashMap<>();
     private final Set<UUID> logging = new HashSet<>();
 
     BanUtils(final BanItem pl) {
         this.pl = pl;
+        this.wearScanner = new WearScanner(pl, this);
         commandsAliases.put("mi", "metaitem");
         commandsAliases.put("rl", "reload");
     }
@@ -349,15 +352,25 @@ public final class BanUtils {
         if (!Utils.isNullOrEmpty(data)) {
             if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName() + ".*")) return true;
             if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName() + ".*")) return true;
+            if (player.hasPermission("banitem.bypass." + world + ".allitems." + action.getName() + ".*")) return true;
+            if (player.hasPermission("banitem.bypass.allworlds.allitems." + action.getName() + ".*")) return true;
             for (final BanData bd : data) {
-                if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName() + "." + bd.getType().getName())) return true;
-                if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName() + "." + bd.getType().getName())) return true;
+                final String dataName = bd.getObject().toString().toLowerCase(Locale.ROOT);
+                if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName() + "." + dataName)) return true;
+                if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName() + "." + dataName)) return true;
+                if (player.hasPermission("banitem.bypass." + world + ".allitems." + action.getName() + "." + dataName)) return true;
+                if (player.hasPermission("banitem.bypass.allworlds.allitems." + action.getName() + "." + dataName)) return true;
             }
         } else {
             if (player.hasPermission("banitem.bypass." + world + "." + itemName + ".*")) return true;
             if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + ".*")) return true;
             if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName())) return true;
             if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName())) return true;
+
+            if (player.hasPermission("banitem.bypass." + world + ".allitems.*")) return true;
+            if (player.hasPermission("banitem.bypass.allworlds.allitems." + ".*")) return true;
+            if (player.hasPermission("banitem.bypass." + world + ".allitems." + action.getName())) return true;
+            if (player.hasPermission("banitem.bypass.allworlds.allitems." + action.getName())) return true;
         }
 
         return false;
@@ -401,31 +414,40 @@ public final class BanUtils {
         for (final ItemStack item : items) {
             i++;
             if (Utils.isNullOrAir(item)) continue;
-            if (!pl.getApi().isBanned(p, p.getLocation(), item, BanAction.WEAR)) continue;
+            if (!pl.getApi().isBanned(p, p.getLocation(), item, true, BanAction.WEAR)) continue;
 
             // Item can not be weared in this world
-            switch (i) {
-                case 0: ee.setHelmet(null); break;
-                case 1: ee.setChestplate(null); break;
-                case 2: ee.setLeggings(null); break;
-                case 3: ee.setBoots(null); break;
-                default: break;
-            }
-            final int freeSlot = p.getInventory().firstEmpty();
-            // No empty space, dropping it, else adding it into inventory
-            if (freeSlot == -1) p.getWorld().dropItemNaturally(p.getLocation(), item);
-            else p.getInventory().setItem(freeSlot, item);
+            final int finali = i;
+            final Runnable r = () -> {
+                switch (finali) {
+                    case 0: ee.setHelmet(null); break;
+                    case 1: ee.setChestplate(null); break;
+                    case 2: ee.setLeggings(null); break;
+                    case 3: ee.setBoots(null); break;
+                    default: break;
+                }
+
+                final int freeSlot = p.getInventory().firstEmpty();
+                // No empty space, dropping it, else adding it into inventory
+                if (freeSlot == -1) p.getWorld().dropItemNaturally(p.getLocation(), item);
+                else p.getInventory().setItem(freeSlot, item);
+            };
+
+            if (Bukkit.isPrimaryThread()) r.run();
+            else Bukkit.getScheduler().runTask(pl, r);
         }
     }
 
     /**
-     * Sending a prefixed and colored message to sender
+     * Sending a prefixed and colored (if player) message to sender
      * @param sender sender
      * @param message message
      */
     public void sendMessage(@NotNull final CommandSender sender, @Nullable final String message) {
-        if (message != null)
-            sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color(message));
+        if (message == null) return;
+        final String finalMessage = pl.getBanConfig().getPrefix() + Chat.color(message);
+        final boolean colorInConsole = pl.getBanConfig().getConfig().getBoolean("debug.colors-console");
+        sender.sendMessage(colorInConsole || sender instanceof Player ? finalMessage : Chat.uncolor(finalMessage));
     }
 
     /**
@@ -442,6 +464,15 @@ public final class BanUtils {
         } catch (final IOException e) {
             sendMessage(Bukkit.getConsoleSender(), "&cUnable to communicate with the spigot api to check for newer versions.");
         }
+    }
+
+    /**
+     * Get the WearScanner handler
+     * @return the wear scanner handler
+     */
+    @NotNull
+    public WearScanner getWearScanner() {
+        return wearScanner;
     }
 
     /**

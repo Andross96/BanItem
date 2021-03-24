@@ -17,9 +17,8 @@
  */
 package fr.andross.banitem.utils;
 
-import fr.andross.banitem.utils.statics.BanVersion;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.EnchantmentHelper;
+import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
+import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemFlag;
@@ -33,7 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * A simple ItemStack builder utility class.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class ItemStackBuilder {

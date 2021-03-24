@@ -15,21 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.utils.statics.list;
+package fr.andross.banitem.utils.list;
 
 /**
  * List of elements that can be listed
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public enum ListType {
-    WORLD,
     ACTION,
     ACTIONDATA,
-    ITEM,
-    ENTITY,
     ENCHANTMENT,
+    ENTITY,
     GAMEMODE,
     INVENTORY,
-    REGION;
+    ITEM,
+    MATERIAL,
+    METATYPE,
+    REGION,
+    WORLD,
 }

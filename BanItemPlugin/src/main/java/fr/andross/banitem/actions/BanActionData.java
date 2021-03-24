@@ -17,9 +17,9 @@
  */
 package fr.andross.banitem.actions;
 
-import fr.andross.banitem.utils.statics.BanVersion;
-import fr.andross.banitem.utils.EnchantmentWrapper;
-import fr.andross.banitem.utils.statics.Chat;
+import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * Example: the messages, if the action should be logged, any item...
  * The data type is written as description in {@link BanDataType} description.
  * I've also included some clear api methods to get them, at the bottom.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanActionData {
@@ -125,7 +125,7 @@ public final class BanActionData {
         return c.stream().map(Object::toString).map(Chat::revertColor).collect(Collectors.toList());
     }
 
-    // Name friendly methods to get the datas
+    // Friendly named methods to get the datas
     /**
      * Trying to get a cooldown added for this action
      * @return a cooldown long (millis)

@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * A simple double map, used to handle custom and meta items.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class DoubleMap<K, V> extends HashMap<K, V> {

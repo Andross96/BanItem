@@ -15,50 +15,61 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.utils.statics;
+package fr.andross.banitem.utils;
 
 import org.bukkit.Bukkit;
 
 /**
  * Class that contains some notable versions nodes, so the plugin can handle multiple versions
  * Those variables are used to check versions compatibility
- * @version 3.0.1
+ * @version 3.1
  * @author Andross
  */
 public final class BanVersion {
     /**
-     * in 1.16+, color codes now support HEX.
+     * In 1.16+, color codes now support HEX.
      */
-    public static final boolean v16OrMore = Bukkit.getBukkitVersion().matches("(1\\.16)(.*)");
+    public static final boolean v16OrMore;
 
     /**
      * In 1.14+, CustomModelData has been added.
      */
-    public static final boolean v14OrMore = Bukkit.getBukkitVersion().matches("(1\\.14)(.*)|(1\\.15)(.*)") || v16OrMore;
+    public static final boolean v14OrMore;
 
     /**
      * In 1.13+, MaterialData are totally removed from ItemStack, and the durability is part of ItemMeta.
      * Added NamespacedKey enchantments
      */
-    public static final boolean v13OrMore = Bukkit.getBukkitVersion().matches("(1\\.13)(.*)") || v14OrMore;
+    public static final boolean v13OrMore;
 
     /**
      * In 1.12+, the PlayerPickupItemEvent is now deprecated, and should use the EntityPickupItemEvent.
      */
-    public static final boolean v12OrMore = Bukkit.getBukkitVersion().matches("(1\\.12)(.*)") || v13OrMore;
+    public static final boolean v12OrMore;
 
     /**
      * In 1.11+, ItemMeta#(set|is)Unbreakable has been added.
      */
-    public static final boolean v11OrMore = Bukkit.getBukkitVersion().matches("(1\\.11)(.*)") || v12OrMore;
+    public static final boolean v11OrMore;
 
     /**
      * In 1.9+, the off hand have been added. Also added PotionMeta#getBasePotionData(). Also added PrepareAnvilEvent.
      */
-    public static final boolean v9OrMore = Bukkit.getBukkitVersion().matches("(1\\.9)(.*)|(1\\.10)(.*)") || v11OrMore;
+    public static final boolean v9OrMore;
 
     /**
      * In 1.8+, armor stand event have been added.
      */
-    public static final boolean v8OrMore = Bukkit.getBukkitVersion().matches("(1\\.8)(.*)") || v9OrMore;
+    public static final boolean v8OrMore;
+
+    static {
+        final String v = Bukkit.getBukkitVersion();
+        v16OrMore = v.matches("(1\\.16)(.*)|(1\\.17)(.*)");
+        v14OrMore = v.matches("(1\\.14)(.*)|(1\\.15)(.*)") || v16OrMore;
+        v13OrMore = v.matches("(1\\.13)(.*)") || v14OrMore;
+        v12OrMore = v.matches("(1\\.12)(.*)") || v13OrMore;
+        v11OrMore = v.matches("(1\\.11)(.*)") || v12OrMore;
+        v9OrMore = v.matches("(1\\.9)(.*)|(1\\.10)(.*)") || v11OrMore;
+        v8OrMore = v.matches("(1\\.8)(.*)") || v9OrMore;
+    }
 }

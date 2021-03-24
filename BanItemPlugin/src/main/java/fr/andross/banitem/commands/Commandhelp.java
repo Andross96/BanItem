@@ -26,7 +26,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.potion.PotionType;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command help
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Commandhelp extends BanCommand {
@@ -107,7 +107,7 @@ public class Commandhelp extends BanCommand {
 
             case "potions": case "potion": case "pot": {
                 message("&7List of potions:");
-                message("&7 >> " + Arrays.stream(PotionType.values()).map(PotionType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
+                message("&7 >> " + Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 

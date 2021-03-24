@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.utils;
+package fr.andross.banitem.utils.enchantments;
 
-import fr.andross.banitem.utils.statics.BanVersion;
+import fr.andross.banitem.utils.BanVersion;
 import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 /**
  * An enchantment wrapper class that stores the Bukkit enchantment with a level
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class EnchantmentWrapper {

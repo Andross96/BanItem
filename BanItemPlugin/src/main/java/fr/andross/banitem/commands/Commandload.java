@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Sub command load
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Commandload extends BanCommand {

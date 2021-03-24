@@ -17,18 +17,22 @@
  */
 package fr.andross.banitem.utils.debug;
 
-import fr.andross.banitem.utils.statics.list.ListType;
+import fr.andross.banitem.utils.list.ListType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * A debug message with its type
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class DebugMessage {
     private final ListType type;
     private final String node;
+
+    public DebugMessage(@NotNull final String node) {
+        this(null, node);
+    }
 
     public DebugMessage(@Nullable final ListType type, @NotNull final String node) {
         this.type = type;

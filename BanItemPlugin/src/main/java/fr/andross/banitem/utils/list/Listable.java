@@ -15,16 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.utils.statics.list;
+package fr.andross.banitem.utils.list;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import fr.andross.banitem.BanDatabase;
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
+import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
-import fr.andross.banitem.utils.statics.EnchantmentHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -47,7 +48,7 @@ import java.util.stream.Stream;
 /**
  * A powerful listable class which will attempt to create List object from gived data.
  * Mainly used to load configurations.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class Listable {
@@ -157,7 +158,7 @@ public final class Listable {
     @NotNull
     public static List<World> getWorlds(@NotNull final Object obj, @Nullable final Debug d) {
         final List<World> worlds = new ArrayList<>();
-        final List<String> strings = getSplittedStringList(obj);
+        final List<String> strings = getSplittedStringList(obj).stream().map(Chat::uncolor).collect(Collectors.toList());
         if (strings.isEmpty()) return worlds;
 
         for (String worldName : strings) {
@@ -198,6 +199,57 @@ public final class Listable {
         }
 
         return worlds;
+    }
+
+    /**
+     * Trying to get a list of materials
+     * If there is any error, this will be debugged
+     * @param obj object to get a list from
+     * @param d debugger, returning empty list if null and if there is any error
+     * @return a list of parsed type
+     */
+    @NotNull
+    public static List<Material> getMaterials(@NotNull final Object obj, @Nullable final Debug d) {
+        final List<Material> materials = new ArrayList<>();
+        final List<String> strings = getSplittedStringList(obj).stream().map(Chat::uncolor).collect(Collectors.toList());
+        if (strings.isEmpty()) return materials;
+
+        for (String materialName : strings) {
+            // Regex?
+            if (materialName.startsWith("#")) {
+                final Pattern pattern;
+                try {
+                    pattern = Pattern.compile(materialName.substring(1));
+                } catch (final PatternSyntaxException e) {
+                    if (d != null)
+                        d.clone().add(ListType.ITEM, "&cInvalid regex synthax &e&l" + materialName + "&c.").sendDebug();
+                    continue;
+                }
+                // Getting materials
+                Arrays.stream(Material.values()).filter(m -> pattern.matcher(m.name()).find()).forEach(materials::add);
+                continue;
+            }
+
+            if (materialName.equals("*")) {
+                materials.addAll(Arrays.asList(Material.values()));
+                continue;
+            }
+
+            final boolean remove = materialName.startsWith("!");
+            if (remove) materialName = materialName.substring(1);
+
+            // Getting the material
+            final Material m = Material.matchMaterial(materialName);
+            if (m == null) {
+                if (d != null)
+                    d.clone().add(ListType.MATERIAL, "&cUnknown material &e&l" + materialName + "&c.").sendDebug();
+            } else {
+                if (remove) materials.remove(m);
+                else materials.add(m);
+            }
+        }
+
+        return materials;
     }
 
     /**
@@ -345,6 +397,7 @@ public final class Listable {
             case ENCHANTMENT: return (T) EnchantmentHelper.getEnchantmentWrapper(key);
             case GAMEMODE: return (T) GameMode.valueOf(key.toUpperCase());
             case INVENTORY: return (T) InventoryType.valueOf(key.toUpperCase());
+            case MATERIAL: return (T) Material.matchMaterial(key);
             default: return null;
         }
     }
@@ -371,6 +424,7 @@ public final class Listable {
                 return enchantments;
             case GAMEMODE: return (List<T>) Arrays.stream(GameMode.values()).collect(Collectors.toList());
             case INVENTORY: return (List<T>) Arrays.stream(InventoryType.values()).collect(Collectors.toList());
+            case MATERIAL: return (List<T>) Arrays.stream(Material.values()).collect(Collectors.toList());
             default: return new ArrayList<>();
         }
     }

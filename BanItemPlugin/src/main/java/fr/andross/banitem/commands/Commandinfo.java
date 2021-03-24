@@ -19,7 +19,7 @@ package fr.andross.banitem.commands;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.statics.Utils;
+import fr.andross.banitem.utils.Utils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * Sub command info
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Commandinfo extends BanCommand {

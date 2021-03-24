@@ -19,13 +19,16 @@ package fr.andross.banitem.utils.debug;
 
 import fr.andross.banitem.BanConfig;
 import fr.andross.banitem.actions.BanAction;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.list.ListType;
+import fr.andross.banitem.items.meta.MetaType;
+import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
+import fr.andross.banitem.utils.list.ListType;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +41,7 @@ import java.util.stream.Collectors;
 /**
  * A debug class, which can handle and display the nodes
  * Mainly used when loading the plugin, to display any error
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class Debug implements Cloneable {
@@ -60,6 +63,16 @@ public final class Debug implements Cloneable {
      */
     public Debug add(@Nullable final ListType type, @NotNull final String node) {
         this.nodes.add(new DebugMessage(type, node));
+        return this;
+    }
+
+    /**
+     * Add a node
+     * @param node message
+     * @return this object
+     */
+    public Debug add(@NotNull final String node) {
+        this.nodes.add(new DebugMessage(node));
         return this;
     }
 
@@ -162,6 +175,16 @@ public final class Debug implements Cloneable {
                             messages.add("&7>> " + Arrays.stream(InventoryType.values()).map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", ".")));
                             continue;
                         }
+                        case METATYPE: {
+                            messages.add("&7This meta type is unknown. Valid meta type:");
+                            messages.add("&7>> " + Arrays.stream(MetaType.values()).map(MetaType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", ".")));
+                            continue;
+                        }
+                        case ENCHANTMENT: {
+                            messages.add("&7This enchantment is unknown. Valid enchantments:");
+                            messages.add("&7>> " + EnchantmentHelper.getEnchantmentsNames().stream().collect(Collectors.joining(",", "", ".")));
+                            continue;
+                        }
                         case REGION: {
                             messages.add("&7This region is unknown.");
                             continue;
@@ -180,8 +203,12 @@ public final class Debug implements Cloneable {
      * Send this debug message to the sender
      */
     public void sendDebug() {
-        if (!banConfig.getConfig().getBoolean("better-debug")) sender.sendMessage(getSimpleDebug());
-        else getBetterDebug().forEach(sender::sendMessage);
+        if (!banConfig.getConfig().getBoolean("debug.errors"))
+            sender.sendMessage(sender instanceof Player ? getSimpleDebug() : Chat.uncolor(getSimpleDebug()));
+        else {
+            if (sender instanceof Player) getBetterDebug().forEach(sender::sendMessage);
+            else getBetterDebug().stream().map(Chat::uncolor).forEach(sender::sendMessage);
+        }
     }
 
     @Override

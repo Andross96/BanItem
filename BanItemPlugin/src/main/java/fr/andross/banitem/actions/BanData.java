@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
  * The ban data used into a ban check
  * The object will be an instance of the described {@link BanDataType}
  * Example: if type == BanDataType.CREATIVE, the object is a boolean.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanData {

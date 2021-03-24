@@ -19,8 +19,8 @@ package fr.andross.banitem.database.items;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.DoubleMap;
-import fr.andross.banitem.utils.statics.Chat;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -33,7 +33,7 @@ import java.io.File;
  * Map that contains all the meta items
  * This is a double map <i>(include a reversed map)</i>, for easier access of
  * meta items names and their respective banned item.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class MetaItems extends DoubleMap<String, BannedItem> {

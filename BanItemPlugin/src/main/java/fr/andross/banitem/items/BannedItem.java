@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.items;
 
-import fr.andross.banitem.utils.statics.BanVersion;
+import fr.andross.banitem.utils.BanVersion;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * An item wrapper, which can handle matching Material/ItemStacks
  * with their ItemMeta and not considering the amount.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class BannedItem {

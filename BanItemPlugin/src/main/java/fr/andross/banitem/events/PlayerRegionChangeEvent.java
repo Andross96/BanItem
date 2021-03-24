@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Called if the wear region check action is enabled.
  * This is only for check purpose, no modifications can be made.
  * Cancelling the event will not cancel the player movement.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class PlayerRegionChangeEvent extends PlayerEvent {

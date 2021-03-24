@@ -1,3 +1,31 @@
+v3.1:
+  - Recoded & highly optimized whole custom items system:
+    - You can now set multiple materials (also support regex);
+    - You can now use friendly minecraft potions names;
+    - You can now set interval levels for potions, enchantments and durability;
+    - Added integration with NBT-API: matches custom NBTs;
+    - Fixed durability matches for MC<1.13;
+  - Commands:
+    - Removed /banitem addeverywhere;
+    - Modified /banitem add command to allow:
+      - Writting none, one or multiples worlds;
+      - Writting none, one or multiples materials;
+      - Usable from console;
+    - Modified /banitem remove command to allow:
+      - Writting none, one or multiples worlds;
+      - Writting none, one or multiples materials;
+      - Usable from console;
+  - Config:
+    - Added configurable activable/deactivable debug section:
+      - errors: better debug for errors (was already available);
+      - reload: more details when reloading the plugin;
+      - colors-console: color codes into the messages on console;
+  - Added a wear scanner: will check (async) each second if a player is wearing a banned item;
+  - Added 'allitems' bypass permission;
+  - Fixed data into permissions (ex: entity type in 'attack' action);
+  - Fixed NPE when using the command before the plugin is loaded;
+  - Multiple other fixes & enhancements;
+--------------------------------------------
 v3.0.1:
  - Added "unbreakable" metadata for custom items: check if the item is unbreakable;
  - Fixed FurnaceExtractEvent error with "break" action;

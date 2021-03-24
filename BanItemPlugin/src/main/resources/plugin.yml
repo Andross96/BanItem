@@ -1,13 +1,14 @@
 name: BanItem
 main: fr.andross.banitem.BanItem
-version: '3.0.1'
+version: '3.1'
 author: Andross
 description: Ban item
 api-version: '1.13'
-softdepend: [WorldGuard]
+softdepend: [NBTAPI, WorldGuard]
 commands:
   banitem:
     description: Banitem command. Show help.
+    permission: banitem.command.help
     aliases: [bi]
 permissions:
   banitem.bypass.*:
@@ -16,7 +17,6 @@ permissions:
     description: use /banitem command.
     children:
       banitem.command.add: true
-      banitem.command.addeverywhere: true
       banitem.command.check: true
       banitem.command.help: true
       banitem.command.info: true

@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * Called when an item should be banned
  * This is only for check purpose, no modifications can be made.
  * Cancelling the event will cancel the ban process.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable {

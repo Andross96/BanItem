@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>BanItemParent</artifactId>
-        <groupId>fr.andross</groupId>
-        <version>3.0</version>
+        <groupId>fr.andross.banitem</groupId>
+        <version>3.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,9 +39,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>fr.andross</groupId>
+            <groupId>fr.andross.banitem</groupId>
             <artifactId>Hooks</artifactId>
-            <version>3.0</version>
+            <version>3.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.andross.banitem.utils.statics;
+package fr.andross.banitem.utils;
 
-import fr.andross.banitem.utils.hooks.OldItemUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -34,14 +33,11 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**
  * An utility class
- * @version 3.0.1
+ * @version 3.1
  * @author Andross
  */
 public final class Utils {
@@ -185,56 +181,38 @@ public final class Utils {
     }
 
     /**
-     * Get an unmodifiable map of all potions on an item.
-     * Material type should be checked before using this method.
+     * Try to get potion effects on an item
      * @param item the item
-     * @return non-null map of potion effect and level on the item
+     * @return non-null unmodifiable map of potion effect and level on the item
      */
     @NotNull
     public static Map<PotionEffectType, Integer> getAllPotionEffects(@NotNull final ItemStack item) {
         final Map<PotionEffectType, Integer> map = new HashMap<>();
 
-        // Checking custom effects
-        if (item.hasItemMeta()) {
-            final ItemMeta itemMeta = item.getItemMeta();
-            if (itemMeta instanceof PotionMeta) {
-                final PotionMeta pm = (PotionMeta) itemMeta;
-                if (pm.hasCustomEffects()) {
-                    for (final PotionEffect customEffect : pm.getCustomEffects()) {
-                        final PotionEffectType effectType = customEffect.getType();
-                        final int level = customEffect.getAmplifier() == 0 ? 1 : 2;
-                        map.put(effectType, level);
-                    }
+        // Getting base effect
+        final ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : null;
+        if (!BanVersion.v9OrMore && item.getType() == Material.POTION) {
+            final Potion p = Potion.fromDamage(item.getDurability());
+            map.put(p.getType().getEffectType(), p.getLevel());
+        } else if (itemMeta instanceof PotionMeta) {
+            final PotionMeta pm = (PotionMeta) itemMeta;
+            final PotionEffectType effectType = pm.getBasePotionData().getType().getEffectType();
+            final int level = pm.getBasePotionData().isUpgraded() ? 2 : 1;
+            map.put(effectType, level);
+        }
+
+        // Getting custom effects
+        if (itemMeta instanceof PotionMeta) {
+            final PotionMeta pm = (PotionMeta) itemMeta;
+            if (pm.hasCustomEffects()) {
+                for (final PotionEffect customEffect : pm.getCustomEffects()) {
+                    final PotionEffectType effectType = customEffect.getType();
+                    final int level = customEffect.getAmplifier() == 0 ? 1 : 2;
+                    map.put(effectType, level);
                 }
             }
         }
 
-        // Getting base effect
-        if (!BanVersion.v9OrMore) {
-            final Potion p = Potion.fromDamage(item.getDurability());
-            map.put(p.getType().getEffectType(), p.getLevel());
-        } else {
-            final ItemMeta itemMeta = item.getItemMeta();
-            if (itemMeta instanceof PotionMeta) {
-                final PotionMeta pm = (PotionMeta) itemMeta;
-                final PotionEffectType effectType = pm.getBasePotionData().getType().getEffectType();
-                final int level = pm.getBasePotionData().isUpgraded() ? 2 : 1;
-                map.put(effectType, level);
-            }
-        }
-
         return Collections.unmodifiableMap(map);
-    }
-
-    /**
-     * Check if the item is unbreakable (support multiple versions)
-     * @param item the itemStack
-     * @return true if the item is unbreakable, otherwise false
-     */
-    public static boolean isItemUnbreakable(@NotNull final ItemStack item) {
-        if (!item.hasItemMeta()) return false;
-        final ItemMeta itemMeta = item.getItemMeta();
-        if (itemMeta == null) return false;
-        return BanVersion.v11OrMore ? itemMeta.isUnbreakable() : OldItemUtils.isUnbreakable(item);
     }
 }

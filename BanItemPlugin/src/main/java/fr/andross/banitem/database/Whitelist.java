@@ -27,13 +27,13 @@ import fr.andross.banitem.actions.BanData;
 import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.events.PlayerBanItemEvent;
 import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.Utils;
-import fr.andross.banitem.utils.statics.list.ListType;
-import fr.andross.banitem.utils.statics.list.Listable;
+import fr.andross.banitem.utils.list.ListType;
+import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 
 /**
  * Map that contains whitelistedworlds
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Whitelist extends HashMap<World, WhitelistedWorld> {

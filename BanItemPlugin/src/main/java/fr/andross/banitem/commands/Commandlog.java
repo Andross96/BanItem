@@ -27,7 +27,7 @@ import java.util.UUID;
 
 /**
  * Sub command log
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Commandlog extends BanCommand {

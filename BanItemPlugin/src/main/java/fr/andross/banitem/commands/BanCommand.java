@@ -18,7 +18,7 @@
 package fr.andross.banitem.commands;
 
 import fr.andross.banitem.BanItem;
-import fr.andross.banitem.utils.statics.Chat;
+import fr.andross.banitem.utils.Chat;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,17 +27,16 @@ import java.util.List;
 
 /**
  * Abstract sub command class
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public abstract class BanCommand {
-    private final String header;
+    private final String header = Chat.color("&7&m     &r &l[%s&r&l] &7&m     ");
     protected final BanItem pl;
     protected final CommandSender sender;
     protected final String[] args;
 
     public BanCommand(@NotNull final BanItem pl, @NotNull final CommandSender sender, @NotNull final String[] args) {
-        header = pl.getBanConfig().getPrefix() + Chat.color("&7&m     &r &l[%s&r&l] &7&m     ");
         this.pl = pl;
         this.sender = sender;
         this.args = args;
@@ -46,15 +45,15 @@ public abstract class BanCommand {
     /**
      * Sending a header separator
      */
-    void header(@NotNull final String title) {
-        sender.sendMessage(Chat.color(String.format(header, title)));
+    protected void header(@NotNull final String title) {
+        pl.getUtils().sendMessage(sender, String.format(header, title));
     }
 
     /**
      * Send a <i>(colored)</i> message to the sender
      * @param message message to send
      */
-    void message(@Nullable final String message) {
+    protected void message(@Nullable final String message) {
         pl.getUtils().sendMessage(sender, message);
     }
 
@@ -62,7 +61,7 @@ public abstract class BanCommand {
      * @return the no permission message from config
      */
     @Nullable
-    String getNoPermMessage() {
+    protected String getNoPermMessage() {
         return pl.getBanConfig().getConfig().getString("no-permission");
     }
 

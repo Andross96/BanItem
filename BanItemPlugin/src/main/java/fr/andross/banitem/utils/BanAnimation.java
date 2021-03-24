@@ -18,8 +18,6 @@
 package fr.andross.banitem.utils;
 
 import fr.andross.banitem.BanConfig;
-import fr.andross.banitem.utils.statics.BanVersion;
-import fr.andross.banitem.utils.statics.Chat;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -32,7 +30,7 @@ import java.util.Map;
 
 /**
  * Animation class
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanAnimation {
@@ -63,7 +61,8 @@ public final class BanAnimation {
                 pitch = config.getInt("sound.pitch");
                 worldSound = config.getBoolean("sound.worldSound");
             } catch (final Exception e) {
-                sender.sendMessage(banConfig.getPrefix() + Chat.color("&cInvalid sound parameters set in " + banConfig.getConfigName() + "."));
+                final String message = banConfig.getPrefix() + Chat.color("&cInvalid sound parameters set in " + banConfig.getConfigName() + ".");
+                sender.sendMessage(sender instanceof Player ? message : Chat.uncolor(message));
             }
         }
         // Particle
@@ -73,7 +72,8 @@ public final class BanAnimation {
                 particle = Particle.valueOf(config.getString("particle.type"));
                 amount = config.getInt("particle.amount");
             } catch (final Exception e) {
-                sender.sendMessage(banConfig.getPrefix() + Chat.color("&cInvalid particle parameters set in " + banConfig.getConfigName() + "."));
+                final String message = banConfig.getPrefix() + Chat.color("&cInvalid particle parameters set in " + banConfig.getConfigName() + ".");
+                sender.sendMessage(sender instanceof Player ? message : Chat.uncolor(message));
             }
         }
     }

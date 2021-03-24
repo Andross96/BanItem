@@ -22,10 +22,10 @@ import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.actions.BanActionData;
 import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.Utils;
-import fr.andross.banitem.utils.statics.list.ListType;
-import fr.andross.banitem.utils.statics.list.Listable;
+import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.Utils;
+import fr.andross.banitem.utils.list.ListType;
+import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command meta item
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Commandmetaitem extends BanCommand {

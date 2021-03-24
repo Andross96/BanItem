@@ -1,6 +1,6 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v3.0      —————————————————| #
+# |——————————————————      v3.1      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # |                   Documentation:                  | #
 # |             https://banitem.andross.fr/           | #
@@ -128,8 +128,14 @@
 #             cooldown: 30000 ##----> this ban only applies each 30 seconds (players can only either break or place the items each 30 seconds)
 # +——————————————————————————————————————————————————————————————————————————————————————————————+
 
-# Better & more detailled loading error messages
-better-debug: true
+# Debug modes
+debug:
+  # Better & more detailled error messages
+  errors: true
+  # More detailled reload message
+  reload: false
+  # Colored message into the console
+  colors-console: false
 
 # No permission message (for /banitem)
 no-permission: '&cYou do not have permission.'
@@ -160,17 +166,25 @@ actions:
     lore:
       - '&cYou can not add this'
       - '&cenchantement.'
+
   # List of rename commands which a player could use to rename an item
   rename:
     - '/rename'
+
   # Block hoppers to take/give banned item from/to inventories
+  # This is more resource intensive
   transfer:
     hoppers-block: false
-  # If the plugin have to check when a player enter or exit a WorldGuard region
+
+  # Configuration for the wear action
   wear:
+    # If the plugin have to check when a player enter or exit a WorldGuard region
     region-check: false
+    # Scan each seconds if a player is wearing a banned item [async]
+    scanner: true
+
   # The plugin will not take in consideration inventories which name is in this list
-  # WITHOUT color codes: color codes from GUI titles will be removed to be compared
+  # WITHOUT color codes & case sensitive: color codes from GUI titles will be removed to be compared
   delete:
     ignored-inventories-titles:
       - 'My Cool Gui'

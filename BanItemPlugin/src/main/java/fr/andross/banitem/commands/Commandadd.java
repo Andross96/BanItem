@@ -22,22 +22,23 @@ import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.actions.BanActionData;
 import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.Utils;
-import fr.andross.banitem.utils.statics.list.ListType;
-import fr.andross.banitem.utils.statics.list.Listable;
+import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.Utils;
+import fr.andross.banitem.utils.list.ListType;
+import fr.andross.banitem.utils.list.Listable;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.StringUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Sub command add
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Commandadd extends BanCommand {
@@ -48,33 +49,37 @@ public class Commandadd extends BanCommand {
 
     @Override
     public void run() {
-        // Not player?
-        if (!(sender instanceof Player)) {
-            message("Command IG only.");
-            return;
-        }
-
         // Permission?
         if (!sender.hasPermission("banitem.command.add")) {
             message(getNoPermMessage());
             return;
         }
 
-        // /banitem add <actions> [message]
+        // /bi add <actions> [-m materials] [-w worlds] [message]
         if (args.length < 2) {
-            header("&6&lAdd");
-            message("&7Usage: &b/bi add &3<actions> [message]");
-            message("&7 >> Will ban the item (material)");
-            message("&7 >> actually in your hand");
-            message("&7 >> in your current world.");
-            sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color("&2&oExample: /bi add place,break") + " &cThis item is banned.");
-            message("&2&oPlayers will not be able to place nor break the item.");
+            if (sender instanceof Player) {
+                header("&6&lAdd");
+                message("&7Usage:");
+                message("&b/bi add &3<actions> [-m materials] [-w worlds] [message]");
+                message("&7 >> Will ban the item (material).");
+                message("&7 >> If no worlds or materials are entered");
+                message("&7 >> it will ban the current material in your hand");
+                message("&7 >> into the current world.");
+                message("&2&oExample: /bi add place,break This item is banned.");
+                message("&7&oPlayers will not be able to place nor break the item");
+                message("&7&ointo your current world.");
+                message("&2&oExample2: /bi add place -m stone -w world");
+                message("&7&oPlayers will not be able to place stone into world.");
+            } else {
+                header("&6&lAdd");
+                message("&7Usage: &b/bi add &3<actions> <-m materials> <-w worlds> [message]");
+                message("&7 >> Will ban the item (material) into the set world.");
+                message("&2&oExample: /bi add place -m stone -w world This item is banned.");
+                message("&7&oPlayers will not be able to place stone");
+                message("&o&ointo world.");
+            }
             return;
         }
-
-        // Getting player item in hand
-        final Player p = (Player) sender;
-        final ItemStack item = Utils.getItemInHand(p);
 
         // Parsing the actions
         final List<String> actionsNames = Listable.getSplittedList(args[1]);
@@ -87,36 +92,117 @@ public class Commandadd extends BanCommand {
         }
 
         final BanActionData actionData = new BanActionData();
+        final List<Material> materials = new ArrayList<>();
+        final List<World> worlds = new ArrayList<>();
+        int startMessage = 2;
+
+        // Set materials?
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].toLowerCase(Locale.ROOT).startsWith("-m")) {
+                if (args.length <= i + 1) {
+                    header("&6&lAdd");
+                    message("&cInvalid material(s) synthax. Must be &e-m material1,material2...");
+                    return;
+                }
+
+                final String material = args[i + 1];
+                materials.addAll(Listable.getMaterials(material, null));
+                if (material.isEmpty()) {
+                    header("&6&lAdd");
+                    message("&cInvalid material(s) entered: &e" + material);
+                    if (sender instanceof Player) {
+                        message("&7You can use &e/bi info&7 to get the material of");
+                        message("&7the item currently in your hand.");
+                    }
+                    return;
+                }
+                startMessage += 2;
+                break;
+            }
+        }
+
+        // Set worlds?
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].toLowerCase(Locale.ROOT).startsWith("-w")) {
+                if (args.length <= i + 1) {
+                    header("&6&lAdd");
+                    message("&cInvalid world(s) synthax. Must be &e-w worldName,worldName2...");
+                    return;
+                }
+
+                final String world = args[i + 1];
+                worlds.addAll(Listable.getWorlds(world, null));
+                if (worlds.isEmpty()) {
+                    header("&6&lAdd");
+                    message("&cInvalid world(s) entered: &e" + world);
+                    message("&7Valid worlds: &o" + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", "&7.")));
+                    return;
+                }
+                startMessage += 2;
+                break;
+            }
+        }
 
         // Have a message?
-        if (args.length > 2) {
+        if (args.length - 1 >= startMessage) {
             final StringBuilder sb = new StringBuilder();
-            for (int i = 2; i < args.length; i++) {
-                if (i > 2) sb.append(" ");
+            for (int i = startMessage; i < args.length; i++) {
+                if (i > startMessage) sb.append(" ");
                 sb.append(args[i]);
             }
-            if (sb.length() > 0) actionData.getMap().put(BanDataType.MESSAGE, Collections.singletonList(Chat.color(sb.toString())));
+            if (sb.length() > 0)
+                actionData.getMap().put(BanDataType.MESSAGE, Collections.singletonList(Chat.color(sb.toString())));
         }
 
         final Map<BanAction, BanActionData> actionsData = new EnumMap<>(BanAction.class);
         actions.forEach(ba -> actionsData.put(ba, actionData));
 
-        header("&6&lAdd");
-        if (pl.getApi().addToBlacklist(new BannedItem(item.getType()), actionsData, p.getWorld())) {
-            pl.getListener().load(sender);
-            message("&aSuccessfully banned &e" + item.getType().name().toLowerCase() + " &afor world &2" + p.getWorld().getName() + "&a.");
-            message("&7&oPlease note that you probably have the bypass");
-            message("&7&opermission, so the ban may not apply to you.");
-        } else {
-            message("&cAn error occured while banning the item.");
-            message("&cCheck the console for more information.");
+        // Checking materials
+        if (materials.isEmpty()) {
+            // Console?
+            if (!(sender instanceof Player)) {
+                header("Add");
+                message("You must enter the material(s) which will be banned.");
+                message("Example: /bi add place -m stone -w world");
+                return;
+            }
+            materials.add(Utils.getItemInHand((Player) sender).getType());
         }
+
+        // Checking worlds
+        if (worlds.isEmpty()) {
+            // Console?
+            if (!(sender instanceof Player)) {
+                header("Add");
+                message("You must enter the world(s) in which the ban will be applied.");
+                message("Example: /bi add place -m stone -w world");
+                return;
+            }
+            worlds.add(((Player) sender).getWorld());
+        }
+
+        // Adding!
+        final World[] worldsArray = worlds.toArray(new World[0]);
+        if (pl.getApi().addToBlacklist(materials.stream().map(BannedItem::new).collect(Collectors.toList()), actionsData, worldsArray)) {
+            header("&6&lAdd");
+            final String materialsName = materials.size() > 10 ? "these materials" : materials.stream().map(Material::name).collect(Collectors.joining(","));
+            final String worldsName = Bukkit.getWorlds().size() == worlds.size() ? "&2ALL" : worlds.stream().map(World::getName).collect(Collectors.joining(","));
+            message("&aSuccessfully banned &e" + materialsName.toLowerCase(Locale.ROOT) + " &afor world &2" + worldsName + "&a.");
+            if (sender instanceof Player) {
+                message("&7&oPlease note that you probably have the bypass");
+                message("&7&opermission, so the ban may not apply to you.");
+            }
+            pl.getListener().load(sender);
+            return;
+        }
+
+        message("&cAn error occured while banning the item.");
+        message("&cCheck the console for more information.");
     }
 
     @Override
     public List<String> runTab() {
-        if (args.length == 2) return StringUtil.copyPartialMatches(args[1], Stream.of(BanAction.values()).map(BanAction::getName).collect(Collectors.toList()), new ArrayList<>());
-        if (args.length > 2) return Collections.singletonList("message");
-        return Collections.emptyList();
+        if (args.length == 2) return StringUtil.copyPartialMatches(args[1], Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.toList()), new ArrayList<>());
+        return Arrays.asList("-w", "-m", "message");
     }
 }

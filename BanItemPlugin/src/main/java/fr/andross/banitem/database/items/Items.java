@@ -29,7 +29,7 @@ import java.util.*;
 
 /**
  * Map that store all the banned items, with their actions and actions datas.
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Items {

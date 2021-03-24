@@ -23,7 +23,7 @@ import fr.andross.banitem.actions.BanActionData;
 import fr.andross.banitem.database.Blacklist;
 import fr.andross.banitem.database.items.Items;
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.statics.Utils;
+import fr.andross.banitem.utils.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,7 +34,7 @@ import java.util.*;
 
 /**
  * Sub command check
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public class Commandcheck extends BanCommand {

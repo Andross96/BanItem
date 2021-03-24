@@ -1,6 +1,6 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v3.0      —————————————————| #
+# |——————————————————      v3.1      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # |                   Documentation:                  | #
 # |             https://banitem.andross.fr/           | #
@@ -39,22 +39,41 @@
 #    -> if any line in the lore of the item contains any line of the string written
 #  -> LORE-LINE-CONTAINS: String
 #    -> if any line in the lore of the item contains the string written
-#  -> DURABILITY: Integer (number)
+#  -> DURABILITY: Integer (number) or String (interval)
 #    -> if the durability of the item matches
+#    -> There is multiple synthax:
+#      -> durability: 1 - to match items with durability 1
+#      -> durability: '0-300' - to match items with durability between 0 [inclusive] and 300 [inclusive]
 #  -> ENCHANTMENT-EQUALS: String or List of String
-#    -> if the enchantments of the item matches exactly the ones written
-#    -> The synthax is 'Enchantment:Level', or simply 'enchantment' to include all levels
-#    -> Setting a level <= 0 will ignore the enchantment level
+#    -> if the enchantments of the item matches exactly the ones written, no more or less.
+#    -> The synthax is 'Enchantment:Level'
 #    -> Example:
 #      -> enchantment-equals: 'unbreaking:3,efficiency:5'
 #  -> ENCHANTMENT-CONTAINS: String or List of String
 #    -> if the item contains one of the written enchantments
-#    -> Same rules as enchantment-equals above
+#    -> Multiple synthax available:
+#      -> 'Enchantment': if the item contains this enchantment, does not consider the level;
+#      -> 'Enchantment:Level': if the item contains this enchantment with this level;
+#      -> 'Enchantment:MinLevel:MaxLevel': if the item contains this enchantment, within the min & max level interval [inclusive];
+#    -> Example:
+#      -> enchantment-contains: 'unbreaking,efficiency:5:32767'
 #  -> POTION: String or List of String
 #    -> if the item contains one of the written potion effect
-#    -> The synthax is 'Potion:Level' (level 1 or 2), or simply 'potion' to include all levels
-#    -> Setting a level <= will ignore the potion level
+#    -> Multiple synthax available:
+#      -> 'Potion': if the item contains this potion effect, does not consider the level;
+#      -> 'Potion:Level': if the item contains this potion effect with this level;
+#      -> 'Potion:MinLevel:MaxLevel': if the item contains this potion effect, within the min & max level interval [inclusive];
 #    -> Example:
-#      -> potion: 'speed:-1'
+#      -> potion: 'speed,slow:1'
+#  -> UNBREAKABLE: Boolean
+#    -> if the item is unbreakable
 #  -> MODELDATA-EQUALS: String
 #    -> if the item modeldata is equals to the one written (for MC>=1.14)
+#  -> NBTAPI:
+#    -> if you have the NBT-API plugin (https://www.spigotmc.org/resources/nbt-api.7939/), you can match custom NBT
+#    -> You have to write the complete node separated with #, and the objects to match
+#    -> Example: {EntityTag:{id:"minecraft:zombie"}}
+#      -> nbtapi:
+#           'EntityTag#id':
+#             1: 'minecraft:zombie'
+#    -> Using that synthax, you can write multiples nodes and multiples possible match for a same custom item.

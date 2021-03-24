@@ -31,7 +31,7 @@ import java.util.*;
 
 /**
  * Map containing all allowed items of a world
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class WhitelistedWorld extends Items {

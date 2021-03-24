@@ -18,10 +18,12 @@
 package fr.andross.banitem;
 
 import fr.andross.banitem.commands.BanCommand;
+import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.metrics.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +37,7 @@ import java.util.List;
 
 /**
  * BanItemPlugin
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanItem extends JavaPlugin {
@@ -73,6 +75,11 @@ public final class BanItem extends JavaPlugin {
      * @param configFile the file configuration to load. If null, using (and reloading) the default config
      */
     protected void load(@NotNull final CommandSender sender, @Nullable final File configFile) {
+        final long start = System.currentTimeMillis();
+
+        // Removing all tasks
+        getServer().getScheduler().cancelTasks(this);
+
         // (re)Loading config
         banConfig = new BanConfig(this, sender, configFile);
 
@@ -86,11 +93,25 @@ public final class BanItem extends JavaPlugin {
         listener.load(sender);
 
         // Result
-        utils.sendMessage(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s).");
+        final long end = System.currentTimeMillis();
+        final boolean moredebug = banConfig.getConfig().getBoolean("debug.reload");
+        if (moredebug) {
+            utils.sendMessage(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s) &7&o[" + (end - start) + "ms]&2.");
+            utils.sendMessage(sender, "&2Listeners activated: &e" + listener.getActivated());
+            utils.sendMessage(sender, "&2Meta items loaded: &e" + banDatabase.getMetaItems().size());
+            utils.sendMessage(sender, "&2Custom items loaded: &e" + banDatabase.getCustomItems().size());
+        } else
+            utils.sendMessage(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s).");
     }
 
     @Override
     public boolean onCommand(@NotNull final CommandSender sender, @NotNull final Command command, final @NotNull String label, @NotNull final String[] args) {
+        // Plugin not loaded yet?
+        if (banConfig == null) {
+            sender.sendMessage(Chat.color("&c&l[&e&lBanItem&c&l] &cThe plugin is not loaded yet. Please wait before using the command."));
+            return true;
+        }
+
         if (args.length > 0)
             try {
                 final String subCommandName = args[0].toLowerCase();
@@ -112,17 +133,27 @@ public final class BanItem extends JavaPlugin {
         }
 
         // Help messages
-        utils.sendMessage(sender,"&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
-        utils.sendMessage(sender," &7- /bi &3add&7: add an item in blacklist for current world.");
-        utils.sendMessage(sender," &7- /bi &3addeverywhere&7: add an item in blacklist for all worlds.");
-        utils.sendMessage(sender," &7- /bi &3check&7: check if any player has a blacklisted item.");
-        utils.sendMessage(sender," &7- /bi &3metaitem&7: add/remove/list meta items.");
-        utils.sendMessage(sender," &7- /bi &3help&7: gives additional informations.");
-        utils.sendMessage(sender," &7- /bi &3info&7: get info about your item in hand.");
-        utils.sendMessage(sender," &7- /bi &3load&7: load a specific config file.");
-        utils.sendMessage(sender," &7- /bi &3log&7: activate the log mode.");
-        utils.sendMessage(sender," &7- /bi &3reload&7: reload the config.");
-        utils.sendMessage(sender," &7- /bi &3remove&7: remove and unban the item if banned.");
+        if (sender instanceof Player) {
+            utils.sendMessage(sender, "&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
+            utils.sendMessage(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
+            utils.sendMessage(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
+            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
+            utils.sendMessage(sender, " &7- /bi &3help&7: gives additional informations.");
+            utils.sendMessage(sender, " &7- /bi &3info&7: get info about your item in hand.");
+            utils.sendMessage(sender, " &7- /bi &3load&7: load a specific config file.");
+            utils.sendMessage(sender, " &7- /bi &3log&7: activate the log mode.");
+            utils.sendMessage(sender, " &7- /bi &3reload&7: reload the config.");
+            utils.sendMessage(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
+        } else {
+            utils.sendMessage(sender, "&7&m     &r &l[&7&lConsole Usage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
+            utils.sendMessage(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
+            utils.sendMessage(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
+            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
+            utils.sendMessage(sender, " &7- /bi &3help&7: gives additional informations.");
+            utils.sendMessage(sender, " &7- /bi &3load&7: load a specific config file.");
+            utils.sendMessage(sender, " &7- /bi &3reload&7: reload the config.");
+            utils.sendMessage(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
+        }
         return true;
     }
 

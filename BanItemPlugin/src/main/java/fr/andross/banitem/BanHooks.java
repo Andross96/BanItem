@@ -22,13 +22,12 @@ import fr.andross.banitem.utils.hooks.IWorldGuardHook;
 import fr.andross.banitem.utils.hooks.WorldGuard6Hook;
 import fr.andross.banitem.utils.hooks.WorldGuard7Hook;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Hooks manager
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanHooks {
@@ -38,7 +37,7 @@ public final class BanHooks {
     /**
      * Loading the hooks.
      * This should not be used externally.
-     * Use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, FileConfiguration, String)} instead.
+     * Use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, java.io.File)} instead.
      */
     BanHooks(@NotNull final BanItem pl, @NotNull final CommandSender sender) {
         // WorldGuard?
@@ -51,7 +50,7 @@ public final class BanHooks {
                 else if (version.startsWith("6")) worldGuardHook = new WorldGuard6Hook();
                 else throw new Exception();
                 isWorldGuardEnabled = true;
-            } catch (final Error | Exception e) {
+            } catch (final Throwable e) {
                 pl.getUtils().sendMessage(sender, "&c[Hooks] Can not hook with WorldGuard.");
                 isWorldGuardEnabled = false;
             }

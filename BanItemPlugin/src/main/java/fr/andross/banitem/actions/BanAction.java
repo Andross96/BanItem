@@ -17,11 +17,12 @@
  */
 package fr.andross.banitem.actions;
 
+import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * List of available ban actions
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public enum BanAction {
@@ -105,7 +106,7 @@ public enum BanAction {
 
     /**
      * When a player enchants the item
-     * Special data: <b>set of EnchantmentWrapper</b> - the {@link fr.andross.banitem.utils.EnchantmentWrapper} applied to the item
+     * Special data: <b>set of EnchantmentWrapper</b> - the {@link EnchantmentWrapper} applied to the item
      */
     ENCHANT("enchant"),
 

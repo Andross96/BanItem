@@ -26,7 +26,7 @@ import fr.andross.banitem.database.WhitelistedWorld;
 import fr.andross.banitem.database.items.CustomItems;
 import fr.andross.banitem.database.items.Items;
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.statics.Utils;
+import fr.andross.banitem.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,9 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +50,7 @@ import java.util.stream.Collectors;
  * <p>If you add/remove any action from a map <i>(blacklist/whitelist)</i>, you have to reload the plugin listeners
  * so it can handle correctly the actions, using {@link BanListener#load(CommandSender)} ()}</p>
  * @author Andross
- * @version 3.0
+ * @version 3.1
  */
 public final class BanItemAPI {
     private static BanItemAPI instance;
@@ -405,43 +403,58 @@ public final class BanItemAPI {
      * @return true if the item is successfully added, otherwise false
      */
     public boolean addToBlacklist(@NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> actions, @Nullable final World... worlds) {
+        return addToBlacklist(Collections.singletonList(item), actions, worlds);
+    }
+
+    /**
+     * Add the banned items to the blacklist and save the config file used
+     * @param items the items to ban
+     * @param actions a map containing actions and their respective data
+     * @param worlds worlds where the ban apply. If null, including all worlds
+     * @return true if the item is successfully added, otherwise false
+     */
+    public boolean addToBlacklist(@NotNull final Collection<? extends BannedItem> items, @NotNull final Map<BanAction, BanActionData> actions, @Nullable final World...worlds) {
         // Preparing variables
         final boolean allWorlds = Utils.isNullOrEmpty(worlds);
         final List<World> appliedWorlds = allWorlds ? Bukkit.getWorlds() : Arrays.asList(worlds);
-        final String name = pl.getBanDatabase().getNameTest(item);
 
-        // Adding in map
-        appliedWorlds.forEach(w -> getDatabase().getBlacklist().addNewBan(w, item, actions));
+        for (final BannedItem item : items) {
+            final String name = pl.getBanDatabase().getName(item);
 
-        // Adding in config
-        if (allWorlds) {
-            // If all data are equals, we can unify them
-            if (Utils.areAllEquals(actions.values())) {
-                final Map<String, Object> serializedData = actions.values().iterator().next().serialize();
-                final String actionNames = actions.size() == BanAction.values().length ? "*" : actions.keySet().stream()
-                        .map(BanAction::getName)
-                        .map(String::toLowerCase)
-                        .collect(Collectors.joining(","));
-                pl.getBanConfig().getConfig().set("blacklist.*." + name + "." + actionNames, serializedData);
-            } else
-                actions.forEach((k, v) -> pl.getConfig().set("blacklist.*." + name + "." + k.name().toLowerCase(), v.serialize()));
-        } else {
-            // If all data are equals, we can unify them
-            if (Utils.areAllEquals(actions.values())) {
-                final Map<String, Object> serializedData = actions.values().iterator().next().serialize();
-                final String actionNames = actions.size() == BanAction.values().length ? "*" : actions.keySet().stream()
-                        .map(BanAction::getName)
-                        .map(String::toLowerCase)
-                        .collect(Collectors.joining(","));
-                for (final World world : appliedWorlds)
-                    pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name + "." + actionNames, serializedData);
+            // Adding in map
+            appliedWorlds.forEach(w -> getDatabase().getBlacklist().addNewBan(w, item, actions));
+
+            // Adding in config
+            if (allWorlds) {
+                // If all data are equals, we can unify them
+                if (Utils.areAllEquals(actions.values())) {
+                    final Map<String, Object> serializedData = actions.values().iterator().next().serialize();
+                    final String actionNames = actions.size() == BanAction.values().length ? "*" : actions.keySet().stream()
+                            .map(BanAction::getName)
+                            .map(String::toLowerCase)
+                            .collect(Collectors.joining(","));
+                    pl.getBanConfig().getConfig().set("blacklist.*." + name + "." + actionNames, serializedData);
+                } else
+                    actions.forEach((k, v) -> pl.getConfig().set("blacklist.*." + name + "." + k.name().toLowerCase(), v.serialize()));
             } else {
-                for (final World world : appliedWorlds) {
-                    pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name, null);
-                    actions.forEach((k, v) -> pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name + "." + k.name().toLowerCase(), v.serialize()));
+                // If all data are equals, we can unify them
+                if (Utils.areAllEquals(actions.values())) {
+                    final Map<String, Object> serializedData = actions.values().iterator().next().serialize();
+                    final String actionNames = actions.size() == BanAction.values().length ? "*" : actions.keySet().stream()
+                            .map(BanAction::getName)
+                            .map(String::toLowerCase)
+                            .collect(Collectors.joining(","));
+                    for (final World world : appliedWorlds)
+                        pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name + "." + actionNames, serializedData);
+                } else {
+                    for (final World world : appliedWorlds) {
+                        pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name, null);
+                        actions.forEach((k, v) -> pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name + "." + k.name().toLowerCase(), v.serialize()));
+                    }
                 }
             }
         }
+
         return pl.getBanConfig().saveConfig();
     }
 
@@ -452,31 +465,40 @@ public final class BanItemAPI {
      * @return true if the item is successfully removed, otherwise false
      */
     public boolean removeFromBlacklist(@NotNull final BannedItem item, @Nullable final World... worlds) {
+        return removeFromBlacklist(Collections.singletonList(item), worlds);
+    }
+
+    public boolean removeFromBlacklist(@NotNull final Collection<? extends BannedItem> items, @Nullable final World... worlds) {
         // Preparing variables
         final List<World> appliedWorlds = Utils.isNullOrEmpty(worlds) ? Bukkit.getWorlds() : Arrays.asList(worlds);
-        final BannedItem typeItem = new BannedItem(item.getType());
-        final String name = pl.getBanDatabase().getNameTest(item);
-        final String typeName = item.getType().name().toLowerCase();
 
         boolean removed = false;
-        for (final World world : appliedWorlds) {
-            final Items map = getDatabase().getBlacklist().get(world);
-            if (map == null) continue;
-            if (map.getItems().remove(typeItem) != null) {
-                removed = true;
-                pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + typeName, null);
+        for (final BannedItem item : items) {
+            final BannedItem typeItem = new BannedItem(item.getType());
+            final String name = pl.getBanDatabase().getName(item);
+            final String typeName = item.getType().name().toLowerCase();
+
+            for (final World world : appliedWorlds) {
+                final Items map = getDatabase().getBlacklist().get(world);
+                if (map == null) continue;
+                if (map.getItems().remove(typeItem) != null) {
+                    removed = true;
+                    pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + typeName, null);
+                }
+                if (map.getItems().remove(item) != null) {
+                    removed = true;
+                    pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name, null);
+                }
             }
-            if (map.getItems().remove(item) != null) {
-                removed = true;
-                pl.getBanConfig().getConfig().set("blacklist." + world.getName() + "." + name, null);
+            if (removed) {
+                // Removing from '*' configuration
+                pl.getBanConfig().getConfig().set("blacklist.*." + name, null);
+                pl.getBanConfig().getConfig().set("blacklist.*." + typeName, null);
             }
         }
-        if (removed) {
-            // Removing from '*' configuration
-            pl.getBanConfig().getConfig().set("blacklist.*." + name, null);
-            pl.getBanConfig().getConfig().set("blacklist.*." + typeName, null);
-            return pl.getBanConfig().saveConfig();
-        } else return true;
+
+        if (removed) pl.getBanConfig().saveConfig();
+        return removed;
     }
 
     /*------------------------------
@@ -506,7 +528,7 @@ public final class BanItemAPI {
 
         // Adding in config
         // Getting the name of the item
-        final String name = pl.getBanDatabase().getNameTest(item);
+        final String name = pl.getBanDatabase().getName(item);
 
         final ConfigurationSection section = pl.getBanConfig().getConfig().createSection("whitelist." + ww.getWorld().getName() + "." + name);
         for (Map.Entry<BanAction, BanActionData> entry : actions.entrySet()) {
@@ -528,7 +550,7 @@ public final class BanItemAPI {
 
         // Removing from config
         // Getting the name of the item
-        final String name = pl.getBanDatabase().getNameTest(item);
+        final String name = pl.getBanDatabase().getName(item);
         pl.getBanConfig().getConfig().set("whitelist." + ww.getWorld().getName() + "." + name, null);
         return pl.getBanConfig().saveConfig();
     }

@@ -29,12 +29,12 @@ import fr.andross.banitem.database.items.Items;
 import fr.andross.banitem.events.PlayerBanItemEvent;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.CustomBannedItem;
+import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
-import fr.andross.banitem.utils.statics.Utils;
-import fr.andross.banitem.utils.statics.list.ListType;
-import fr.andross.banitem.utils.statics.list.Listable;
+import fr.andross.banitem.utils.list.ListType;
+import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -49,7 +49,7 @@ import java.util.*;
 
 /**
  * Map that contains the blacklisted items
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class Blacklist extends HashMap<World, Items> {
@@ -70,7 +70,7 @@ public final class Blacklist extends HashMap<World, Items> {
         final BanConfig banConfig = pl.getBanConfig();
         for (final String worldKey : section.getKeys(false)) { // Looping through worlds
             // Getting world(s)
-            final List<World> worlds = Listable.getWorlds(worldKey, new Debug(banConfig, sender, new DebugMessage(null, banConfig.getConfigName()), new DebugMessage(null, "blacklist"), new DebugMessage(ListType.WORLD, worldKey)));
+            final List<World> worlds = Listable.getWorlds(worldKey, new Debug(banConfig, sender, new DebugMessage(banConfig.getConfigName()), new DebugMessage("blacklist"), new DebugMessage(ListType.WORLD, worldKey)));
             if (worlds.isEmpty()) continue;
 
             // Getting items(s)
@@ -78,7 +78,7 @@ public final class Blacklist extends HashMap<World, Items> {
             if (itemsCs == null) continue; // should not happen, but, well..
             for (final String itemKey : itemsCs.getKeys(false)) {
                 // Preparing debugger
-                final Debug d = new Debug(banConfig, sender, new DebugMessage(null, banConfig.getConfigName()), new DebugMessage(null, "blacklist"), new DebugMessage(ListType.WORLD, worldKey), new DebugMessage(ListType.ITEM, itemKey));
+                final Debug d = new Debug(banConfig, sender, new DebugMessage(banConfig.getConfigName()), new DebugMessage("blacklist"), new DebugMessage(ListType.WORLD, worldKey), new DebugMessage(ListType.ITEM, itemKey));
 
                 // Getting Item(s)
                 final List<BannedItem> items = Listable.getItems(database, itemKey, d);

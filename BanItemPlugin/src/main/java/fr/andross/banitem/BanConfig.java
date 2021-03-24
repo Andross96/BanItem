@@ -19,11 +19,11 @@ package fr.andross.banitem;
 
 import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.utils.BanAnimation;
+import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
-import fr.andross.banitem.utils.statics.Chat;
-import fr.andross.banitem.utils.statics.list.ListType;
-import fr.andross.banitem.utils.statics.list.Listable;
+import fr.andross.banitem.utils.list.ListType;
+import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -42,7 +42,7 @@ import java.util.logging.Level;
 
 /**
  * A cached ban configuration from a FileConfiguration
- * @version 3.0
+ * @version 3.1
  * @author Andross
  */
 public final class BanConfig {
