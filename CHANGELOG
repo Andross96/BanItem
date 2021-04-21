@@ -1,3 +1,15 @@
+v3.1.1:
+  - Added resistance potion alias;
+  - Enhanced drops action for MC>=1.13.2;
+  - Fixed metaitem get command;
+  - Fixed enchants on custom item with enchanted book;
+  - Fixed & improved wear action;
+  - Fixed wear scanner shutdown after reload;
+  - Fixed smelt action for forge;
+  - Fixed some permissions with custom items;
+  - Fixed permissions with meta items;
+  - Code cleanup;
+--------------------------------------------
 v3.1:
   - Recoded & highly optimized whole custom items system:
     - You can now set multiple materials (also support regex);

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple enum indicating what kind of data is used
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public enum BanDataType {
@@ -34,7 +34,7 @@ public enum BanDataType {
 
     /**
      * Type: String
-     * Used to get the custom item name
+     * Used to get the custom/meta item name
      */
     CUSTOMNAME("customname"),
 

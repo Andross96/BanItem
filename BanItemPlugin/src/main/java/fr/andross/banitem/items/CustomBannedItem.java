@@ -32,10 +32,10 @@ import java.util.*;
 
 /**
  * An item wrapper, which store custom item meta
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
-public final class CustomBannedItem extends BannedItem {
+public final class CustomBannedItem extends BannedItem implements ICustomName {
     private final String name;
     private final Set<Material> materials = EnumSet.noneOf(Material.class);
     private final Map<MetaType, MetaTypeComparator> meta = new EnumMap<>(MetaType.class);
@@ -111,6 +111,7 @@ public final class CustomBannedItem extends BannedItem {
      * @return the custom banned item name from customitems.yml
      */
     @NotNull
+    @Override
     public String getName() {
         return name;
     }
@@ -145,13 +146,12 @@ public final class CustomBannedItem extends BannedItem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
         CustomBannedItem that = (CustomBannedItem) o;
         return Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name);
+        return Objects.hash(name);
     }
 }

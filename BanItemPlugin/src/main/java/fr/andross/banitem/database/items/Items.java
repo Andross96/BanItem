@@ -29,11 +29,11 @@ import java.util.*;
 
 /**
  * Map that store all the banned items, with their actions and actions datas.
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public class Items {
-    protected final Map<BannedItem, Map<BanAction, BanActionData>> items = new HashMap<>(); // include normal & meta items
+    protected final Map<BannedItem, Map<BanAction, BanActionData>> items = new HashMap<>(); // includes normal & meta items
     protected final Map<CustomBannedItem, Map<BanAction, BanActionData>> customItems = new HashMap<>();
 
     /**
@@ -104,7 +104,7 @@ public class Items {
      */
     @NotNull
     public Set<BanAction> getAllActions() {
-        final Set<BanAction> set = new HashSet<>();
+        final Set<BanAction> set = EnumSet.noneOf(BanAction.class);
         items.values().stream().map(Map::keySet).forEach(set::addAll);
         customItems.values().stream().map(Map::keySet).forEach(set::addAll);
         return Collections.unmodifiableSet(set);

@@ -18,6 +18,7 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
 import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
@@ -35,7 +36,7 @@ import java.util.Set;
 
 /**
  * A simple meta comparator to compare the enchantments
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class EnchantmentContains extends MetaTypeComparator {
@@ -121,9 +122,8 @@ public final class EnchantmentContains extends MetaTypeComparator {
 
     @Override
     public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        if (itemMeta == null || !itemMeta.hasEnchants()) return false;
-
-        for (final Map.Entry<Enchantment, Integer> e : itemMeta.getEnchants().entrySet()) {
+        final Map<Enchantment, Integer> enchantsOnItem = Utils.getAllEnchants(itemStack);
+        for (final Map.Entry<Enchantment, Integer> e : enchantsOnItem.entrySet()) {
             final Enchantment enchantment = e.getKey();
             final int level = e.getValue();
             final Object object = BanVersion.v13OrMore ? enchantment : enchantment.getName();
@@ -140,7 +140,6 @@ public final class EnchantmentContains extends MetaTypeComparator {
                 if (level >= interval[0] && level <= interval[1]) return true;
             }
         }
-
         return false;
     }
 }

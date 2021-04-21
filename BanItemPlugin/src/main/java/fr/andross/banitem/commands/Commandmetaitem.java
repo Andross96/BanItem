@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command meta item
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public class Commandmetaitem extends BanCommand {
@@ -172,7 +172,7 @@ public class Commandmetaitem extends BanCommand {
                     return;
                 }
 
-                final BannedItem bi = pl.getBanDatabase().getCustomItems().get(args[2]);
+                final BannedItem bi = pl.getBanDatabase().getMetaItems().get(args[2]);
                 if (bi == null) {
                     header("&6&lMetaItems - Get");
                     message("&cUnknown meta item &e" + args[2] + "&c.");

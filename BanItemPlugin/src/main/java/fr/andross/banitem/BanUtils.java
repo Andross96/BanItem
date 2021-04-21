@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class BanUtils {
@@ -355,7 +355,7 @@ public final class BanUtils {
             if (player.hasPermission("banitem.bypass." + world + ".allitems." + action.getName() + ".*")) return true;
             if (player.hasPermission("banitem.bypass.allworlds.allitems." + action.getName() + ".*")) return true;
             for (final BanData bd : data) {
-                final String dataName = bd.getObject().toString().toLowerCase(Locale.ROOT);
+                final String dataName = String.valueOf(bd.getObject()).toLowerCase(Locale.ROOT);
                 if (player.hasPermission("banitem.bypass." + world + "." + itemName + "." + action.getName() + "." + dataName)) return true;
                 if (player.hasPermission("banitem.bypass.allworlds." + itemName + "." + action.getName() + "." + dataName)) return true;
                 if (player.hasPermission("banitem.bypass." + world + ".allitems." + action.getName() + "." + dataName)) return true;
@@ -408,34 +408,54 @@ public final class BanUtils {
         final EntityEquipment ee = p.getEquipment();
         if (ee == null) return;
 
-        final ItemStack[] items = new ItemStack[] { ee.getHelmet(), ee.getChestplate(), ee.getLeggings(), ee.getBoots() };
-        int i = -1;
+        final boolean primaryThread = Bukkit.isPrimaryThread();
+        final ItemStack helmet = ee.getHelmet();
+        if (!Utils.isNullOrAir(helmet) && pl.getApi().isBanned(p, p.getLocation(), helmet, primaryThread, BanAction.WEAR)) {
+            if (!primaryThread) {
+                Bukkit.getScheduler().runTask(pl, () -> checkPlayerArmors(p));
+                return;
+            }
 
-        for (final ItemStack item : items) {
-            i++;
-            if (Utils.isNullOrAir(item)) continue;
-            if (!pl.getApi().isBanned(p, p.getLocation(), item, true, BanAction.WEAR)) continue;
-
-            // Item can not be weared in this world
-            final int finali = i;
-            final Runnable r = () -> {
-                switch (finali) {
-                    case 0: ee.setHelmet(null); break;
-                    case 1: ee.setChestplate(null); break;
-                    case 2: ee.setLeggings(null); break;
-                    case 3: ee.setBoots(null); break;
-                    default: break;
-                }
-
-                final int freeSlot = p.getInventory().firstEmpty();
-                // No empty space, dropping it, else adding it into inventory
-                if (freeSlot == -1) p.getWorld().dropItemNaturally(p.getLocation(), item);
-                else p.getInventory().setItem(freeSlot, item);
-            };
-
-            if (Bukkit.isPrimaryThread()) r.run();
-            else Bukkit.getScheduler().runTask(pl, r);
+            removeItemFromArmor(p, helmet);
+            ee.setHelmet(null);
         }
+
+        final ItemStack chestplate = ee.getChestplate();
+        if (!Utils.isNullOrAir(chestplate) && pl.getApi().isBanned(p, p.getLocation(), chestplate, primaryThread, BanAction.WEAR)) {
+            if (!primaryThread) {
+                Bukkit.getScheduler().runTask(pl, () -> checkPlayerArmors(p));
+                return;
+            }
+            removeItemFromArmor(p, chestplate);
+            ee.setChestplate(null);
+        }
+
+        final ItemStack leggings = ee.getLeggings();
+        if (!Utils.isNullOrAir(leggings) && pl.getApi().isBanned(p, p.getLocation(), leggings, primaryThread, BanAction.WEAR)) {
+            if (!primaryThread) {
+                Bukkit.getScheduler().runTask(pl, () -> checkPlayerArmors(p));
+                return;
+            }
+            removeItemFromArmor(p, leggings);
+            ee.setLeggings(null);
+        }
+
+        final ItemStack boots = ee.getBoots();
+        if (!Utils.isNullOrAir(boots) && pl.getApi().isBanned(p, p.getLocation(), boots, primaryThread, BanAction.WEAR)) {
+            if (!primaryThread) {
+                Bukkit.getScheduler().runTask(pl, () -> checkPlayerArmors(p));
+                return;
+            }
+            removeItemFromArmor(p, boots);
+            ee.setBoots(null);
+        }
+    }
+
+    private void removeItemFromArmor(final Player p, final ItemStack item) {
+        final int freeSlot = p.getInventory().firstEmpty();
+        // No empty space, dropping it, else adding it into inventory
+        if (freeSlot == -1) p.getWorld().dropItemNaturally(p.getLocation(), item);
+        else p.getInventory().setItem(freeSlot, item);
     }
 
     /**

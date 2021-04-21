@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple async scanner to check if players wears a banned item
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class WearScanner {
@@ -46,7 +46,7 @@ public final class WearScanner {
         this.enabled = enabled;
         if (enabled) {
             if (taskId < 0)
-                taskId = pl.getServer().getScheduler().runTaskTimerAsynchronously(pl, this::run, 20L, 20L).getTaskId();
+                taskId = pl.getServer().getScheduler().runTaskTimerAsynchronously(pl, () -> Bukkit.getOnlinePlayers().forEach(utils::checkPlayerArmors), 16L, 16L).getTaskId();
         } else {
             if (taskId > -1) {
                 pl.getServer().getScheduler().cancelTask(taskId);
@@ -54,10 +54,4 @@ public final class WearScanner {
             }
         }
     }
-
-    // Async
-    private void run() {
-        Bukkit.getOnlinePlayers().forEach(utils::checkPlayerArmors);
-    }
-
 }

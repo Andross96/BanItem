@@ -31,7 +31,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Furnace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -42,16 +41,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.BrewerInventory;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 
@@ -268,6 +265,14 @@ public final class BanListener {
                 if (e.getBlock().getDrops(itemInHand).stream().anyMatch(item -> api.isBanned(e.getPlayer(), e.getBlock().getLocation(), item, true, BanAction.DROPS, new BanData(BanDataType.MATERIAL, itemInHand.getType()))))
                     e.setDropItems(false);
             }, priority.contains(BanAction.DROPS));
+
+            if (BanVersion.v13OrMore)
+                registerEvent(BlockDropItemEvent.class, (li, event) -> {
+                    if (!(event instanceof BlockDropItemEvent)) return; // also called for FurnaceExtractEvent...
+                    final BlockDropItemEvent e = (BlockDropItemEvent) event;
+                    final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
+                    e.getItems().removeIf(item -> api.isBanned(e.getPlayer(), e.getBlock().getLocation(), item.getItemStack(), true, BanAction.DROPS, new BanData(BanDataType.MATERIAL, itemInHand.getType())));
+                }, priority.contains(BanAction.DROPS));
         }
 
         if (blacklist.contains(BanAction.ENCHANT) || whitelist) {
@@ -630,11 +635,15 @@ public final class BanListener {
                 if (!(event instanceof FurnaceSmeltEvent)) return;
                 final FurnaceSmeltEvent e = (FurnaceSmeltEvent) event;
                 final ItemStack item = e.getSource();
-                final Furnace f = (Furnace) e.getBlock().getState();
-                if (api.isBanned(f.getWorld(), item, BanAction.SMELT)) {
-                    if (!f.getInventory().getViewers().isEmpty())
-                        if (!api.isBanned((Player) f.getInventory().getViewers().get(0), f.getLocation(), item, true, BanAction.SMELT)) return;
-                    e.setCancelled(true);
+                final BlockState blockState = e.getBlock().getState();
+                if (blockState instanceof InventoryHolder) {
+                    final InventoryHolder holder = (InventoryHolder) blockState;
+                    if (api.isBanned(blockState.getWorld(), item, BanAction.SMELT)) {
+                        if (!holder.getInventory().getViewers().isEmpty())
+                            if (!api.isBanned((Player) holder.getInventory().getViewers().get(0), blockState.getLocation(), item, true, BanAction.SMELT))
+                                return;
+                        e.setCancelled(true);
+                    }
                 }
             }, priority.contains(BanAction.SMELT));
         }
@@ -706,6 +715,9 @@ public final class BanListener {
                             return;
                         }
                 }
+
+                // Ignoring crafting top if not clicked on result
+                if (top.getType() == InventoryType.WORKBENCH && e.getRawSlot() != 0) return;
 
                 if (e.getClickedInventory().equals(bottom)) { // Player Inventory clicked
                     if (e.isShiftClick() && e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {

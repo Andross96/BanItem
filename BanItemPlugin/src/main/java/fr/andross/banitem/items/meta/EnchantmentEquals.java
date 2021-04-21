@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
 import fr.andross.banitem.utils.list.Listable;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 /**
  * A simple meta comparator to compare the enchantments
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class EnchantmentEquals extends MetaTypeComparator {
@@ -72,6 +73,6 @@ public final class EnchantmentEquals extends MetaTypeComparator {
 
     @Override
     public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        return itemMeta != null && itemMeta.hasEnchants() && itemMeta.getEnchants().equals(enchants);
+        return Utils.getAllEnchants(itemStack).equals(enchants);
     }
 }

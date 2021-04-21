@@ -23,6 +23,7 @@ import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.database.items.Items;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.CustomBannedItem;
+import fr.andross.banitem.items.ICustomName;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +32,7 @@ import java.util.*;
 
 /**
  * Map containing all allowed items of a world
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class WhitelistedWorld extends Items {
@@ -58,19 +59,23 @@ public final class WhitelistedWorld extends Items {
      * @param map map containing {@link BanAction} and their respective {@link BanActionData}
      */
     public void addNewEntry(@NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> map) {
-        if (item instanceof CustomBannedItem) {
-            final CustomBannedItem customBannedItem = (CustomBannedItem) item;
-            final Map<BanAction, BanActionData> bannedItemMap = customItems.getOrDefault(customBannedItem, new HashMap<>());
-            for (final Map.Entry<BanAction, BanActionData> e : map.entrySet()) {
-                e.getValue().getMap().put(BanDataType.CUSTOMNAME, customBannedItem.getName());
-                bannedItemMap.put(e.getKey(), e.getValue());
-            }
-            customItems.put(customBannedItem, bannedItemMap);
-        } else {
-            final Map<BanAction, BanActionData> bannedItemMap = items.getOrDefault(item, new HashMap<>());
+        final String customName = item instanceof ICustomName ? ((ICustomName) item).getName() : null;
+        final CustomBannedItem customBannedItem = item instanceof CustomBannedItem ? (CustomBannedItem) item : null;
+        final Map<BanAction, BanActionData> bannedItemMap = customBannedItem != null ? customItems.getOrDefault(customBannedItem, new EnumMap<>(BanAction.class)) : items.getOrDefault(item, new EnumMap<>(BanAction.class));
+
+        if (customName == null)
             bannedItemMap.putAll(map);
+        else
+            for (final Map.Entry<BanAction, BanActionData> e : map.entrySet()) {
+                final BanActionData data = new BanActionData();
+                data.getMap().putAll(e.getValue().getMap());
+                data.getMap().put(BanDataType.CUSTOMNAME, customName);
+                bannedItemMap.put(e.getKey(), data);
+            }
+        if (customBannedItem != null)
+            customItems.put(customBannedItem, bannedItemMap);
+        else
             items.put(item, bannedItemMap);
-        }
     }
 
     /**

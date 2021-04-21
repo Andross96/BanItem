@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * An item wrapper, which can handle matching Material/ItemStacks
  * with their ItemMeta and not considering the amount.
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public class BannedItem {
@@ -88,20 +88,20 @@ public class BannedItem {
     }
 
     /**
-     * @return a cloned ItemStack representing this item
+     * @return an ItemStack representing this item
      */
     public ItemStack toItemStack() {
         if (itemStack != null) return itemStack;
-        final ItemStack item = new ItemStack(m);
-        if (itemMeta != null) item.setItemMeta(itemMeta.clone());
-        if (!BanVersion.v13OrMore) item.setDurability(data);
-        return item;
+        itemStack = new ItemStack(m);
+        if (itemMeta != null) itemStack.setItemMeta(itemMeta.clone());
+        if (!BanVersion.v13OrMore) itemStack.setDurability(data);
+        return itemStack;
     }
 
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof BannedItem)) return false;
         final BannedItem that = (BannedItem) o;
         return itemMeta == null ?
                 (BanVersion.v13OrMore ? m == that.m : (m == that.m && data == that.data)) :

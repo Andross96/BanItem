@@ -78,6 +78,7 @@ public final class BanItem extends JavaPlugin {
         final long start = System.currentTimeMillis();
 
         // Removing all tasks
+        utils.getWearScanner().setEnabled(false);
         getServer().getScheduler().cancelTasks(this);
 
         // (re)Loading config

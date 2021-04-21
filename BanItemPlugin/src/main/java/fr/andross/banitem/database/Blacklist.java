@@ -29,6 +29,7 @@ import fr.andross.banitem.database.items.Items;
 import fr.andross.banitem.events.PlayerBanItemEvent;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.CustomBannedItem;
+import fr.andross.banitem.items.ICustomName;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
@@ -49,7 +50,7 @@ import java.util.*;
 
 /**
  * Map that contains the blacklisted items
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class Blacklist extends HashMap<World, Items> {
@@ -105,21 +106,26 @@ public final class Blacklist extends HashMap<World, Items> {
      */
     public void addNewBan(@NotNull final World world, @NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> map) {
         final Items items = getOrDefault(world, new Items());
-        if (item instanceof CustomBannedItem) {
-            final CustomBannedItem customBannedItem = (CustomBannedItem) item;
-            final Map<BanAction, BanActionData> bannedItemMap = items.getCustomItems().getOrDefault(customBannedItem, new HashMap<>());
-            for (final Entry<BanAction, BanActionData> e : map.entrySet()) {
-                e.getValue().getMap().put(BanDataType.CUSTOMNAME, customBannedItem.getName());
-                bannedItemMap.put(e.getKey(), e.getValue());
-            }
-            items.getCustomItems().put(customBannedItem, bannedItemMap);
-            put(world, items);
-        } else {
-            final Map<BanAction, BanActionData> bannedItemMap = items.getItems().getOrDefault(item, new HashMap<>());
+        final String customName = item instanceof ICustomName ? ((ICustomName) item).getName() : null;
+        final CustomBannedItem customBannedItem = item instanceof CustomBannedItem ? (CustomBannedItem) item : null;
+        final Map<BanAction, BanActionData> bannedItemMap = customBannedItem != null ? items.getCustomItems().getOrDefault(customBannedItem, new EnumMap<>(BanAction.class)) : items.getItems().getOrDefault(item, new EnumMap<>(BanAction.class));
+
+        if (customName == null)
             bannedItemMap.putAll(map);
+        else
+            for (final Entry<BanAction, BanActionData> e : map.entrySet()) {
+                final BanActionData data = new BanActionData();
+                data.getMap().putAll(e.getValue().getMap());
+                data.getMap().put(BanDataType.CUSTOMNAME, customName);
+                bannedItemMap.put(e.getKey(), data);
+            }
+
+        if (customBannedItem != null)
+            items.getCustomItems().put(customBannedItem, bannedItemMap);
+        else
             items.getItems().put(item, bannedItemMap);
-            put(world, items);
-        }
+
+        put(world, items);
     }
 
     /**
@@ -205,7 +211,7 @@ public final class Blacklist extends HashMap<World, Items> {
             }
 
             // Bypass permission?
-            final String itemName = dataMap.containsKey(BanDataType.CUSTOMNAME) ? (String) dataMap.get(BanDataType.CUSTOMNAME) : item.getType().name().toLowerCase();
+            final String itemName = dataMap.containsKey(BanDataType.CUSTOMNAME) ? String.valueOf(dataMap.get(BanDataType.CUSTOMNAME)) : item.getType().name().toLowerCase(Locale.ROOT);
             if (pl.getUtils().hasPermission(player, itemName, action, data))
                 return false;
 

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 /**
  * A potion helper class to retrieve correct Bukkit PotionEffectType object across versions
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class PotionHelper {
@@ -46,6 +46,7 @@ public final class PotionHelper {
         add("harm", "harming", "instant_damage", "instantdamage");
         add("slow", "slowness", "turtle_master", "turtlemaster");
         add("fast_digging", "haste");
+        add("damage_resistance", "resistance", "damageresistance");
     }
 
     private static void add(final String bukkitName, final String... friendlyNames) {

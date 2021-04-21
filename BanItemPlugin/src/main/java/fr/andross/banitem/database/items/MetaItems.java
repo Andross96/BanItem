@@ -19,6 +19,7 @@ package fr.andross.banitem.database.items;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.items.MetaItem;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.DoubleMap;
 import org.bukkit.command.CommandSender;
@@ -28,12 +29,13 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * Map that contains all the meta items
  * This is a double map <i>(include a reversed map)</i>, for easier access of
  * meta items names and their respective banned item.
- * @version 3.1
+ * @version 3.1.1
  * @author Andross
  */
 public final class MetaItems extends DoubleMap<String, BannedItem> {
@@ -57,7 +59,7 @@ public final class MetaItems extends DoubleMap<String, BannedItem> {
             try {
                 final ItemStack itemStack = (ItemStack) config.get(key);
                 if (itemStack == null) throw new Exception();
-                put(key, new BannedItem(itemStack));
+                put(key, new MetaItem(key.toLowerCase(Locale.ROOT), itemStack));
             } catch (final Exception e) {
                 e.printStackTrace();
                 sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color("&cInvalid meta item &e" + key + "&c in metaitems.yml."));
