@@ -17,7 +17,6 @@
  */
 package fr.andross.banitem.database;
 
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import fr.andross.banitem.BanConfig;
 import fr.andross.banitem.BanDatabase;
 import fr.andross.banitem.BanItem;
@@ -180,9 +179,9 @@ public final class Blacklist extends HashMap<World, Items> {
             if (dataMap.containsKey(BanDataType.REGION)) {
                 final IWorldGuardHook hook = pl.getHooks().getWorldGuardHook();
                 if (hook != null) {
-                    final Set<ProtectedRegion> regions = blacklistData.getData(BanDataType.REGION);
+                    final Set<com.sk89q.worldguard.protection.regions.ProtectedRegion> regions = blacklistData.getData(BanDataType.REGION);
                     if (regions != null && !regions.isEmpty()) {
-                        final Set<ProtectedRegion> standingRegions = hook.getStandingRegions(location == null ? player.getLocation() : location);
+                        final Set<com.sk89q.worldguard.protection.regions.ProtectedRegion> standingRegions = hook.getStandingRegions(location == null ? player.getLocation() : location);
                         if (regions.stream().noneMatch(standingRegions::contains)) return false;
                     }
                 }

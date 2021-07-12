@@ -27,11 +27,11 @@ import java.util.List;
 
 /**
  * Abstract sub command class
- * @version 3.1
+ * @version 3.2
  * @author Andross
  */
 public abstract class BanCommand {
-    private final String header = Chat.color("&7&m     &r &l[%s&r&l] &7&m     ");
+    private static final String HEADER = Chat.color("&7&m     &r &l[%s&r&l] &7&m     ");
     protected final BanItem pl;
     protected final CommandSender sender;
     protected final String[] args;
@@ -46,7 +46,7 @@ public abstract class BanCommand {
      * Sending a header separator
      */
     protected void header(@NotNull final String title) {
-        pl.getUtils().sendMessage(sender, String.format(header, title));
+        pl.getUtils().sendMessage(sender, String.format(HEADER, title));
     }
 
     /**

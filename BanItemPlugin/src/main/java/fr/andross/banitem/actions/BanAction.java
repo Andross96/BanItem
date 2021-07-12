@@ -165,8 +165,8 @@ public enum BanAction {
     PICKUP("pickup"),
 
     /**
-     * When a player try to use or to place <i>(right click)</i> an item
-     * Special data: <b>material</b> - the {@link org.bukkit.Material} clicked, if one clicked
+     * When a player try to place a block
+     * Special data: none
      */
     PLACE("place"),
 
@@ -202,6 +202,12 @@ public enum BanAction {
      * Special data: <b>material</b> - the {@link org.bukkit.Material} fluid type
      */
     UNFILL("unfill"),
+
+    /**
+     * When a player use (right click) the item
+     * Special data: <b>material</b> - the {@link org.bukkit.Material} clicked, if one clicked
+     */
+    USE("use"),
 
     /**
      * When a player try to wear an item

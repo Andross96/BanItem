@@ -1,6 +1,6 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v3.1      —————————————————| #
+# |——————————————————      v3.2      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # |                   Documentation:                  | #
 # |             https://banitem.andross.fr/           | #
@@ -95,8 +95,8 @@
 #    - INVENTORYCLICK: when the player try to click an item in an inventory
 #      -> Special data: inventory-from - the inventory type clicked
 #    - PICKUP: when the item is picked up [no specific data]
-#    - PLACE: when the player use right click, so the item is placed or used
-#      -> Special data: material - the block clicked, if there is one
+#    - PLACE: when the player try to place a block
+#      -> Special data: material - the block placed against
 #    - RENAME: when the player try to rename the item in an anvil, or from a command [no specific data]
 #    - SMELT: the item will not be smeltable anymore [no specific data]
 #    - SWAP: when the player try to swap the item in hands [no specific data]
@@ -104,8 +104,10 @@
 #      -> Special data:
 #        -> inventory-from: the inventory where the item comes from
 #        -> inventory-to: the inventory where the item goes to
-#    - UNFILL: When a player try to unfill a bucket
+#    - UNFILL: when a player try to unfill a bucket
 #      -> Special data: material - the block type clicked
+#    - USE: when a player try to use an item (right click with it)
+#      -> Special data: material - the block clicked, if there is one
 #    - WEAR: when the player try to put the item as an armor (you'll need to use also the 'place' action) [no specific data]
 #        +——————————————————————————————————————————————————————+
 #  - Examples:
@@ -155,7 +157,7 @@ check-update: true
 # Giving maximum priority will force the ban item plugin to have the final word on an event
 # This is used mainly to also block other plugins events, if the action is banned
 # You can use the actions formatting ('*', 'action1, action2', '*,!break' etc.)
-priority: place,consume
+priority: use,consume
 
 # Some configurable stuffs for actions
 actions:
@@ -193,6 +195,7 @@ actions:
 # Hooking with plugins
 hooks:
   worldguard: false
+  advancedenchantments: false
 
 # Animations when a ban item message is sent
 sound:
@@ -232,7 +235,8 @@ particle: # available only on bukkit 1.9+
 #        message: '&cYou can not put diamonds in chests.'
 #  '*, !world_the_end': # all worlds except the end
 #    ender_pearl:
-#      place: '&cYou can use enderpearls only in the end.'
+#      use: '&cYou can use enderpearls only in the end.'
+#  # you have to set priority to 'use' (above the config) in order for this to work
 #whitelist:
 #  world_the_end:
 #    message: '&cOnly thing allowed in this world: placing dirt.'

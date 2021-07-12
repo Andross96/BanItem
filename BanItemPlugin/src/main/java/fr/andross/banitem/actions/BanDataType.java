@@ -22,10 +22,18 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple enum indicating what kind of data is used
- * @version 3.1.1
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public enum BanDataType {
+
+    /**
+     * Type: String
+     * Used to check for AdvancedEnchantments
+     */
+    ADVANCEDENCHANTMENTS("advancedenchantments"),
+
     /**
      * Type: Long (millis)
      * Used to check if the banned item has a cooldown

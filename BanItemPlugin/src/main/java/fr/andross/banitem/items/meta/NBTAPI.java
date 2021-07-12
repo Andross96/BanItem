@@ -31,7 +31,7 @@ import java.util.function.BiPredicate;
 
 /**
  * A simple meta comparator to compare NBT
- * @version 3.1
+ * @version 3.2
  * @author Andross
  */
 public final class NBTAPI extends MetaTypeComparator {
@@ -43,7 +43,7 @@ public final class NBTAPI extends MetaTypeComparator {
         // Not available?
         try {
             Class.forName("de.tr7zw.nbtapi.NBTItem");
-        } catch (final ClassNotFoundException e) {
+        } catch (final ClassNotFoundException | NoClassDefFoundError e) {
             debug.clone().add("&cTrying to use NBTAPI but the plugin is not enabled.").sendDebug();
             setValid(false);
             return;
@@ -58,27 +58,39 @@ public final class NBTAPI extends MetaTypeComparator {
         // Loading
         final ConfigurationSection section = (ConfigurationSection) o;
         for (final String keyNodes : section.getKeys(false)) {
-            final ConfigurationSection keySection = section.getConfigurationSection(keyNodes);
-            if (keySection == null) continue;
+            final Object object = section.get(keyNodes);
+            if (object == null) continue;
 
             // Preparing variables
             final List<String> keys = Arrays.asList(keyNodes.split("#"));
             final List<BiPredicate<NBTCompound, String>> predicates = new ArrayList<>();
 
-            // Getting all objects
-            for (final String objectName : keySection.getKeys(false)) {
-                final Object object = keySection.get(objectName);
+            // Multiple matches
+            if (object instanceof ConfigurationSection) {
+                final ConfigurationSection keySection = (ConfigurationSection) object;
+                // Getting all objects
+                for (final String objectName : keySection.getKeys(false)) {
+                    final Object object2 = keySection.get(objectName);
+                    final BiPredicate<NBTCompound, String> predicate = getPredicate(object2);
+                    if (predicate == null) {
+                        debug.clone().add("&cUnknown object '" + objectName + "' for NBT node '" + keyNodes + "'.");
+                        setValid(false);
+                        return;
+                    }
+                    predicates.add(predicate);
+                }
+            } else { // Simple NBT
                 final BiPredicate<NBTCompound, String> predicate = getPredicate(object);
                 if (predicate == null) {
-                    debug.clone().add("&cUnknown object '" + objectName + "' for NBT node '" + keyNodes + "'.");
+                    debug.clone().add("&cUnknown object '" + object + "' for NBT node '" + keyNodes + "'.");
                     setValid(false);
                     return;
                 }
                 predicates.add(predicate);
             }
 
-            // Adding to map
-            map.put(keys, predicates);
+            if (!predicates.isEmpty())
+                map.put(keys, predicates);
         }
     }
 

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * A simple ItemStack builder utility class.
- * @version 3.1
+ * @version 3.2
  * @author Andross
  */
 public final class ItemStackBuilder {
@@ -43,7 +43,7 @@ public final class ItemStackBuilder {
         if (section == null) throw new Exception("&cunknown section.");
         final String material = section.getString("material");
         if (material == null) throw new Exception("&cempty material.");
-        final Material m = Material.getMaterial(material.toUpperCase());
+        final Material m = Material.matchMaterial(material.toUpperCase());
         if (m == null) throw new Exception("&cmaterial not found.");
         itemStack = new ItemStack(m);
         itemMeta = itemStack.getItemMeta();

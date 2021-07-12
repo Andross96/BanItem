@@ -37,7 +37,7 @@ import java.util.*;
 
 /**
  * An utility class
- * @version 3.1
+ * @version 3.2
  * @author Andross
  */
 public final class Utils {
@@ -165,7 +165,7 @@ public final class Utils {
     /**
      * Get an unmodifiable map of all enchantments on an item, considering stored enchants on enchanted book
      * @param item the item
-     * @return non-null map of enchantments and level on the item
+     * @return non-null unmodifiable map of enchantments and level on the item
      */
     @NotNull
     public static Map<Enchantment, Integer> getAllEnchants(@NotNull final ItemStack item) {

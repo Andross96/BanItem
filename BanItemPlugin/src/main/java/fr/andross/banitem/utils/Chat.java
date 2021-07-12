@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.utils;
 
+import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
 
 /**
  * A chat utility class
- * @version 3.1
+ * @version 3.2
  * @author Andross
  */
 public final class Chat {
@@ -44,15 +45,17 @@ public final class Chat {
     public static String color(@Nullable String text) {
         if (text == null) return "";
 
+        String newText = text;
         if (BanVersion.v16OrMore) {
             final Matcher matcher = hexPattern.matcher(text);
             while (matcher.find()) {
-                final String color = text.substring(matcher.start(), matcher.end()); // ex: &#1258DA
-                text = text.replace(color, net.md_5.bungee.api.ChatColor.of(color.substring(1)).toString());
+                String color = text.substring(matcher.start(), matcher.end()); // &#1258DA
+                if (color.startsWith("&"))
+                    newText = newText.replace(color, ChatColor.of(color.substring(1)).toString());
             }
         }
 
-        char[] b = text.toCharArray();
+        char[] b = newText.toCharArray();
         for (int i = 0; i < b.length - 1; i++) {
             if (b[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i + 1]) > -1) {
                 b[i] = COLOR_CHAR;

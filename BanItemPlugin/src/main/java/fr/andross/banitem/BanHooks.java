@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 public final class BanHooks {
     private boolean isWorldGuardEnabled = false;
     private IWorldGuardHook worldGuardHook = null;
+    private boolean isAdvancedEnchantmentsEnabled = false;
 
     /**
      * Loading the hooks.
@@ -54,6 +55,17 @@ public final class BanHooks {
                 pl.getUtils().sendMessage(sender, "&c[Hooks] Can not hook with WorldGuard.");
                 isWorldGuardEnabled = false;
             }
+
+        // AdvancedEnchantments?
+        if (pl.getBanConfig().getConfig().getBoolean("hooks.advancedenchantments") && pl.getServer().getPluginManager().isPluginEnabled("AdvancedEnchantments")) {
+            try {
+                if (n3kas.ae.api.AEAPI.getAllEnchantments() == null) throw new Exception();
+                isAdvancedEnchantmentsEnabled = true;
+            } catch (final Throwable e) {
+                pl.getUtils().sendMessage(sender, "&c[Hooks] Can not hook with AdvancedEnchantments.");
+                isAdvancedEnchantmentsEnabled = false;
+            }
+        }
     }
 
     /**
@@ -71,5 +83,13 @@ public final class BanHooks {
     @Nullable
     public IWorldGuardHook getWorldGuardHook() {
         return worldGuardHook;
+    }
+
+    /**
+     * Check if the plugin is hooked with AdvancedEnchantments
+     * @return true if the plugin if successfully hooked with AdvancedEnchantments
+     */
+    public boolean isAdvancedEnchantmentsEnabled() {
+        return isAdvancedEnchantmentsEnabled;
     }
 }

@@ -467,7 +467,7 @@ public final class BanUtils {
         if (message == null) return;
         final String finalMessage = pl.getBanConfig().getPrefix() + Chat.color(message);
         final boolean colorInConsole = pl.getBanConfig().getConfig().getBoolean("debug.colors-console");
-        sender.sendMessage(colorInConsole || sender instanceof Player ? finalMessage : Chat.uncolor(finalMessage));
+        sender.sendMessage((colorInConsole || sender instanceof Player ? finalMessage : Chat.uncolor(finalMessage)));
     }
 
     /**

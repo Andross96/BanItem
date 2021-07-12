@@ -38,10 +38,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -573,23 +570,34 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.PLACE) || whitelist) {
+            registerEvent(BlockPlaceEvent.class, (li, event) -> {
+                final BlockPlaceEvent e = (BlockPlaceEvent) event;
+                if (Utils.isNullOrAir(e.getItemInHand())) return;
+                if (api.isBanned(e.getPlayer(), e.getItemInHand(), true, BanAction.PLACE, new BanData(BanDataType.MATERIAL, e.getBlockAgainst().getType()))) {
+                    e.setCancelled(true);
+                    if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                }
+            }, priority.contains(BanAction.PLACE));
+        }
+
+        if (blacklist.contains(BanAction.USE) || whitelist) {
             registerEvent(PlayerInteractEvent.class, (li, event) -> {
                 final PlayerInteractEvent e = (PlayerInteractEvent) event;
                 if (Utils.isNullOrAir(e.getItem())) return;
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) {
                     if (e.getClickedBlock() != null) {
-                        if (api.isBanned(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()).getLocation(), e.getItem(), true, BanAction.PLACE, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
+                        if (api.isBanned(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()).getLocation(), e.getItem(), true, BanAction.USE, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
                             e.setCancelled(true);
                             if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     } else {
-                        if (api.isBanned(e.getPlayer(), e.getItem(), true, BanAction.PLACE)) {
+                        if (api.isBanned(e.getPlayer(), e.getItem(), true, BanAction.USE)) {
                             e.setCancelled(true);
                             if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     }
                 }
-            }, priority.contains(BanAction.PLACE));
+            }, priority.contains(BanAction.USE));
         }
 
         if (blacklist.contains(BanAction.RENAME) || whitelist) {
@@ -651,7 +659,7 @@ public final class BanListener {
         if (blacklist.contains(BanAction.SWAP) || whitelist) {
             if (!BanVersion.v9OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
-                    sender.sendMessage(Chat.color("&cCan not use the '&eswap&c' action in Minecraft < 1.8."));
+                    sender.sendMessage(Chat.color("&cCan not use the '&eswap&c' action in Minecraft < 1.9."));
             } else {
                 registerEvent(org.bukkit.event.player.PlayerSwapHandItemsEvent.class, (li, event) -> {
                     final org.bukkit.event.player.PlayerSwapHandItemsEvent e = (org.bukkit.event.player.PlayerSwapHandItemsEvent) event;

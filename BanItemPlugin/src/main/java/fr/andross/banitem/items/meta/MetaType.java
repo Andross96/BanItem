@@ -21,16 +21,19 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple enumeration for customizable item metas
- * @version 3.1
+ * @version 3.2
  * @author Andross
  */
 public enum MetaType {
+    ADVANCEDENCHANTMENTS(AdvancedEnchantments.class),
     DISPLAYNAME_CONTAINS(DisplayNameContains.class),
     DISPLAYNAME_EQUALS(DisplayNameEquals.class),
     DURABILITY(Durability.class),
     ENCHANTMENT_CONTAINS(EnchantmentContains.class),
     ENCHANTMENT_EQUALS(EnchantmentEquals.class),
+    ITEMSADDER(ItemsAdder.class),
     LORE_CONTAINS(LoreContains.class),
+    LORE_CONTAINS_REGEX(LoreContainsRegex.class),
     LORE_EQUALS(LoreEquals.class),
     LORE_LINE_CONTAINS(LoreLineContains.class),
     MODELDATA_EQUALS(ModeldataEquals.class),

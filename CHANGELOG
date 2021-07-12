@@ -1,3 +1,15 @@
+v3.2:
+  - Added use action: when the player right click with the item in hand;
+  - Relaxed place action: only matches block placements;
+  - NBTAPI into custom items can be written inline;
+  - Enhanced bi info command:
+    - Custom items names shows if the item matches;
+	- Added bi info debug, to entirely debug an item with item meta (and more if NBTAPI available);
+  - Added new hooks for custom items:
+    - AdvancedEnchantments (Beta);
+    - ItemsAdder (big thanks to LoneDev);
+  - Added lore contains with regex for custom items;
+--------------------------------------------
 v3.1.1:
   - Added resistance potion alias;
   - Enhanced drops action for MC>=1.13.2;
