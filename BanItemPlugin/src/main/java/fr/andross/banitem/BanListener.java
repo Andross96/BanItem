@@ -186,7 +186,8 @@ public final class BanListener {
         if (blacklist.contains(BanAction.CLICK) || whitelist) {
             registerEvent(PlayerInteractEvent.class, (li, event) -> {
                 final PlayerInteractEvent e = (PlayerInteractEvent) event;
-                if (e.useInteractedBlock() == Event.Result.DENY || e.useItemInHand() == Event.Result.DENY) return;
+                if(e.useItemInHand() == Result.DENY || ((e.useInteractedBlock() == Event.Result.DENY) && e.getAction() != Action.LEFT_CLICK_AIR))
+                    return;
                 if (e.getAction() == Action.LEFT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_AIR) {
                     final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
                     if (e.getClickedBlock() != null) {
