@@ -36,7 +36,7 @@ import java.util.Set;
 
 /**
  * A simple meta comparator to compare potions
- * @version 3.1
+ * @version 3.3
  * @author Andross
  */
 public final class Potion extends MetaTypeComparator {

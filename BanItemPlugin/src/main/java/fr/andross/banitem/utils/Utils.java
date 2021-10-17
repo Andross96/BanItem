@@ -20,10 +20,7 @@ package fr.andross.banitem.utils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -36,8 +33,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * An utility class
- * @version 3.2
+ * Utility class
+ * @version 3.3
  * @author Andross
  */
 public final class Utils {
@@ -193,12 +190,14 @@ public final class Utils {
         final ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : null;
         if (!BanVersion.v9OrMore && item.getType() == Material.POTION) {
             final Potion p = Potion.fromDamage(item.getDurability());
-            map.put(p.getType().getEffectType(), p.getLevel());
+            if (p.getType().getEffectType() != null)
+                map.put(p.getType().getEffectType(), p.getLevel());
         } else if (itemMeta instanceof PotionMeta) {
             final PotionMeta pm = (PotionMeta) itemMeta;
             final PotionEffectType effectType = pm.getBasePotionData().getType().getEffectType();
             final int level = pm.getBasePotionData().isUpgraded() ? 2 : 1;
-            map.put(effectType, level);
+            if (effectType != null)
+                map.put(effectType, level);
         }
 
         // Getting custom effects
@@ -214,5 +213,16 @@ public final class Utils {
         }
 
         return Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * Get the clicked inventory from a view.
+     * This is mainly used for 1.7 as InventoryEvent#getClickedInventory does not exist.
+     * @param view the inventory view
+     * @param slot the raw slot clicked
+     * @return the inventory clicked
+     */
+    public static Inventory getClickedInventory(final InventoryView view, final int slot) {
+        return view.getInventory(slot);
     }
 }

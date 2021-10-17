@@ -49,7 +49,7 @@ import java.util.*;
 
 /**
  * Map that contains the blacklisted items
- * @version 3.1.1
+ * @version 3.3
  * @author Andross
  */
 public final class Blacklist extends HashMap<World, Items> {
@@ -209,10 +209,16 @@ public final class Blacklist extends HashMap<World, Items> {
                 }
             }
 
-            // Bypass permission?
+            // Permission data?
             final String itemName = dataMap.containsKey(BanDataType.CUSTOMNAME) ? String.valueOf(dataMap.get(BanDataType.CUSTOMNAME)) : item.getType().name().toLowerCase(Locale.ROOT);
-            if (pl.getUtils().hasPermission(player, itemName, action, data))
-                return false;
+            if (dataMap.containsKey(BanDataType.PERMISSION)) {
+                if (player.hasPermission((String) dataMap.get(BanDataType.PERMISSION)))
+                    return false;
+            } else {
+                // Bypass permission?
+                if (pl.getUtils().hasPermission(player, itemName, action, data))
+                    return false;
+            }
 
             // Calling event?
             if (pl.getBanConfig().getConfig().getBoolean("api.playerbanitemevent")) {

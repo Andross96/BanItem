@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A simple meta comparator to compare the durability
- * @version 3.1
+ * @version 3.3
  * @author Andross
  */
 public final class Durability extends MetaTypeComparator {
@@ -39,7 +39,7 @@ public final class Durability extends MetaTypeComparator {
         if (o instanceof String) {
             final String[] s = o.toString().split("-");
             if (s.length != 2) {
-                debug.clone().add("&cInvalid interval '" + o.toString() + "' for meta type &e&ldurability&c.").sendDebug();
+                debug.clone().add("&cInvalid interval '" + o + "' for meta type &e&ldurability&c.").sendDebug();
                 setValid(false);
                 return;
             }
@@ -68,7 +68,7 @@ public final class Durability extends MetaTypeComparator {
             try {
                 min = max = Integer.parseInt(o.toString());
             } catch (final NumberFormatException e) {
-                debug.clone().add("&cInvalid durability '" + o.toString() + "' for meta type &e&ldurability&c.").sendDebug();
+                debug.clone().add("&cInvalid durability '" + o + "' for meta type &e&ldurability&c.").sendDebug();
                 setValid(false);
             }
         }

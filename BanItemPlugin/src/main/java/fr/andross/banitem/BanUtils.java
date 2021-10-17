@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 3.1.1
+ * @version 3.3
  * @author Andross
  */
 public final class BanUtils {
@@ -193,6 +193,13 @@ public final class BanUtils {
                     break;
                 }
 
+                case PERMISSION: {
+                    final String permission = String.valueOf(o);
+                    if (permission != null)
+                        banActionData.getMap().put(BanDataType.PERMISSION, permission.toLowerCase(Locale.ROOT));
+                    break;
+                }
+
                 case REGION: {
                     if (!pl.getHooks().isWorldGuardEnabled()) {
                         d.clone().add(ListType.REGION, "&cUsed region metadata, but WorldGuard is not available.").sendDebug();
@@ -272,7 +279,7 @@ public final class BanUtils {
         if (data == null) return; // no message neither log
 
         // Checking action cooldown, to prevent spam
-        if (action == BanAction.PICKUP || action == BanAction.HOLD) {
+        if (action == BanAction.PICKUP || action == BanAction.HOLD || action == BanAction.SMITH) {
             // Adding in cooldown
             if (!messagesCooldown.containsKey(player.getUniqueId()))
                 messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());

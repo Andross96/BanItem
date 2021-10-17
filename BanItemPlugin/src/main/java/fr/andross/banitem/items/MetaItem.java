@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * An item wrapper for meta items
- * @version 3.1.1
+ * @version 3.3
  * @author Andross
  */
 public final class MetaItem extends BannedItem implements ICustomName {
@@ -46,10 +46,5 @@ public final class MetaItem extends BannedItem implements ICustomName {
     @Override
     public boolean equals(Object o) {
         return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
     }
 }

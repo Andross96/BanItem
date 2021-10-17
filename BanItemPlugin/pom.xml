@@ -5,12 +5,12 @@
     <parent>
         <artifactId>BanItemParent</artifactId>
         <groupId>fr.andross.banitem</groupId>
-        <version>3.2</version>
+        <version>3.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>BanItemPlugin</artifactId>
-    <version>3.2</version>
+    <version>3.3</version>
     <name>BanItemPlugin</name>
     <packaging>jar</packaging>
 
@@ -64,19 +64,19 @@
         <dependency>
             <groupId>fr.andross.banitem</groupId>
             <artifactId>Hooks</artifactId>
-            <version>3.2</version>
+            <version>3.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>fr.andross.banitem</groupId>
             <artifactId>WG7</artifactId>
-            <version>3.2</version>
+            <version>3.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>fr.andross.banitem</groupId>
             <artifactId>WG6</artifactId>
-            <version>3.2</version>
+            <version>3.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

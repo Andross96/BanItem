@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  * <p>If you add/remove any action from a map <i>(blacklist/whitelist)</i>, you have to reload the plugin listeners
  * so it can handle correctly the actions, using {@link BanListener#load(CommandSender)} ()}</p>
  * @author Andross
- * @version 3.1
+ * @version 3.3
  */
 public final class BanItemAPI {
     private static BanItemAPI instance;
@@ -616,9 +616,8 @@ public final class BanItemAPI {
      *
      * @param name the name of the custom ItemStack
      * @param item the custom ItemStack
-     * @throws Exception if any error occurs (any null value or unable to save the metaitems.yml file)
      */
-    public void addMetaItem(@NotNull final String name, @NotNull final ItemStack item) throws Exception {
+    public void addMetaItem(@NotNull final String name, @NotNull final ItemStack item) {
         getDatabase().addMetaItem(name, item);
     }
 
@@ -626,9 +625,8 @@ public final class BanItemAPI {
      * Remove the meta ItemStack named <b>name</b>
      *
      * @param name the name of the custom ItemStack
-     * @throws Exception if any error occurs (any null value or unable to save the metaitems.yml file)
      */
-    public void removeMetaItem(@NotNull final String name) throws Exception {
+    public void removeMetaItem(@NotNull final String name) {
         getDatabase().removeMetaItem(name);
     }
 }

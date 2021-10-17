@@ -1,6 +1,6 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v3.2      —————————————————| #
+# |——————————————————      v3.3      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # |                   Documentation:                  | #
 # |             https://banitem.andross.fr/           | #
@@ -52,6 +52,7 @@
 #     -> material: an additional item checked
 #       -> For example, in a BREAK action, this data will also check a matches with the item in the player's hand
 #       -> https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+#     -> permission(*): check if the player has the custom permission
 #     -> log(*): true/false - if players with /banitem log will receive a message for this ban
 #     -> message(*): a string or list of string to be sent if the item is banned
 #     -> region(*): worldguard region
@@ -99,6 +100,7 @@
 #      -> Special data: material - the block placed against
 #    - RENAME: when the player try to rename the item in an anvil, or from a command [no specific data]
 #    - SMELT: the item will not be smeltable anymore [no specific data]
+#    - SMITH: when the recipe of an item is completed inside a smithing table
 #    - SWAP: when the player try to swap the item in hands [no specific data]
 #    - TRANSFER: when the player try to transfer the item from an inventory to another
 #      -> Special data:
@@ -157,7 +159,7 @@ check-update: true
 # Giving maximum priority will force the ban item plugin to have the final word on an event
 # This is used mainly to also block other plugins events, if the action is banned
 # You can use the actions formatting ('*', 'action1, action2', '*,!break' etc.)
-priority: use,consume
+priority: use,consume,click
 
 # Some configurable stuffs for actions
 actions:

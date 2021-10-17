@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 
 /**
  * Map that contains whitelistedworlds
- * @version 3.1
+ * @version 3.3
  * @author Andross
  */
 public class Whitelist extends HashMap<World, WhitelistedWorld> {
@@ -182,10 +182,16 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
             final BanActionData whitelisted = map.get(action);
             // Checking custom data
             if (Utils.isNullOrEmpty(data) || Arrays.stream(data).allMatch(whitelisted::contains)) {
-                // Bypass permission?
-                final String itemName = whitelisted.getMap().containsKey(BanDataType.CUSTOMNAME) ? (String) whitelisted.getMap().get(BanDataType.CUSTOMNAME) : item.getType().name().toLowerCase();
-                if (pl.getUtils().hasPermission(player, itemName, action, data))
-                    return true;
+                // Permission data?
+                final String itemName = whitelisted.getMap().containsKey(BanDataType.CUSTOMNAME) ? String.valueOf(whitelisted.getMap().get(BanDataType.CUSTOMNAME)) : item.getType().name().toLowerCase(Locale.ROOT);
+                if (whitelisted.getMap().containsKey(BanDataType.PERMISSION)) {
+                    if (player.hasPermission((String) whitelisted.getMap().get(BanDataType.PERMISSION)))
+                        return true;
+                } else {
+                    // Bypass permission?
+                    if (pl.getUtils().hasPermission(player, itemName, action, data))
+                        return true;
+                }
 
                 // Checking gamemode data?
                 if (whitelisted.getMap().containsKey(BanDataType.GAMEMODE)) {

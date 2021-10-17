@@ -37,7 +37,7 @@ import java.util.List;
 
 /**
  * BanItemPlugin
- * @version 3.1
+ * @version 3.3
  * @author Andross
  */
 public final class BanItem extends JavaPlugin {
@@ -138,20 +138,20 @@ public final class BanItem extends JavaPlugin {
             utils.sendMessage(sender, "&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
             utils.sendMessage(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
             utils.sendMessage(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
-            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
             utils.sendMessage(sender, " &7- /bi &3help&7: gives additional informations.");
             utils.sendMessage(sender, " &7- /bi &3info&7: get info about your item in hand.");
             utils.sendMessage(sender, " &7- /bi &3load&7: load a specific config file.");
             utils.sendMessage(sender, " &7- /bi &3log&7: activate the log mode.");
+            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
             utils.sendMessage(sender, " &7- /bi &3reload&7: reload the config.");
             utils.sendMessage(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
         } else {
             utils.sendMessage(sender, "&7&m     &r &l[&7&lConsole Usage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
             utils.sendMessage(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
             utils.sendMessage(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
-            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
             utils.sendMessage(sender, " &7- /bi &3help&7: gives additional informations.");
             utils.sendMessage(sender, " &7- /bi &3load&7: load a specific config file.");
+            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
             utils.sendMessage(sender, " &7- /bi &3reload&7: reload the config.");
             utils.sendMessage(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
         }
@@ -165,7 +165,7 @@ public final class BanItem extends JavaPlugin {
         if (!sender.hasPermission("banitem.command.help")) return Collections.emptyList();
 
         // Sub command
-        if (args.length == 1) return StringUtil.copyPartialMatches(args[0], Arrays.asList("add", "addeverywhere", "check", "help", "info", "load", "log", "metaitem", "reload", "remove"), new ArrayList<>());
+        if (args.length == 1) return StringUtil.copyPartialMatches(args[0], Arrays.asList("add", "check", "help", "info", "load", "log", "metaitem", "reload", "remove"), new ArrayList<>());
 
         // Running subcommand
         try {

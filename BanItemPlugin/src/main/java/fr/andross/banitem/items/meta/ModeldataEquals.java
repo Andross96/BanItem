@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A simple meta comparator to compare the model data
- * @version 3.1
+ * @version 3.3
  * @author Andross
  */
 public final class ModeldataEquals extends MetaTypeComparator {
@@ -36,7 +36,7 @@ public final class ModeldataEquals extends MetaTypeComparator {
         super(o);
 
         if (!BanVersion.v14OrMore) {
-            debug.clone().add("&cCan not use model data on MC<1.14 '" + o.toString() + ".").sendDebug();
+            debug.clone().add("&cCan not use model data on MC<1.14 '" + o + ".").sendDebug();
             setValid(false);
             return;
         }
@@ -44,7 +44,7 @@ public final class ModeldataEquals extends MetaTypeComparator {
         try {
             modelData = Integer.parseInt(o.toString());
         } catch (final NumberFormatException e) {
-            debug.clone().add("&cInvalid integer model data '" + o.toString() + ".").sendDebug();
+            debug.clone().add("&cInvalid integer model data '" + o + ".").sendDebug();
             setValid(false);
         }
     }

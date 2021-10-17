@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * Called when an item should be banned
  * This is only for check purpose, no modifications can be made.
  * Cancelling the event will cancel the ban process.
- * @version 3.1
+ * @version 3.3
  * @author Andross
  */
 public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable {
@@ -75,7 +75,7 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
      * @return the action triggered
      */
     @NotNull
-    public BanAction getaction() {
+    public BanAction getAction() {
         return action;
     }
 
@@ -83,6 +83,28 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
      * The ban action data
      * @return the ban action data that the banned item has in database
      */
+    @NotNull
+    public BanActionData getActionData() {
+        return actionData;
+    }
+
+    /**
+     * The ban action
+     * @return the action triggered
+     * @deprecated Error in typo. Use {@link #getAction()} instead.
+     */
+    @Deprecated
+    @NotNull
+    public BanAction getaction() {
+        return action;
+    }
+
+    /**
+     * The ban action data
+     * @return the ban action data that the banned item has in database
+     * @deprecated Error in typo. Use {@link #getActionData()} instead.
+     */
+    @Deprecated
     @NotNull
     public BanActionData getactionData() {
         return actionData;

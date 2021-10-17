@@ -183,6 +183,12 @@ public enum BanAction {
     SMELT("smelt"),
 
     /**
+     * When the recipe of an item is completed inside a smithing table.
+     * Special data: none
+     */
+    SMITH("smith"),
+
+    /**
      * When a player try to swap an item in hands.
      * Will check both offhand item and main hand item
      * Special data: none

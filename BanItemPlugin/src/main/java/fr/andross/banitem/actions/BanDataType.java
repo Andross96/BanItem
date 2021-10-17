@@ -24,15 +24,9 @@ import org.jetbrains.annotations.NotNull;
  * A simple enum indicating what kind of data is used
  *
  * @author Andross
- * @version 3.1.1
+ * @version 3.3
  */
 public enum BanDataType {
-
-    /**
-     * Type: String
-     * Used to check for AdvancedEnchantments
-     */
-    ADVANCEDENCHANTMENTS("advancedenchantments"),
 
     /**
      * Type: Long (millis)
@@ -93,6 +87,12 @@ public enum BanDataType {
      * Used to get the ban message(s)
      */
     MESSAGE("message"),
+
+    /**
+     * Type: String
+     * Used to get a custom permission for an action
+     */
+    PERMISSION("permission"),
 
     /**
      * Type: Set of {@link com.sk89q.worldguard.protection.regions.ProtectedRegion}

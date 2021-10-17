@@ -1,3 +1,21 @@
+v3.3:
+  - Added smith action: when the recipe of an item is completed inside a smithing table (MC>=1.16);
+  - Added custom permission per item/action:
+    - This is an important notable improvement for the permission system.
+    - Please check the documentation for more info.
+  - Fixed craft action:
+    - was displaying banned message even if the item does not match;
+	- now displays the crafted item but block it;
+  - Removed "addeverywhere" from tab completition;
+  - Fixed click action on air (thanks to @LoneDev): require 'click' priority into config;
+  - Fixed transfer action for the workbench;
+  - Fixed transfer action for dragging items;
+  - Fixed water bottle error when using potion custom item;
+  - Fixed error with inventories on 1.7;
+  - Fixed error with entitydrop;
+  - Code clean up;
+  - PlayerBanItemEvent#getaction() and #getactiondata() are now deprecated (typo);
+--------------------------------------------
 v3.2:
   - Added use action: when the player right click with the item in hand;
   - Relaxed place action: only matches block placements;
