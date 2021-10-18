@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 /**
  * An enchantment helper class to retrieve correct Bukkit enchantments object across versions
- * @version 3.1
+ * @version 3.3.1
  * @author Andross
  */
 public final class EnchantmentHelper {
@@ -98,15 +98,15 @@ public final class EnchantmentHelper {
     @Nullable
     public static EnchantmentWrapper getEnchantmentWrapper(@NotNull final String enchant) {
         final String[] s = enchant.split(":");
-        if (s.length != 2) return null;
+        int level = 1;
         final Enchantment enchantment = getEnchantment(s[0]);
         if (enchantment == null) return null;
-        final int level;
-        try {
-            level = Integer.parseInt(s[1]);
-        } catch (final NumberFormatException e) {
-            return null;
-        }
+        if (s.length > 1)
+            try {
+                level = Integer.parseInt(s[1]);
+            } catch (final NumberFormatException e) {
+                return null;
+            }
         return new EnchantmentWrapper(enchantment, level);
     }
 

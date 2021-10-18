@@ -34,7 +34,7 @@ import java.util.*;
 
 /**
  * Utility class
- * @version 3.3
+ * @version 3.3.1
  * @author Andross
  */
 public final class Utils {
@@ -217,12 +217,12 @@ public final class Utils {
 
     /**
      * Get the clicked inventory from a view.
-     * This is mainly used for 1.7 as InventoryEvent#getClickedInventory does not exist.
+     * This method is used to support multiple Bukkit API versions.
      * @param view the inventory view
      * @param slot the raw slot clicked
      * @return the inventory clicked
      */
     public static Inventory getClickedInventory(final InventoryView view, final int slot) {
-        return view.getInventory(slot);
+        return (slot < view.getTopInventory().getSize()) ? view.getTopInventory() : view.getBottomInventory();
     }
 }
