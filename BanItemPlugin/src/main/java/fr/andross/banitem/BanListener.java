@@ -61,7 +61,7 @@ import java.util.Set;
  * We are ignoring the deprecation warning, as these methods are used across multiple Bukkit version.
  *
  * @author Andross
- * @version 3.3
+ * @version 3.3.2
  */
 @SuppressWarnings("deprecation")
 public final class BanListener {
@@ -682,6 +682,7 @@ public final class BanListener {
                     sender.sendMessage(Chat.color("&cCan not use the '&esmith&c' action in Minecraft < 1.16."));
             } else
                 registerEvent(PrepareSmithingEvent.class, (ll, event) -> {
+                    if (!(event instanceof PrepareSmithingEvent)) return; // called for PrepareResultEvent too...
                     final PrepareSmithingEvent e = (PrepareSmithingEvent) event;
                     final ItemStack item = e.getResult();
                     if (item == null) return;

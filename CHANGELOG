@@ -1,3 +1,10 @@
+v3.3.2: (hotfix)
+  - Fixed smith action error;
+--------------------------------------------
+v3.3.1: (hotfix)
+  - Fixed inventory error;
+  - Fixed enchantments ban data;
+--------------------------------------------
 v3.3:
   - Added smith action: when the recipe of an item is completed inside a smithing table (MC>=1.16);
   - Added custom permission per item/action:
