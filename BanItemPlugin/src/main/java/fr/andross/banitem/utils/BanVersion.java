@@ -22,7 +22,7 @@ import org.bukkit.Bukkit;
 /**
  * Class that contains some notable versions nodes, so the plugin can handle multiple versions
  * Those variables are used to check versions compatibility
- * @version 3.1
+ * @version 3.3.3
  * @author Andross
  */
 public final class BanVersion {
@@ -62,14 +62,23 @@ public final class BanVersion {
      */
     public static final boolean v8OrMore;
 
+
     static {
-        final String v = Bukkit.getBukkitVersion();
-        v16OrMore = v.matches("(1\\.16)(.*)|(1\\.17)(.*)");
-        v14OrMore = v.matches("(1\\.14)(.*)|(1\\.15)(.*)") || v16OrMore;
-        v13OrMore = v.matches("(1\\.13)(.*)") || v14OrMore;
-        v12OrMore = v.matches("(1\\.12)(.*)") || v13OrMore;
-        v11OrMore = v.matches("(1\\.11)(.*)") || v12OrMore;
-        v9OrMore = v.matches("(1\\.9)(.*)|(1\\.10)(.*)") || v11OrMore;
-        v8OrMore = v.matches("(1\\.8)(.*)") || v9OrMore;
+        final String bukkitVersion = Bukkit.getBukkitVersion();
+        int subMcVersion;
+        try {
+            final String mcVersion = bukkitVersion.split("-")[0]; // 1.8.8
+            subMcVersion = Integer.parseInt(mcVersion.split("\\.")[1]); // 8
+        } catch (final Exception e) {
+            subMcVersion = 1;
+            Bukkit.getLogger().warning("[VERSION] Unrecognized/Unsupported Bukkit version!");
+        }
+        v16OrMore = subMcVersion >= 16;
+        v14OrMore = subMcVersion >= 14;
+        v13OrMore = subMcVersion >= 13;
+        v12OrMore = subMcVersion >= 12;
+        v11OrMore = subMcVersion >= 11;
+        v9OrMore = subMcVersion >= 9;
+        v8OrMore = subMcVersion >= 8;
     }
 }

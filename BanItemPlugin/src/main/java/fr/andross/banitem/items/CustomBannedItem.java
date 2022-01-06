@@ -32,7 +32,7 @@ import java.util.*;
 
 /**
  * An item wrapper, which store custom item meta
- * @version 3.1.1
+ * @version 3.3.2
  * @author Andross
  */
 public final class CustomBannedItem extends BannedItem implements ICustomName {
@@ -40,6 +40,7 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     private final Set<Material> materials = EnumSet.noneOf(Material.class);
     private final Map<MetaType, MetaTypeComparator> meta = new EnumMap<>(MetaType.class);
     private boolean valid = true;
+    private boolean reverted = false;
 
     public CustomBannedItem(@NotNull final String name, @NotNull final ConfigurationSection section, @NotNull final Debug debug) {
         super(Material.AIR);
@@ -63,6 +64,10 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
         // Meta
         for (final String key : section.getKeys(false)) {
             if (key.equalsIgnoreCase("material")) continue;
+            if (key.equalsIgnoreCase("reverted")) {
+                reverted = section.getBoolean(key);
+                continue;
+            }
 
             // Getting type
             final MetaType type;
@@ -99,11 +104,20 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
 
         // All meta are matching?
         final ItemMeta itemMeta = item.getItemMeta();
-        for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet())
-            if (!e.getValue().matches(item, itemMeta))
-                return false;
+        if (!reverted) {
+            for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet()) {
+                if (!e.getValue().matches(item, itemMeta))
+                    return false;
+            }
+            return true;
+        }
 
-        return true;
+        // Reverted custom item! (matching everything that does not match!)
+        for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet()) {
+            if (!e.getValue().matches(item, itemMeta))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -140,6 +154,14 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
      */
     public boolean isValid() {
         return valid;
+    }
+
+    /**
+     * If the custom item match is reverted
+     * @return if the custom item match is reverted
+     */
+    public boolean isReverted() {
+        return reverted;
     }
 
     @Override
