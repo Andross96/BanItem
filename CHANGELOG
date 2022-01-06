@@ -1,3 +1,9 @@
+v3.3.3:
+  - Added reverted custom items:
+    - Using the reverted keyword, the plugin will revert the ban of a custom item (all items will be banned except the custom item);
+  - Updated plugin for 1.18 and more:
+    - full recode of the versioning system which allows the plugin to work on several updates;
+--------------------------------------------
 v3.3.2: (hotfix)
   - Fixed smith action error;
 --------------------------------------------
