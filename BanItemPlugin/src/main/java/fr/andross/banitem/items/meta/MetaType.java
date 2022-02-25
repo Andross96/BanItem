@@ -39,7 +39,8 @@ public enum MetaType {
     MODELDATA_EQUALS(ModeldataEquals.class),
     NBTAPI(NBTAPI.class),
     POTION(Potion.class),
-    UNBREAKABLE(Unbreakable.class);
+    UNBREAKABLE(Unbreakable.class),
+    ATTRIBUTE(AttributeContains.class);
 
     private final Class<? extends MetaTypeComparator> clazz;
 
