@@ -1,3 +1,16 @@
+v3.4:
+  - Added mending action (MC>=1.13): when a player has an item repaired via the mending enchantment;
+  - Added an illegal stacks item scanner: you can set custom max stacks amount for items and choose what to do if the player has an illegal stacked item into its inventory;
+  - Added complete item attributes matches for custom items (big thanks to Epicanard) (MC>=1.8):
+    - Example custom item:
+	  mysword:
+	    material: diamond_sword
+	    attribute: GENERIC_ATTACK_DAMAGE:>2.3
+  - Disabled particles by defaut in the config;
+  - Fixed hoppers-block for transfer action;
+  - Fixed offhand for entityinteract;
+  - [Dev] Created, hosting and fixed maven repository for all dependencies;
+--------------------------------------------
 v3.3.3:
   - Added reverted custom items:
     - Using the reverted keyword, the plugin will revert the ban of a custom item (all items will be banned except the custom item);

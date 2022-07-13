@@ -1,6 +1,6 @@
 name: BanItem
 main: fr.andross.banitem.BanItem
-version: '3.3.3'
+version: '${project.version}'
 author: Andross
 description: Ban item
 api-version: '1.13'
@@ -25,3 +25,5 @@ permissions:
       banitem.command.metaitem: true
       banitem.command.reload: true
       banitem.command.remove: true
+  banitem.bypassillegalstack:
+    description: permission to bypass the illegalstack scanner

@@ -112,7 +112,7 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
             return true;
         }
 
-        // Reverted custom item! (matching everything that does not match!)
+        // Reverted custom item! (matching everything that does not match)
         for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet()) {
             if (!e.getValue().matches(item, itemMeta))
                 return true;

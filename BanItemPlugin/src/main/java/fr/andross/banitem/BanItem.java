@@ -37,7 +37,7 @@ import java.util.List;
 
 /**
  * BanItemPlugin
- * @version 3.3
+ * @version 3.4
  * @author Andross
  */
 public final class BanItem extends JavaPlugin {
@@ -74,11 +74,12 @@ public final class BanItem extends JavaPlugin {
      * @param sender command sender <i>(send the message debug to)</i>
      * @param configFile the file configuration to load. If null, using (and reloading) the default config
      */
-    protected void load(@NotNull final CommandSender sender, @Nullable final File configFile) {
+    public void load(@NotNull final CommandSender sender, @Nullable final File configFile) {
         final long start = System.currentTimeMillis();
 
         // Removing all tasks
         utils.getWearScanner().setEnabled(false);
+        utils.getIllegalStackScanner().setEnabled(false);
         getServer().getScheduler().cancelTasks(this);
 
         // (re)Loading config
@@ -92,6 +93,9 @@ public final class BanItem extends JavaPlugin {
 
         // (re)Loading listeners
         listener.load(sender);
+
+        // (re)Loading illegal stack scanner
+        utils.getIllegalStackScanner().load(sender, banConfig);
 
         // Result
         final long end = System.currentTimeMillis();

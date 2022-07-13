@@ -21,11 +21,12 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple enumeration for customizable item metas
- * @version 3.2
+ * @version 3.4
  * @author Andross
  */
 public enum MetaType {
     ADVANCEDENCHANTMENTS(AdvancedEnchantments.class),
+    ATTRIBUTE(AttributeContains.class),
     DISPLAYNAME_CONTAINS(DisplayNameContains.class),
     DISPLAYNAME_EQUALS(DisplayNameEquals.class),
     DURABILITY(Durability.class),

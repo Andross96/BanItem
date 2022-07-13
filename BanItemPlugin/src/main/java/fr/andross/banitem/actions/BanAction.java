@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * List of available ban actions
- * @version 3.1
+ * @version 3.4
  * @author Andross
  */
 public enum BanAction {
@@ -157,6 +157,12 @@ public enum BanAction {
      * Special data: <b>inventory-from</b> the {@link org.bukkit.event.inventory.InventoryType} clicked
      */
     INVENTORYCLICK("inventoryclick"),
+
+    /**
+     * When a player has an item repaired via the mending enchantment
+     * Special data: none
+     */
+    MENDING("mending"),
 
     /**
      * When a player try to pickup an item

@@ -22,7 +22,7 @@ import org.bukkit.Bukkit;
 /**
  * Class that contains some notable versions nodes, so the plugin can handle multiple versions
  * Those variables are used to check versions compatibility
- * @version 3.3.3
+ * @version 3.4
  * @author Andross
  */
 public final class BanVersion {
@@ -39,6 +39,7 @@ public final class BanVersion {
     /**
      * In 1.13+, MaterialData are totally removed from ItemStack, and the durability is part of ItemMeta.
      * Added NamespacedKey enchantments
+     * Added PlayerItemMendEvent event
      */
     public static final boolean v13OrMore;
 

@@ -31,6 +31,8 @@ import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
 import fr.andross.banitem.utils.scanners.WearScanner;
+import fr.andross.banitem.utils.scanners.illegalstack.IllegalStackBlockType;
+import fr.andross.banitem.utils.scanners.illegalstack.IllegalStackScanner;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -39,10 +41,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,12 +56,13 @@ import java.util.stream.Collectors;
 
 /**
  * An utility class for the plugin
- * @version 3.3
+ * @version 3.4
  * @author Andross
  */
 public final class BanUtils {
     private final BanItem pl;
     private final WearScanner wearScanner;
+    private final IllegalStackScanner illegalStackScanner;
     private final Map<String, String> commandsAliases = new HashMap<>();
     private final Map<UUID, Long> messagesCooldown = new HashMap<>();
     private final Set<UUID> logging = new HashSet<>();
@@ -70,6 +70,7 @@ public final class BanUtils {
     BanUtils(final BanItem pl) {
         this.pl = pl;
         this.wearScanner = new WearScanner(pl, this);
+        this.illegalStackScanner = new IllegalStackScanner(pl, this);
         commandsAliases.put("mi", "metaitem");
         commandsAliases.put("rl", "reload");
     }
@@ -423,7 +424,7 @@ public final class BanUtils {
                 return;
             }
 
-            removeItemFromArmor(p, helmet);
+            giveItemBack(p, helmet);
             ee.setHelmet(null);
         }
 
@@ -433,7 +434,7 @@ public final class BanUtils {
                 Bukkit.getScheduler().runTask(pl, () -> checkPlayerArmors(p));
                 return;
             }
-            removeItemFromArmor(p, chestplate);
+            giveItemBack(p, chestplate);
             ee.setChestplate(null);
         }
 
@@ -443,7 +444,7 @@ public final class BanUtils {
                 Bukkit.getScheduler().runTask(pl, () -> checkPlayerArmors(p));
                 return;
             }
-            removeItemFromArmor(p, leggings);
+            giveItemBack(p, leggings);
             ee.setLeggings(null);
         }
 
@@ -453,17 +454,73 @@ public final class BanUtils {
                 Bukkit.getScheduler().runTask(pl, () -> checkPlayerArmors(p));
                 return;
             }
-            removeItemFromArmor(p, boots);
+            giveItemBack(p, boots);
             ee.setBoots(null);
         }
     }
 
-    private void removeItemFromArmor(final Player p, final ItemStack item) {
+    /**
+     * Used to check if a player has an illegal stacked item
+     * @param p player
+     */
+    public void checkPlayerIllegalStacks(@NotNull final Player p) {
+        final PlayerInventory inv = p.getInventory();
+        for (int i = 0; i < inv.getSize(); i++) {
+            final ItemStack item = inv.getItem(i);
+            if (Utils.isNullOrAir(item)) continue;
+
+            // Have to check this item?
+            final int maxStack = illegalStackScanner.getItems().containsKey(item.getType()) ?
+                    illegalStackScanner.getItems().get(item.getType()).getAmount() : item.getMaxStackSize();
+            if (maxStack <= 0) continue;
+
+            if (item.getAmount() > maxStack) {
+                // Illegal stack!
+                if (!Bukkit.isPrimaryThread()) {
+                    Bukkit.getScheduler().runTask(pl, () -> checkPlayerIllegalStacks(p));
+                    return;
+                }
+
+                if (p.hasPermission("banitem.bypassillegalstack")) continue;
+
+                // Blocking
+                final IllegalStackBlockType blockType = illegalStackScanner.getItems().containsKey(item.getType()) ? illegalStackScanner.getItems().get(item.getType()).getBlockType() : illegalStackScanner.getDefaultBlockType();
+                if (blockType == null) continue;
+
+                switch (blockType) {
+                    case DELETE: // totally remove the item
+                        inv.setItem(i, null);
+                        break;
+                    case DELETEMORE: case SPLIT: // delete whats more or split it and give it back to player
+                        final int amountMore = item.getAmount() - maxStack;
+                        item.setAmount(item.getAmount() - amountMore);
+                        inv.setItem(i, item);
+                        if (blockType == IllegalStackBlockType.SPLIT) {
+                            for (int j = 0; j < amountMore; j++) {
+                                final ItemStack newItem = item.clone();
+                                newItem.setAmount(1);
+                                giveItemBack(p, newItem);
+                            }
+                        }
+                        break;
+                }
+
+            }
+        }
+    }
+
+    /**
+     * Method to give an item back to the player, drop it if the inventory is full
+     * @param p the player
+     * @param item the item
+     */
+    public void giveItemBack(@NotNull final Player p, @NotNull final ItemStack item) {
         final int freeSlot = p.getInventory().firstEmpty();
         // No empty space, dropping it, else adding it into inventory
         if (freeSlot == -1) p.getWorld().dropItemNaturally(p.getLocation(), item);
         else p.getInventory().setItem(freeSlot, item);
     }
+
 
     /**
      * Sending a prefixed and colored (if player) message to sender
@@ -500,6 +557,15 @@ public final class BanUtils {
     @NotNull
     public WearScanner getWearScanner() {
         return wearScanner;
+    }
+
+    /**
+     * Get the IllegalStackScanner handler
+     * @return the illegal stack scanner handler
+     */
+    @NotNull
+    public IllegalStackScanner getIllegalStackScanner() {
+        return illegalStackScanner;
     }
 
     /**

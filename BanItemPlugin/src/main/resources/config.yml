@@ -1,6 +1,6 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v3.3      —————————————————| #
+# |——————————————————      v3.4      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # |                   Documentation:                  | #
 # |             https://banitem.andross.fr/           | #
@@ -31,7 +31,7 @@
 #    -> single: 'place' ; 'break'...
 #    -> multiple: 'place, break'
 #    -> all: '*'
-#    -> all except: '*, !place' (all, except place))
+#    -> all except: '*, !place' (all, except place)
 #  - Each actions can store some datas to check. They can be written, for example (except for cooldown & log):
 #    -> entity: pig, cow
 #    -> entity:
@@ -95,6 +95,7 @@
 #      -> Special data: material - the item in player's hand
 #    - INVENTORYCLICK: when the player try to click an item in an inventory
 #      -> Special data: inventory-from - the inventory type clicked
+#    - MENDING: when the player has an item repaired via the mending enchantment [no specific data]
 #    - PICKUP: when the item is picked up [no specific data]
 #    - PLACE: when the player try to place a block
 #      -> Special data: material - the block placed against
@@ -195,8 +196,11 @@ actions:
       - 'Shop'
 
 # Hooking with plugins
+# Enable these hooks only if you use it
 hooks:
+  # For WorldGuard regions [WG6-WG7]
   worldguard: false
+  # For AdvancedEnchantments enchantments into custom items
   advancedenchantments: false
 
 # Animations when a ban item message is sent
@@ -207,20 +211,39 @@ sound:
   pitch: 1
   worldSound: false # if the sound can be heard by others players around or not
 particle: # available only on bukkit 1.9+
-  enabled: true
+  enabled: false
   type: BARRIER
   amount: 1
+
+# Illegal stack configuration
+# You can either set the vanilla-max-stack-size to true, so all items will respect their max stacks
+# And/or configure for each material the max stack amount you wish
+# You can use the material formatting ('*', 'stone, dirt', '*,!dirt' etc.). Example regex: '#(?i)_helmet' -> will give all helmets
+# Players with banitem.bypassillegalstack permission will not be affected
+# The block-type are:
+#   - split (to split and give items back until the correct max stack is respected)
+#   - delete (to delete the whole stack)
+#   - deletemore (to delete only the exceeded amount)
+illegal-stacks:
+  enabled: false
+  vanilla-max-stack-size: true
+  block-type: split
+  #items:
+  #  'diamond_helmet,iron_helmet':
+  #    amount: 1
+  #    block-type: split
 
 # Here is some quick examples:
 #blacklist:
 #  world:
-#    diamond_block: # can not place or break diamond_block
+#    diamond_block: # can not place or break diamond_block, no messages
 #      place: '&cYou are not allowed to place a diamond block in world.'
 #      break: '&cYou are not allowed to break a diamond block in world.'
-#    gold_block: # can not place gold block if in creative mode
+#    gold_block: # can not place gold block if in creative mode except if you have 'my.bypass.permission'
 #      place:
 #        gamemode: creative
 #        message: '&cYou can not place gold block while in creative mode.'
+#        permission: 'my.bypass.permission'
 #    my_meta_item: # meta item from /bi metaitem, useable only each minute (time in millis)
 #      attack:
 #        cooldown: 60000

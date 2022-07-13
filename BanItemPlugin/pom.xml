@@ -5,97 +5,17 @@
     <parent>
         <artifactId>BanItemParent</artifactId>
         <groupId>fr.andross.banitem</groupId>
-        <version>3.3.3</version>
+        <version>3.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>BanItemPlugin</artifactId>
-    <version>${banitem-version}</version>
-    <name>BanItemPlugin</name>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
-    <licenses>
-        <license>
-            <name>The GNU General Public Licence version 3 (GPLv3)</name>
-            <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <repositories>
-        <repository>
-            <id>andross-repo</id>
-            <url>https://repo.andross.fr/</url>
-        </repository>
-        <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>sk89q-repo</id>
-            <url>https://maven.enginehub.org/repo/</url>
-        </repository>
-        <repository>
-            <id>codemc-repo</id>
-            <url>https://repo.codemc.org/repository/maven-public/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-bukkit</artifactId>
-            <version>7.0.3-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.tr7zw</groupId>
-            <artifactId>item-nbt-api-plugin</artifactId>
-            <version>2.7.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>fr.andross.banitem</groupId>
-            <artifactId>Hooks</artifactId>
-            <version>${banitem-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>fr.andross.banitem</groupId>
-            <artifactId>WG7</artifactId>
-            <version>${banitem-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>fr.andross.banitem</groupId>
-            <artifactId>WG6</artifactId>
-            <version>${banitem-version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>advancedenchantments</groupId>
-            <artifactId>AdvancedEnchantments-API</artifactId>
-            <version>8.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>itemsadder</groupId>
-            <artifactId>api-itemsadder</artifactId>
-            <version>2.3.8</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <directory>../target</directory>
-        <finalName>BanItem-${banitem-version}</finalName>
+        <finalName>BanItem-${project.parent.version}</finalName>
         <resources>
             <resource>
                 <targetPath>.</targetPath>
@@ -108,24 +28,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.0</version>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -143,6 +53,79 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>andross-repo</id>
+            <url>https://repo.andross.fr/</url>
+        </repository>
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.andross.banitem</groupId>
+            <artifactId>Hooks</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.andross.banitem</groupId>
+            <artifactId>WG7</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.andross.banitem</groupId>
+            <artifactId>WG6</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>advancedenchantments</groupId>
+            <artifactId>AdvancedEnchantments-API</artifactId>
+            <version>8.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>itemsadder</groupId>
+            <artifactId>api-itemsadder</artifactId>
+            <version>2.3.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.3-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.tr7zw</groupId>
+            <artifactId>item-nbt-api-plugin</artifactId>
+            <version>2.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 </project>
