@@ -49,6 +49,6 @@ public final class LoreContainsRegex extends MetaTypeComparator {
     @Override
     public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
         final List<String> itemLore = itemMeta == null ? null : (itemMeta.hasLore() ? itemMeta.getLore() : null); // made it that way to ignore the @Nullable annotation warning
-        return itemLore != null && itemLore.stream().anyMatch(l -> pattern.matcher(l).matches());
+        return itemLore != null && itemLore.stream().anyMatch(l -> pattern.matcher(l).find());
     }
 }

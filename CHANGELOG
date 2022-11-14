@@ -1,3 +1,6 @@
+v3.4.1:
+  - Fixed lore-contains-regex metadata for custom item
+--------------------------------------------
 v3.4:
   - Added mending action (MC>=1.13): when a player has an item repaired via the mending enchantment;
   - Added an illegal stacks item scanner: you can set custom max stacks amount for items and choose what to do if the player has an illegal stacked item into its inventory;
