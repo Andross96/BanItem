@@ -25,6 +25,7 @@ import fr.andross.banitem.utils.debug.DebugMessage;
 import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,7 @@ public final class IllegalStackScanner {
     private boolean enabledInConfig = false;
     private boolean enabled = false;
     private int taskId = -1;
-    private final Map<Material, IllegalStackItemConfig> items = new EnumMap<>(Material.class);
+    private final Map<World, Map<Material, IllegalStackItemConfig>> items = new HashMap<>();
     private boolean vanillaMaxStackSize = false;
     private IllegalStackBlockType defaultBlockType;
 
@@ -67,9 +68,8 @@ public final class IllegalStackScanner {
         enabledInConfig = section.getBoolean("enabled");
         if (!enabledInConfig) return;
         vanillaMaxStackSize = section.getBoolean("vanilla-max-stack-size");
-        try {
-            defaultBlockType = IllegalStackBlockType.valueOf(Objects.requireNonNull(section.getString("block-type")).toUpperCase(Locale.ROOT));
-        } catch (final NullPointerException | IllegalArgumentException e) {
+        defaultBlockType = getBlockType(section.getString("block-type"));
+        if (defaultBlockType == null) {
             utils.sendMessage(sender, "&c[Illegal-Stack] The default 'block-type' is not set or invalid.");
             enabledInConfig = false;
             return;
@@ -78,36 +78,63 @@ public final class IllegalStackScanner {
         // Loading items
         final ConfigurationSection itemsSection = section.getConfigurationSection("items");
         if (itemsSection != null) {
-            final Debug d = new Debug(config, sender, new DebugMessage("illegal-stacks"));
+            final Debug d = new Debug(config, sender, new DebugMessage("illegal-stacks")).add("items");
             for (final String itemKey : itemsSection.getKeys(false)) {
-                final List<Material> material = Listable.getMaterials(itemKey, d.clone().add(new DebugMessage("items")));
-                if (material.isEmpty()) continue;
+                final List<Material> materials = Listable.getMaterials(itemKey, d.clone().add(itemKey));
+                if (materials.isEmpty()) continue;
 
                 // Loading material info
                 final ConfigurationSection itemSubSection = itemsSection.getConfigurationSection(itemKey);
                 if (itemSubSection == null) continue;
                 final int amount = itemSubSection.getInt("amount");
                 if (amount < 1) continue;
-                final String blockTypeString = itemSubSection.getString("block-type");
-                if (blockTypeString == null) {
-                    d.clone().add("block-type").add("The 'block-type' is not set.").sendDebug();
-                    continue;
-                }
+                String blockTypeString = itemSubSection.getString("block-type");
                 final IllegalStackBlockType blockType;
-                try {
-                    blockType = IllegalStackBlockType.valueOf(blockTypeString.toUpperCase(Locale.ROOT));
-                } catch (final IllegalArgumentException e) {
-                    d.clone().add("block-type").add("The 'block-type' is unknown.").sendDebug();
-                    continue;
+                if (blockTypeString == null) {
+                    blockType = defaultBlockType;
+                } else {
+                    blockType = getBlockType(blockTypeString);
+                    if (blockType == null) {
+                        d.clone().add(itemKey).add("block-type").add("The 'block-type' is unknown.").sendDebug();
+                        continue;
+                    }
+                }
+
+                // Loading world(s)
+                final String worldInConfig = itemSubSection.getString("world");
+                final List<World> worlds;
+                if (worldInConfig == null) {
+                    worlds = new ArrayList<>(Bukkit.getWorlds());
+                } else {
+                    worlds = Listable.getWorlds(worldInConfig, d.clone().add(itemKey).add("world"));
                 }
 
                 // Adding
-                material.forEach(m -> items.put(m, new IllegalStackItemConfig(amount, blockType)));
+                final IllegalStackItemConfig illegalStackItemConfig = new IllegalStackItemConfig(amount, blockType);
+                for (final World world : worlds)
+                    materials.forEach(m -> addIllegalStackItem(world, m, illegalStackItemConfig));
             }
         }
 
         if (enabledInConfig && !enabled && (vanillaMaxStackSize || !items.isEmpty()))
             setEnabled(true);
+    }
+
+    private IllegalStackBlockType getBlockType(@Nullable final String blockType) {
+        if (blockType == null) {
+            return null;
+        }
+        try {
+            return IllegalStackBlockType.valueOf(blockType.toUpperCase(Locale.ROOT));
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    public void addIllegalStackItem(final World world, final Material m, final IllegalStackItemConfig illegalStackItemConfig) {
+        final Map<Material, IllegalStackItemConfig> subMap = items.getOrDefault(world, new HashMap<>());
+        subMap.put(m, illegalStackItemConfig);
+        items.put(world, subMap);
     }
 
     /**
@@ -164,7 +191,7 @@ public final class IllegalStackScanner {
      * @return the map of illegal stacks configuration loaded from config
      */
     @NotNull
-    public Map<Material, IllegalStackItemConfig> getItems() {
+    public Map<World, Map<Material, IllegalStackItemConfig>> getItems() {
         return items;
     }
 

@@ -220,6 +220,8 @@ particle: # available only on bukkit 1.9+
 # And/or configure for each material the max stack amount you wish
 # You can use the material formatting ('*', 'stone, dirt', '*,!dirt' etc.). Example regex: '#(?i)_helmet' -> will give all helmets
 # Players with banitem.bypassillegalstack permission will not be affected
+# If no world(s) is specified, all worlds will be included by default
+# If no block-type is specified into items, the default block-type will be used
 # The block-type are:
 #   - split (to split and give items back until the correct max stack is respected)
 #   - delete (to delete the whole stack)
@@ -232,6 +234,7 @@ illegal-stacks:
   #  'diamond_helmet,iron_helmet':
   #    amount: 1
   #    block-type: split
+  #    world: 'world,world_nether'
 
 # Here is some quick examples:
 #blacklist:

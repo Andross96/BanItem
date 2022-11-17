@@ -169,7 +169,7 @@ public final class Listable {
                     pattern = Pattern.compile(worldName.substring(1));
                 } catch (final PatternSyntaxException e) {
                     if (d != null)
-                        d.clone().add(ListType.ITEM, "&cInvalid regex synthax &e&l" + worldName + "&c.").sendDebug();
+                        d.clone().add(ListType.WORLD, "&cInvalid regex synthax &e&l" + worldName + "&c.").sendDebug();
                     continue;
                 }
                 // Getting world

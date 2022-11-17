@@ -32,9 +32,11 @@ import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
 import fr.andross.banitem.utils.scanners.WearScanner;
 import fr.andross.banitem.utils.scanners.illegalstack.IllegalStackBlockType;
+import fr.andross.banitem.utils.scanners.illegalstack.IllegalStackItemConfig;
 import fr.andross.banitem.utils.scanners.illegalstack.IllegalStackScanner;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -465,13 +467,16 @@ public final class BanUtils {
      */
     public void checkPlayerIllegalStacks(@NotNull final Player p) {
         final PlayerInventory inv = p.getInventory();
+        final Map<Material, IllegalStackItemConfig> illegalStacks = illegalStackScanner.getItems().get(p.getWorld());
+        if (illegalStacks == null)
+            return;
+
         for (int i = 0; i < inv.getSize(); i++) {
             final ItemStack item = inv.getItem(i);
             if (Utils.isNullOrAir(item)) continue;
 
             // Have to check this item?
-            final int maxStack = illegalStackScanner.getItems().containsKey(item.getType()) ?
-                    illegalStackScanner.getItems().get(item.getType()).getAmount() : item.getMaxStackSize();
+            final int maxStack = illegalStacks.containsKey(item.getType()) ? illegalStacks.get(item.getType()).getAmount() : item.getMaxStackSize();
             if (maxStack <= 0) continue;
 
             if (item.getAmount() > maxStack) {
@@ -484,14 +489,14 @@ public final class BanUtils {
                 if (p.hasPermission("banitem.bypassillegalstack")) continue;
 
                 // Blocking
-                final IllegalStackBlockType blockType = illegalStackScanner.getItems().containsKey(item.getType()) ? illegalStackScanner.getItems().get(item.getType()).getBlockType() : illegalStackScanner.getDefaultBlockType();
+                final IllegalStackBlockType blockType = illegalStacks.containsKey(item.getType()) ? illegalStacks.get(item.getType()).getBlockType() : illegalStackScanner.getDefaultBlockType();
                 if (blockType == null) continue;
 
                 switch (blockType) {
                     case DELETE: // totally remove the item
                         inv.setItem(i, null);
                         break;
-                    case DELETEMORE: case SPLIT: // delete whats more or split it and give it back to player
+                    case DELETEMORE: case SPLIT: // delete what's more or split it and give it back to player
                         final int amountMore = item.getAmount() - maxStack;
                         item.setAmount(item.getAmount() - amountMore);
                         inv.setItem(i, item);
