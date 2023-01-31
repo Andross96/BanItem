@@ -373,7 +373,7 @@ public final class BanListener {
             if (BanVersion.v9OrMore)
                 registerEvent(PlayerInteractEntityEvent.class, (li, event) -> {
                     final PlayerInteractEntityEvent e = (PlayerInteractEntityEvent) event;
-                    final ItemStack used = e.getPlayer().getInventory().getItem(e.getHand());
+                    final ItemStack used = Utils.getItemInHand(e.getPlayer());
                     if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), used, true, BanAction.ENTITYINTERACT, new BanData(BanDataType.ENTITY, e.getRightClicked().getType())))
                         e.setCancelled(true);
                 }, priority.contains(BanAction.ENTITYINTERACT));
@@ -701,24 +701,6 @@ public final class BanListener {
                     }
                 }
             }, priority.contains(BanAction.SMELT));
-        }
-
-        if (blacklist.contains(BanAction.SMITH) || whitelist) {
-            if (!BanVersion.v16OrMore) {
-                if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
-                    sender.sendMessage(Chat.color("&cCan not use the '&esmith&c' action in Minecraft < 1.16."));
-            } else
-                registerEvent(PrepareSmithingEvent.class, (ll, event) -> {
-                    if (!(event instanceof PrepareSmithingEvent)) return; // called for PrepareResultEvent too...
-                    final PrepareSmithingEvent e = (PrepareSmithingEvent) event;
-                    final ItemStack item = e.getResult();
-                    if (item == null) return;
-                    if (!e.getViewers().isEmpty()) {
-                        final Player p = (Player) e.getViewers().get(0);
-                        if (api.isBanned(p, item, true, BanAction.SMITH))
-                            e.setResult(null);
-                    }
-                }, priority.contains(BanAction.SMITH));
         }
 
         if (blacklist.contains(BanAction.SWAP) || whitelist) {
