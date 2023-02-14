@@ -34,11 +34,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * A cached ban configuration from a FileConfiguration
@@ -49,6 +47,7 @@ public final class BanConfig {
     private final File configFile;
     private final FileConfiguration config;
     private final String prefix;
+    private final Set<BanAction> logActions = new HashSet<>();
     private final Set<BanAction> priority = EnumSet.noneOf(BanAction.class);
     private final BanAnimation animation;
     private final Set<String> ignoredInventoryTitles = new HashSet<>();
@@ -79,6 +78,23 @@ public final class BanConfig {
         // Loading prefix
         final String prefix = this.config.getString("prefix");
         this.prefix = prefix == null ? "" : Chat.color(prefix);
+
+        // Loading log actions
+        logActions.clear();
+        final List<String> logList = Listable.getSplittedStringList(this.config.get("log"));
+        final Set<String> allActions = Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.toSet());
+        for (String action : logList) {
+            if (action.equals("*")) {
+                this.logActions.addAll(Arrays.asList(BanAction.values()));
+                break;
+            }
+
+
+            if (allActions.contains(action.toLowerCase(Locale.ROOT)))
+                this.logActions.add(BanAction.valueOf(action.toUpperCase(Locale.ROOT)));
+            else
+                pl.getLogger().info(String.format("%s\"%s\" is not a valid loggable action.", prefix, action));
+        }
 
         // Loading priority
         final List<String> priority = Listable.getSplittedStringList(this.config.get("priority"));
@@ -141,6 +157,10 @@ public final class BanConfig {
     @NotNull
     public String getPrefix() {
         return prefix;
+    }
+
+    public Set<BanAction> getLogActions() {
+        return logActions;
     }
 
     /**

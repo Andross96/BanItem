@@ -142,6 +142,9 @@ debug:
   # Colored message into the console
   colors-console: false
 
+# Logging
+log: []
+
 # No permission message (for /banitem)
 no-permission: '&cYou do not have permission.'
 

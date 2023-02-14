@@ -12,18 +12,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @SuppressWarnings("unchecked")
-public final class BanLog extends LogFiles {
+public final class ViolationLog extends LogFiles {
+    private static final String fileName = "log.json";
 
-    private static final String fileName = "bans.json";
-
-    public BanLog(BanItem pl) {
+    public ViolationLog(BanItem pl) {
         super(fileName, pl);
     }
 
     @Override
     public void addLogData(OfflinePlayer p, ItemStack item, Object... otherData) {
         final UUID id = p.getUniqueId();
-        JSONObject logData = createPlayerBan(item);
+        JSONObject logData = createPlayerLog(item, ((String) otherData[0]));
         JSONObject playerData = getPlayerLog(id);
         playerData.put("playerName", p.getName());
         JSONArray logs = (JSONArray) playerData.getOrDefault("logs", new JSONArray());
@@ -33,7 +32,7 @@ public final class BanLog extends LogFiles {
         saveLog();
     }
 
-    private JSONObject createPlayerBan(ItemStack item) {
+    private JSONObject createPlayerLog(ItemStack item, String reason) {
         boolean isNull = (item == null);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
@@ -41,6 +40,7 @@ public final class BanLog extends LogFiles {
         JSONObject log = new JSONObject();
         log.put("timeFormatted", dtf.format(now));
         log.put("timeStamp", Instant.now().getEpochSecond());
+        log.put("reason", reason);
         log.put("itemMaterial", (isNull) ? null : item.getType().name());
         return log;
     }

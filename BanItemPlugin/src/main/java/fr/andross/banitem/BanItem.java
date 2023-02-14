@@ -19,6 +19,7 @@ package fr.andross.banitem;
 
 import fr.andross.banitem.commands.BanCommand;
 import fr.andross.banitem.logs.BanLog;
+import fr.andross.banitem.logs.ViolationLog;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.metrics.Metrics;
 import org.bukkit.Bukkit;
@@ -46,6 +47,7 @@ public final class BanItem extends JavaPlugin {
     private BanItemAPI api;
     private BanConfig banConfig;
     private BanLog banLog = new BanLog(this);
+    private ViolationLog violationLog = new ViolationLog(this);
     private BanHooks hooks;
     private BanDatabase banDatabase;
     private final BanUtils utils = new BanUtils(this);
@@ -216,6 +218,10 @@ public final class BanItem extends JavaPlugin {
 
     public BanLog getBanLog() {
         return banLog;
+    }
+
+    public ViolationLog getViolationLog() {
+        return violationLog;
     }
 
     /**
