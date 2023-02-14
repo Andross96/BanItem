@@ -1,0 +1,271 @@
+# +———————————————————————————————————————————————————+ #
+# |——————————     BANITEM CONFIGURATION     ——————————| #
+# |——————————————————      v3.4      —————————————————| #
+# +———————————————————————————————————————————————————+ #
+# |                   Documentation:                  | #
+# |             https://banitem.andross.fr/           | #
+# +———————————————————————————————————————————————————+ #
+# For any bugs/suggestions: Andross#5254
+# +——————————————————————————————————————————————————————————————————————————————————————————————+
+# General Informations:
+#  - The blacklist will block the items.
+#  - The whitelist will allow only the items set.
+#    -> The 'message' key represents the message sent to players if they try to use an item which is not in whitelist
+#    -> The 'ignored' key represents all ignored actions (they will not being by default banned)
+#
+#  - Worlds can be written:
+#    -> single: 'world' ; 'world_the_end'...
+#    -> multiple: 'world, world_the_end'...
+#    -> all: '*'
+#    -> all except: '*, !world_the_end, !world_nether': all worlds, except world_the_end & world_nether
+#    -> regex starting with "#": '#world': world, world_nether, world_the_end
+#
+#  - Items can be written: (https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
+#    -> single: 'stone' ; 'dirt'...
+#    -> multiple: 'stone, dirt'
+#    -> all: '*' (also include air [=empty hand]!)
+#    -> all except: '*, !stone' (all, except stone)
+#    -> regex starting with "#": '#_BED' will give all material which names matches '_BED'
+#
+#  - Actions can be written:
+#    -> single: 'place' ; 'break'...
+#    -> multiple: 'place, break'
+#    -> all: '*'
+#    -> all except: '*, !place' (all, except place)
+#  - Each actions can store some datas to check. They can be written, for example (except for cooldown & log):
+#    -> entity: pig, cow
+#    -> entity:
+#       - pig
+#       - cow
+#    -> entity:
+#       - pig,cow
+#
+#   - Actions data: (* is usable only for actions involving a player)
+#     -> cooldown(*): allow access to the action each X milliseconds (1 second = 1000 milliseconds)
+#       -> '{time}': in the message will display the time remaining
+#     -> entity: the entity interacted or involved in the ban
+#       -> EntityType: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
+#     -> gamemode(*): the item is only banned if the player is in this gamemode
+#     -> inventory-from: the inventory where the item come from
+#       -> InventoryType: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/inventory/InventoryType.html
+#     -> inventory-to: the inventory where the item goes to (same type as above)
+#     -> material: an additional item checked
+#       -> For example, in a BREAK action, this data will also check a matches with the item in the player's hand
+#       -> https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+#     -> permission(*): check if the player has the custom permission
+#     -> log(*): true/false - if players with /banitem log will receive a message for this ban
+#     -> message(*): a string or list of string to be sent if the item is banned
+#     -> region(*): worldguard region
+#     -> run(*): list of commands run when the action is banned:
+#       -> '{player}' : the player name
+#       -> '{world}' : the world name
+#       -> '{itemname}' : the item name
+#        +——————————————————————————————————————————————————————+
+#  - Actions and their possibles datas:
+#    - ARMORSTANDPLACE: when the player try to place the item on an armorstand [no specific data]
+#    - ARMORSTANDTAKE: when the player try to take the item from an armorstand [no specific data]
+#    - ATTACK: when the player use left click with the item in the main hand on an entity
+#      -> Special data: entity - the entity clicked
+#    - BOOKEDIT: when the player edits or signs a book and quill item [no specific data]
+#    - BREAK: when the item is breaked
+#      -> Special data: material - the item in the player hand
+#    - BREW: when the item (potion) is brewed inside a brewing stand [no specific data]
+#    - CLICK: when the player use left click with the item in the main hand
+#      -> Special data: material - the block clicked, if there is one
+#    - CONSUME: when the player try to consume a food [no specific data]
+#    - CRAFT: the item will not be craftable anymore [no specific data]
+#    - DELETE: when a player open & close an inventory, it will check and delete items which have this action [no specific data]
+#    - DISPENSE: when an item is dispensed from a block [no specific data]
+#    - DROP: when an item is dropped by a player [no specific data]
+#    - DROPS: when an item is dropped from a block
+#      -> Special data: material - the item in the player's hand
+#    - ENCHANT: when a player enchants the item
+#      -> Special data: enchantment - the enchantment applied to the item
+#    - ENTITYDROP: when an entity dies and drop the item
+#      -> Special data: entity - the entity type
+#    - ENTITYINTERACT: when a player use right click with the item on an entity
+#      -> Special data: entity - the entity interacted
+#    - FILL: When a player use right click with the item on a fluid (water/lava)
+#      -> Special data: material - the fluid type
+#    - GLIDE: when a player try to use (activate) an elytra [no specific data]
+#    - HANGINGPLACE: when a player try to place a hanging entity (itemframe, painting..)
+#      -> Special data: entity - the entity created by this placing
+#    - HOLD: when a player try to hold the item in the hand [no specific data]
+#    - INTERACT: when the player use right click with main hand on the placed item
+#      -> Special data: material - the item in player's hand
+#    - INVENTORYCLICK: when the player try to click an item in an inventory
+#      -> Special data: inventory-from - the inventory type clicked
+#    - MENDING: when the player has an item repaired via the mending enchantment [no specific data]
+#    - PICKUP: when the item is picked up [no specific data]
+#    - PLACE: when the player try to place a block
+#      -> Special data: material - the block placed against
+#    - RENAME: when the player try to rename the item in an anvil, or from a command [no specific data]
+#    - SMELT: the item will not be smeltable anymore [no specific data]
+#    - SMITH: when the recipe of an item is completed inside a smithing table
+#    - SWAP: when the player try to swap the item in hands [no specific data]
+#    - TRANSFER: when the player try to transfer the item from an inventory to another
+#      -> Special data:
+#        -> inventory-from: the inventory where the item comes from
+#        -> inventory-to: the inventory where the item goes to
+#    - UNFILL: when a player try to unfill a bucket
+#      -> Special data: material - the block type clicked
+#    - USE: when a player try to use an item (right click with it)
+#      -> Special data: material - the block clicked, if there is one
+#    - WEAR: when the player try to put the item as an armor (you'll need to use also the 'place' action) [no specific data]
+#        +——————————————————————————————————————————————————————+
+#  - Examples:
+#    -> Simple structure:
+#      blacklist:  ##----> for blacklist
+#        world: ##----> world where the ban should apply
+#          ender_pearl: ##----> the item
+#            place: '&cYou can not use ender pearls in world.' ##----> the action with a message
+#                        +————————————————————+
+#    -> Advanced structure:
+#      blacklist:  ##----> for blacklist
+#       'world, world_the_end': ##----> worlds where the ban should apply
+#         'dirt, stone': ##----> the items
+#           'place, break': ##----> the actions, and below their datas
+#             message: ##----> a configurable (multi-line, or not) message
+#             - '&cA first message example'
+#             - '&cA second message example'
+#             gamemode: creative ##----> only applies if player is in creative
+#             log: true: ##----> players with /bi log activated will receive a message
+#             cooldown: 30000 ##----> this ban only applies each 30 seconds (players can only either break or place the items each 30 seconds)
+# +——————————————————————————————————————————————————————————————————————————————————————————————+
+
+# Debug modes
+debug:
+  # Better & more detailled error messages
+  errors: true
+  # More detailled reload message
+  reload: false
+  # Colored message into the console
+  colors-console: false
+
+# No permission message (for /banitem)
+no-permission: '&cYou do not have permission.'
+
+# Prefix of the plugin
+prefix: '&c&l[&e&lBanItem&c&l] '
+
+# This is used to allow others plugins to modify the behavior of the bans
+api:
+  playerbanitemevent: false
+  deletebanneditemevent: false
+
+# If true, the plugin will check (async) if an update is available
+check-update: true
+
+# List of actions that should have maximum listening priority
+# Giving maximum priority will force the ban item plugin to have the final word on an event
+# This is used mainly to also block other plugins events, if the action is banned
+# You can use the actions formatting ('*', 'action1, action2', '*,!break' etc.)
+priority: use,consume,click
+
+# Some configurable stuffs for actions
+actions:
+  # The item for denied enchantment in anvil. Only for MC1.9+
+  enchant:
+    material: BARRIER
+    displayname: '&cBANNED'
+    lore:
+      - '&cYou can not add this'
+      - '&cenchantement.'
+
+  # List of rename commands which a player could use to rename an item
+  rename:
+    - '/rename'
+
+  # Block hoppers to take/give banned item from/to inventories
+  # This is more resource intensive
+  transfer:
+    hoppers-block: false
+
+  # Configuration for the wear action
+  wear:
+    # If the plugin have to check when a player enter or exit a WorldGuard region
+    region-check: false
+    # Scan each seconds if a player is wearing a banned item [async]
+    scanner: true
+
+  # The plugin will not take in consideration inventories which name is in this list
+  # WITHOUT color codes & case sensitive: color codes from GUI titles will be removed to be compared
+  delete:
+    ignored-inventories-titles:
+      - 'My Cool Gui'
+      - 'Shop'
+
+# Hooking with plugins
+# Enable these hooks only if you use it
+hooks:
+  # For WorldGuard regions [WG6-WG7]
+  worldguard: false
+  # For AdvancedEnchantments enchantments into custom items
+  advancedenchantments: false
+
+# Animations when a ban item message is sent
+sound:
+  enabled: true
+  type: ENCHANT_THORNS_HIT
+  volume: 1
+  pitch: 1
+  worldSound: false # if the sound can be heard by others players around or not
+particle: # available only on bukkit 1.9+
+  enabled: false
+  type: BARRIER
+  amount: 1
+
+# Illegal stack configuration
+# You can either set the vanilla-max-stack-size to true, so all items will respect their max stacks
+# And/or configure for each material the max stack amount you wish
+# You can use the material formatting ('*', 'stone, dirt', '*,!dirt' etc.). Example regex: '#(?i)_helmet' -> will give all helmets
+# Players with banitem.bypassillegalstack permission will not be affected
+# The block-type are:
+#   - split (to split and give items back until the correct max stack is respected)
+#   - delete (to delete the whole stack)
+#   - deletemore (to delete only the exceeded amount)
+illegal-stacks:
+  enabled: false
+  vanilla-max-stack-size: true
+  block-type: split
+  #items:
+  #  'diamond_helmet,iron_helmet':
+  #    amount: 1
+  #    block-type: split
+
+# Here is some quick examples:
+#blacklist:
+#  world:
+#    diamond_block: # can not place or break diamond_block, no messages
+#      place: '&cYou are not allowed to place a diamond block in world.'
+#      break: '&cYou are not allowed to break a diamond block in world.'
+#    gold_block: # can not place gold block if in creative mode except if you have 'my.bypass.permission'
+#      place:
+#        gamemode: creative
+#        message: '&cYou can not place gold block while in creative mode.'
+#        permission: 'my.bypass.permission'
+#    my_meta_item: # meta item from /bi metaitem, useable only each minute (time in millis)
+#      attack:
+#        cooldown: 60000
+#        message: '&cYou have to wait &e{time}&c before attacking with this item again.'
+#    stick: # can not put stick into an itemframe. Sending log message to players with /bi log activated.
+#      entityinteract:
+#        entity: item_frame
+#        message: '&cYou can not put a stick into an itemframe!'
+#        log: true
+#    diamond: # can not put diamonds from a player inventory to a chest
+#      transfer:
+#        inventory-from: player
+#        inventory-to: chest
+#        message: '&cYou can not put diamonds in chests.'
+#  '*, !world_the_end': # all worlds except the end
+#    ender_pearl:
+#      use: '&cYou can use enderpearls only in the end.'
+#  # you have to set priority to 'use' (above the config) in order for this to work
+#whitelist:
+#  world_the_end:
+#    message: '&cOnly thing allowed in this world: placing dirt.'
+#    ignored: 'interact' # we ignore the interact, so player can interact (to place) with everything
+#    dirt: place # dirt can be placed
+### Whitelist conclusion: in world_the_end, only one thing is allowed: placing dirt.
+### Everything else (breaking, pickup, drop etc.) will be blocked.

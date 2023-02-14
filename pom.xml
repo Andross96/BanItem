@@ -9,9 +9,9 @@
     <version>3.4</version>
     <modules>
         <module>BanItemPlugin</module>
-        <module>Hooks</module>
-        <module>WG6</module>
-        <module>WG7</module>
+<!--        <module>Hooks</module>-->
+<!--        <module>WG6</module>-->
+<!--        <module>WG7</module>-->
     </modules>
     <packaging>pom</packaging>
     <name>BanItemParent</name>

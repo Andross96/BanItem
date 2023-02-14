@@ -1,0 +1,96 @@
+# +———————————————————————————————————————————————————+ #
+# |——————————     BANITEM CONFIGURATION     ——————————| #
+# |——————————————————      v3.2      —————————————————| #
+# +———————————————————————————————————————————————————+ #
+# |                   Documentation:                  | #
+# |             https://banitem.andross.fr/           | #
+# +———————————————————————————————————————————————————+ #
+# For any bugs/suggestions: Andross#5254
+# +——————————————————————————————————————————————————————————————————————————————————————————————+
+# This file is used to create custom items bans.
+# The custom items are items created manually, here in this config file, to ban easily items with
+# specific metadatas.
+# Let's say you want to ban any diamond sword which have enchantment unbreaking 3.
+# --------
+# 1. You have to create the custom item:
+#   customItemName:
+#     material: DIAMOND_SWORD
+#     enchantment-contains: 'unbreaking:3'
+#   # The custom item created, you'll can add it into the blacklist (config.yml) with name 'customItemName':
+# 2. Add the custom item into the blacklist (config.yml)
+#   blacklist:
+#    world:
+#     customItemName:
+#      attack: '&cYou can not attack with this sword.'
+## Thats it! Players will not be able to attack with any diamond sword which have enchantment unbreaking 3.
+# --------
+# List of metadata:
+#  -> DISPLAYNAME-EQUALS: String
+#    -> if the displayname of the item is equals to the String
+#  -> DISPLAYNAME-CONTAINS: String
+#    -> if the displayname of the item contains the String
+#  -> LORE-EQUALS: String or List of String
+#    -> if the lore of the item is exactly equal to the lore written
+#    -> Example:
+#      -> lore-equals:
+#         - 'Line 1'
+#         - 'Line 2'
+#  -> LORE-CONTAINS: String or List of String
+#    -> if any line in the lore of the item contains any line of the string written
+#  -> LORE-CONTAINS-REGEX: String (Regex pattern)
+#    -> if any line in the lore of the item matches the regex pattern written
+#    -> Example: to match a lore which has 'Damage +X', with x between 1 and 9:
+#      -> lore-contains-regex: 'Damage \+[1-9]'
+#  -> LORE-LINE-CONTAINS: String
+#    -> if any line in the lore of the item contains the string written
+#  -> DURABILITY: Integer (number) or String (interval)
+#    -> if the durability of the item matches
+#    -> There is multiple synthax:
+#      -> durability: 1 - to match items with durability 1
+#      -> durability: '0-300' - to match items with durability between 0 [inclusive] and 300 [inclusive]
+#  -> ENCHANTMENT-CONTAINS: String or List of String
+#    -> if the item contains one of the written enchantments
+#    -> Multiple synthax available:
+#      -> 'Enchantment': if the item contains this enchantment, does not consider the level;
+#      -> 'Enchantment:Level': if the item contains this enchantment with this level;
+#      -> 'Enchantment:MinLevel:MaxLevel': if the item contains this enchantment, within the min & max level interval [inclusive];
+#    -> Example:
+#      -> enchantment-contains: 'unbreaking,efficiency:5:32767'
+#  -> ENCHANTMENT-EQUALS: String or List of String
+#    -> if the enchantments of the item matches exactly the ones written, no more or less.
+#    -> The synthax is 'Enchantment:Level'
+#    -> Example:
+#      -> enchantment-equals: 'unbreaking:3,efficiency:5'
+#  -> POTION: String or List of String
+#    -> if the item contains one of the written potion effect
+#    -> Multiple synthax available:
+#      -> 'Potion': if the item contains this potion effect, does not consider the level;
+#      -> 'Potion:Level': if the item contains this potion effect with this level;
+#      -> 'Potion:MinLevel:MaxLevel': if the item contains this potion effect, within the min & max level interval [inclusive];
+#    -> Example:
+#      -> potion: 'speed,slow:1'
+#  -> UNBREAKABLE: Boolean
+#    -> if the item is unbreakable
+#  -> MODELDATA-EQUALS: String
+#    -> if the item modeldata is equals to the one written (for MC>=1.14)
+#  -- HOOKS: --
+#  -> ADVANCEDENCHANTMENTS:
+#    -> if you have the AdvancedEnchantments plugin (from GC.), you can match advanced enchantments.
+#    -> the synthax works exactly the same as ENCHANTMENT-CONTAINS.
+#    -> Example:
+#      -> advancedenchantments: 'custom_enchant:1'
+#  -> ITEMSADDER:
+#    -> if you have the ItemsAdder plugin (from LoneDev), you can match the custom items adder item.
+#    -> Example:
+#      -> itemsadder: 'ruby_head, astral_bow'
+#  -> NBTAPI:
+#    -> if you have the NBT-API plugin (https://www.spigotmc.org/resources/nbt-api.7939/), you can match custom NBT
+#    -> You have to write the complete node separated with # and the objects to match
+#    -> Example: {EntityTag:{id:"minecraft:zombie"}}
+#      -> nbtapi:
+#           'EntityTag#id': 'minecraft:zombie'
+#    -> Using the synthax below, you can write multiples nodes and multiples possible match for a same custom item:
+#      -> nbtapi:
+#           'EntityTag#id':
+#             1: 'minecraft:zombie'
+#             2: 'minecraft:pig'

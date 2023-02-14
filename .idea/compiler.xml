@@ -6,16 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="WG7" />
-        <module name="Hooks" />
-        <module name="WG6" />
-      </profile>
-      <profile name="Annotation profile for BanItemParent" enabled="true">
-        <sourceOutputDir name="../target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
         <module name="BanItemPlugin" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Hooks" target="8" />
+      <module name="WG6" target="8" />
+      <module name="WG7" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
