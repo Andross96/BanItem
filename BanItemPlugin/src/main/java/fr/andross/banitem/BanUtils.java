@@ -212,12 +212,6 @@ public final class BanUtils {
                     break;
                 }
 
-                case BANNABLE: {
-                    // The moment it is in the config, we assume a player is meant to be banned
-                    banActionData.getMap().put(BanDataType.BANNABLE, true);
-                    break;
-                }
-
                 case RUN: {
                     final List<String> commands = Listable.getStringList(o);
                     if (!commands.isEmpty())

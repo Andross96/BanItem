@@ -29,14 +29,16 @@ import fr.andross.banitem.events.PlayerBanItemEvent;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.CustomBannedItem;
 import fr.andross.banitem.items.ICustomName;
-import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
 import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -166,24 +168,7 @@ public final class Blacklist extends HashMap<World, Items> {
         // Checking custom data
         final BanActionData blacklistData = map.get(action);
         final Map<BanDataType, Object> dataMap = blacklistData.getMap();
-
-
         if (Utils.isNullOrEmpty(data) || Arrays.stream(data).allMatch(blacklistData::contains)) {
-
-            // Checking bannable data?
-            if (dataMap.containsKey(BanDataType.BANNABLE)) {
-                if (((boolean) blacklistData.getData(BanDataType.BANNABLE))) {
-                    String banMsg = "§c§l[§e§lBanItem§c§l]§f Illegal item";
-                    player.getInventory().remove(item.toItemStack());
-                    Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), banMsg, null, banMsg);
-                    player.kickPlayer(banMsg);
-                    pl.getBanLog().addBan(player, item.toItemStack());
-                    return true;
-                }
-
-                return false;
-            }
-
             // Checking creative data?
             if (dataMap.containsKey(BanDataType.GAMEMODE)) {
                 final Set<GameMode> set = blacklistData.getData(BanDataType.GAMEMODE);

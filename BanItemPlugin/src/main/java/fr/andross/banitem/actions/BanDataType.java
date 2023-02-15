@@ -100,13 +100,6 @@ public enum BanDataType {
      */
     REGION("region"),
 
-
-    /**
-     * Type: Boolean
-     * Used to determine if the user should be banned if the action occurs
-     */
-    BANNABLE("bannable"),
-
     /**
      * Type: List of String
      * Used to run commands when the banned action occurs
