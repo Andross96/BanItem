@@ -170,10 +170,6 @@ public final class Blacklist extends HashMap<World, Items> {
 
         if (Utils.isNullOrEmpty(data) || Arrays.stream(data).allMatch(blacklistData::contains)) {
 
-            // Log violations
-            if (pl.getBanConfig().getLogActions().contains(action))
-                pl.getViolationLog().addLogData(player, item.toItemStack(), action.getName());
-
             // Checking bannable data?
             if (dataMap.containsKey(BanDataType.BANNABLE)) {
                 if (((boolean) blacklistData.getData(BanDataType.BANNABLE))) {
@@ -181,7 +177,7 @@ public final class Blacklist extends HashMap<World, Items> {
                     player.getInventory().remove(item.toItemStack());
                     Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), banMsg, null, banMsg);
                     player.kickPlayer(banMsg);
-                    pl.getBanLog().addLogData(player, item.toItemStack());
+                    pl.getBanLog().addBan(player, item.toItemStack());
                     return true;
                 }
 
