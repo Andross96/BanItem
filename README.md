@@ -23,7 +23,6 @@ Lightweight, powerful & configurable per world ban item plugin
   <id>andross-repo</id>
   <url>https://repo.andross.fr/</url>
 </repository>
->>>>>>> parent of 7919543 (Update README.md)
 
 <dependency>
   <groupId>fr.andross.banitem</groupId>
