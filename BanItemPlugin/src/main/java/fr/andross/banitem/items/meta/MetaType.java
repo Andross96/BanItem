@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple enumeration for customizable item metas
- * @version 3.4
+ * @version 3.4.1
  * @author Andross
  */
 public enum MetaType {
@@ -29,6 +29,7 @@ public enum MetaType {
     ATTRIBUTE(AttributeContains.class),
     DISPLAYNAME_CONTAINS(DisplayNameContains.class),
     DISPLAYNAME_EQUALS(DisplayNameEquals.class),
+    DISPLAYNAME_EQUALS_REGEX(DisplayNameEqualsRegex.class),
     DURABILITY(Durability.class),
     ENCHANTMENT_CONTAINS(EnchantmentContains.class),
     ENCHANTMENT_EQUALS(EnchantmentEquals.class),

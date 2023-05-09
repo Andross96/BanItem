@@ -1,6 +1,7 @@
 v3.4.1:
-  - Fixed lore-contains-regex metadata for custom item
+  - Added displayname-equals-regex for custom items
   - Added configurable worlds for illegal-stacks
+  - Fixed lore-contains-regex metadata for custom item
 --------------------------------------------
 v3.4:
   - Added mending action (MC>=1.13): when a player has an item repaired via the mending enchantment;
