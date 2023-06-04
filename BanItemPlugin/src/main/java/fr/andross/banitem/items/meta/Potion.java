@@ -36,7 +36,7 @@ import java.util.Set;
 
 /**
  * A simple meta comparator to compare potions
- * @version 3.3
+ * @version 3.4.1
  * @author Andross
  */
 public final class Potion extends MetaTypeComparator {
@@ -127,6 +127,11 @@ public final class Potion extends MetaTypeComparator {
 
         for (final Map.Entry<PotionEffectType, Integer> e : potions.entrySet()) {
             final PotionEffectType potionEffectType = e.getKey();
+
+            if (potionEffectType == null) {
+                continue;
+            }
+
             final int level = e.getValue();
             final Object object = BanVersion.v13OrMore ? potionEffectType : potionEffectType.getName();
 

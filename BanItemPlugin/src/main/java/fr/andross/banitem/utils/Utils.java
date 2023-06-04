@@ -34,7 +34,7 @@ import java.util.*;
 
 /**
  * Utility class
- * @version 3.3.1
+ * @version 3.4.1
  * @author Andross
  */
 public final class Utils {
@@ -206,8 +206,10 @@ public final class Utils {
             if (pm.hasCustomEffects()) {
                 for (final PotionEffect customEffect : pm.getCustomEffects()) {
                     final PotionEffectType effectType = customEffect.getType();
-                    final int level = customEffect.getAmplifier() == 0 ? 1 : 2;
-                    map.put(effectType, level);
+                    if (effectType != null) {
+                        final int level = customEffect.getAmplifier() == 0 ? 1 : 2;
+                        map.put(effectType, level);
+                    }
                 }
             }
         }
