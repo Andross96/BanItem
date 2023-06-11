@@ -6,7 +6,7 @@
 
     <groupId>fr.andross.banitem</groupId>
     <artifactId>BanItemParent</artifactId>
-    <version>3.4.1</version>
+    <version>3.4.1.1</version>
     <modules>
         <module>BanItemPlugin</module>
         <module>Hooks</module>
@@ -41,13 +41,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <version>1.19.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations-java5</artifactId>
-            <version>22.0.0</version>
+            <version>24.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
