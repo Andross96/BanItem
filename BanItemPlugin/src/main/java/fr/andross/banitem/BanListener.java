@@ -373,8 +373,16 @@ public final class BanListener {
             if (BanVersion.v9OrMore)
                 registerEvent(PlayerInteractEntityEvent.class, (li, event) -> {
                     final PlayerInteractEntityEvent e = (PlayerInteractEntityEvent) event;
-                    final ItemStack used = e.getPlayer().getInventory().getItem(e.getHand());
-                    if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), used, true, BanAction.ENTITYINTERACT, new BanData(BanDataType.ENTITY, e.getRightClicked().getType())))
+
+                    if (e.getHand() != EquipmentSlot.HAND && e.getHand() != EquipmentSlot.OFF_HAND) {
+                        return;
+                    }
+
+                    final ItemStack item = e.getHand() == EquipmentSlot.HAND ?
+                            e.getPlayer().getInventory().getItemInMainHand() :
+                            e.getPlayer().getInventory().getItemInOffHand();
+
+                    if (api.isBanned(e.getPlayer(), e.getRightClicked().getLocation(), item, true, BanAction.ENTITYINTERACT, new BanData(BanDataType.ENTITY, e.getRightClicked().getType())))
                         e.setCancelled(true);
                 }, priority.contains(BanAction.ENTITYINTERACT));
             else
