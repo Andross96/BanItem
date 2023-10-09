@@ -202,6 +202,13 @@ public enum BanAction {
     SWAP("swap"),
 
     /**
+     * When a player attacks with an item which has
+     * sweeping edge enchantment.
+     * Special data: <b>entity</b> - the {@link org.bukkit.entity.EntityType} of the attacked entity
+     */
+    SWEEPINGEDGE("sweepingedge"),
+
+    /**
      * When an item is transfered from an inventory to another
      * Special data:
      *   - <b>inventory-from</b> - the {@link org.bukkit.event.inventory.InventoryType} where the item comes from

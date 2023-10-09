@@ -1,4 +1,5 @@
-v3.4.1:
+v3.5:
+  - Added sweepingedge action (MC>=1.12): when the player attacks an entity with an item that has sweeping edge. The original attack will continue but the sweeping edge damage will be cancelled;
   - Added displayname-equals-regex for custom items
   - Added configurable worlds for illegal-stacks
   - Fixed lore-contains-regex metadata for custom item

@@ -41,6 +41,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.*;
@@ -778,6 +779,24 @@ public final class BanListener {
                     }
                 }, priority.contains(BanAction.SWAP));
             }
+        }
+
+        if (blacklist.contains(BanAction.SWEEPINGEDGE) || whitelist) {
+            if (!BanVersion.v12OrMore) {
+                if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
+                    sender.sendMessage(Chat.color("&cCan not use the '&esweepingedge&c' action in Minecraft < 1.12."));
+            } else
+                registerEvent(EntityDamageByEntityEvent.class, (li, event) -> {
+                    if (!(event instanceof EntityDamageByEntityEvent))
+                        return; // this event is called even for EntityDamageByBlockEvent. Weird?
+                    final EntityDamageByEntityEvent e = (EntityDamageByEntityEvent) event;
+                    if (!(e.getDamager() instanceof Player)) return;
+                    if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) return;
+                    final Player damager = (Player) e.getDamager();
+                    final ItemStack itemInHand = Utils.getItemInHand(damager);
+                    if (api.isBanned(damager, e.getEntity().getLocation(), itemInHand, true, BanAction.SWEEPINGEDGE, new BanData(BanDataType.ENTITY, e.getEntityType())))
+                        e.setCancelled(true);
+                }, priority.contains(BanAction.SWEEPINGEDGE));
         }
 
         if (blacklist.contains(BanAction.TRANSFER) || whitelist) {
