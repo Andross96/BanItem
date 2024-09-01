@@ -1,3 +1,7 @@
+v3.6:
+  - Fix console error "BLOCK is not an item"
+  - Fix offhand glitch with the transfer action
+--------------------------------------------
 v3.5:
   - Added sweepingedge action (MC>=1.12): when the player attacks an entity with an item that has sweeping edge. The original attack will continue but the sweeping edge damage will be cancelled;
   - Added displayname-equals-regex for custom items
