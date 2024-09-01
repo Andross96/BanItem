@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -48,5 +49,5 @@ public abstract class MetaTypeComparator {
         this.valid = valid;
     }
 
-    public abstract boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta);
+    public abstract boolean matches(@NotNull final BannedItem bannedItem);
 }

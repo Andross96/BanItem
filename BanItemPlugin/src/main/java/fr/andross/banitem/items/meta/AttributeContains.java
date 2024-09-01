@@ -19,6 +19,7 @@ package fr.andross.banitem.items.meta;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.BanVersion;
 import fr.andross.banitem.utils.attributes.AttributeLegacy;
 import fr.andross.banitem.utils.attributes.AttributeLevels;
@@ -93,9 +94,15 @@ public final class AttributeContains extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        if (itemMeta == null) return false;
-        return getAttributesModifiers(itemStack).entries().stream()
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        if (bannedItem.getItemMeta() == null) return false;
+
+        // Not an item ?
+        if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+            return false;
+        }
+
+        return getAttributesModifiers(bannedItem.toItemStack()).entries().stream()
                 .filter(entry -> attributes.containsKey(entry.getKey()))
                 .anyMatch(entry -> attributes.get(entry.getKey()).stream()
                         .anyMatch(levels -> levels == null || levels.matches(entry.getValue())));

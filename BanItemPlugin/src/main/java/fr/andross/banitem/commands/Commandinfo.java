@@ -102,13 +102,14 @@ public class Commandinfo extends BanCommand {
         message("&7Material name: &e" + materialName);
 
         // Displaying if it's a meta item
-        final String metaItemName = pl.getBanDatabase().getMetaItems().getKey(new BannedItem(item));
+        final BannedItem bannedItem = new BannedItem(item);
+        final String metaItemName = pl.getBanDatabase().getMetaItems().getKey(bannedItem);
         if (metaItemName != null) message("&7Meta item name: &e" + metaItemName);
 
         // Displaying matching custom items
         final List<CustomBannedItem> customItems = pl.getBanDatabase().getCustomItems().values()
                 .stream()
-                .filter(ci -> ci.matches(item))
+                .filter(ci -> ci.matches(bannedItem))
                 .collect(Collectors.toList());
         if (!customItems.isEmpty())
             message("&7Matching custom items: &e" + customItems.stream().map(CustomBannedItem::getName).collect(Collectors.joining(",")));

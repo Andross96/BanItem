@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +41,8 @@ public final class LoreLineContains extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        final ItemMeta itemMeta = bannedItem.getItemMeta();
         final List<String> itemLore = itemMeta == null ? null : (itemMeta.hasLore() ? itemMeta.getLore() : null); // made it that way to ignore the @Nullable annotation warning
         return itemLore != null && itemLore.stream().anyMatch(l -> l.contains(lore));
     }

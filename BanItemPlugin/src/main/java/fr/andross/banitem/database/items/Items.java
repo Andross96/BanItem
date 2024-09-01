@@ -45,9 +45,8 @@ public class Items {
     public Map<BanAction, BanActionData> get(@NotNull final BannedItem bannedItem) {
         // Custom items?
         if (!customItems.isEmpty()) {
-            final ItemStack item = bannedItem.toItemStack();
             for (final Map.Entry<CustomBannedItem, Map<BanAction, BanActionData>> e : customItems.entrySet()) {
-                if (e.getKey().matches(item))
+                if (e.getKey().matches(bannedItem))
                     return e.getValue();
             }
         }

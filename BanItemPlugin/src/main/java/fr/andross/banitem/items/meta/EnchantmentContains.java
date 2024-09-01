@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.BanVersion;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
@@ -121,8 +122,13 @@ public final class EnchantmentContains extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        final Map<Enchantment, Integer> enchantsOnItem = Utils.getAllEnchants(itemStack);
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        // Not an item ?
+        if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+            return false;
+        }
+
+        final Map<Enchantment, Integer> enchantsOnItem = Utils.getAllEnchants(bannedItem.toItemStack());
         for (final Map.Entry<Enchantment, Integer> e : enchantsOnItem.entrySet()) {
             final Enchantment enchantment = e.getKey();
             final int level = e.getValue();

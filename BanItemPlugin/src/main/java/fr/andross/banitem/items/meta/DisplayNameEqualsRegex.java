@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
 import org.bukkit.inventory.ItemStack;
@@ -46,7 +47,8 @@ public final class DisplayNameEqualsRegex extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        final ItemMeta itemMeta = bannedItem.getItemMeta();
         return itemMeta != null && itemMeta.hasDisplayName() && pattern.matcher(itemMeta.getDisplayName()).find();
     }
 }

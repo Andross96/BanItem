@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.BanVersion;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
@@ -121,8 +122,13 @@ public final class Potion extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        final Map<PotionEffectType, Integer> potions = Utils.getAllPotionEffects(itemStack);
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        // Not an item ?
+        if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+            return false;
+        }
+
+        final Map<PotionEffectType, Integer> potions = Utils.getAllPotionEffects(bannedItem.toItemStack());
         if (potions.isEmpty()) return false;
 
         for (final Map.Entry<PotionEffectType, Integer> e : potions.entrySet()) {

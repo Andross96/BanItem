@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.BanVersion;
 import fr.andross.banitem.utils.debug.Debug;
 import org.bukkit.inventory.ItemStack;
@@ -75,12 +76,23 @@ public final class Durability extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        final int dura;
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        final int durability;
+
         if (BanVersion.v13OrMore) {
-            if (itemMeta == null) return false;
-            dura = ((Damageable)itemMeta).getDamage();
-        } else dura = itemStack.getDurability();
-        return dura >= min && dura <= max;
+            final ItemMeta itemMeta = bannedItem.getItemMeta();
+            if (itemMeta == null) {
+                return false;
+            }
+            durability = ((Damageable) itemMeta).getDamage();
+        } else {
+            // Not an item ?
+            if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+                return false;
+            }
+            durability = bannedItem.toItemStack().getDurability();
+        }
+
+        return durability >= min && durability <= max;
     }
 }

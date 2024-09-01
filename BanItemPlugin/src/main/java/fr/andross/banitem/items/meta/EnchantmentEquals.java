@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
@@ -72,7 +73,11 @@ public final class EnchantmentEquals extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        return Utils.getAllEnchants(itemStack).equals(enchants);
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        // Not an item ?
+        if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+            return false;
+        }
+        return Utils.getAllEnchants(bannedItem.toItemStack()).equals(enchants);
     }
 }

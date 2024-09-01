@@ -95,18 +95,17 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
 
     /**
      * Comparing the ItemMeta of the item with the item meta stored
-     * @param item the item stack to compare
+     * @param bannedItem the item to compare
      * @return true if the item meta matches, otherwise false
      */
-    public boolean matches(@NotNull final ItemStack item) {
+    public boolean matches(@NotNull final BannedItem bannedItem) {
         // Matching material?
-        if (!materials.contains(item.getType())) return false;
+        if (!materials.contains(bannedItem.getType())) return false;
 
         // All meta are matching?
-        final ItemMeta itemMeta = item.getItemMeta();
         if (!reverted) {
             for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet()) {
-                if (!e.getValue().matches(item, itemMeta))
+                if (!e.getValue().matches(bannedItem))
                     return false;
             }
             return true;
@@ -114,7 +113,7 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
 
         // Reverted custom item! (matching everything that does not match)
         for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet()) {
-            if (!e.getValue().matches(item, itemMeta))
+            if (!e.getValue().matches(bannedItem))
                 return true;
         }
         return false;

@@ -19,6 +19,7 @@ package fr.andross.banitem.items.meta;
 
 import de.tr7zw.nbtapi.NBTCompound;
 import de.tr7zw.nbtapi.NBTItem;
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.debug.Debug;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -114,8 +115,13 @@ public final class NBTAPI extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        final NBTItem nbtItem = new NBTItem(itemStack);
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        // Not an item ?
+        if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+            return false;
+        }
+
+        final NBTItem nbtItem = new NBTItem(bannedItem.toItemStack());
 
         for (final Map.Entry<List<String>, List<BiPredicate<NBTCompound, String>>> e : map.entrySet()) {
             final List<String> nodes = e.getKey();

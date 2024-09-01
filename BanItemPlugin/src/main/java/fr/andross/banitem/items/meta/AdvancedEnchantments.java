@@ -17,6 +17,7 @@
  */
 package fr.andross.banitem.items.meta;
 
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
 import n3kas.ae.api.AEAPI;
@@ -101,8 +102,13 @@ public final class AdvancedEnchantments extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        final Map<String, Integer> enchantsOnItem = AEAPI.getEnchantmentsOnItem(itemStack);
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        // Not an Item ?
+        if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+            return false;
+        }
+
+        final Map<String, Integer> enchantsOnItem = AEAPI.getEnchantmentsOnItem(bannedItem.toItemStack());
         if (enchantsOnItem.isEmpty()) return false;
         for (final Map.Entry<String, Integer> e : enchantsOnItem.entrySet()) {
             final String enchantment = e.getKey().toLowerCase(Locale.ROOT);

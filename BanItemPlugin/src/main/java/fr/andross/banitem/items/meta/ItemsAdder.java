@@ -18,6 +18,7 @@
 package fr.andross.banitem.items.meta;
 
 import dev.lone.itemsadder.api.CustomStack;
+import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.inventory.ItemStack;
@@ -54,8 +55,13 @@ public final class ItemsAdder extends MetaTypeComparator {
     }
 
     @Override
-    public boolean matches(@NotNull final ItemStack itemStack, @Nullable final ItemMeta itemMeta) {
-        final CustomStack customStack = CustomStack.byItemStack(itemStack);
+    public boolean matches(@NotNull final BannedItem bannedItem) {
+        // Not an item ?
+        if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
+            return false;
+        }
+
+        final CustomStack customStack = CustomStack.byItemStack(bannedItem.toItemStack());
         return customStack != null && items.contains(customStack.getId().toLowerCase(Locale.ROOT));
     }
 }
