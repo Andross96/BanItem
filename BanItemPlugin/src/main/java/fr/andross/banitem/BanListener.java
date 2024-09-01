@@ -835,6 +835,15 @@ public final class BanListener {
                         if (api.isBanned(p, item, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, top.getType()), new BanData(BanDataType.INVENTORY_TO, bottom.getType())))
                             e.setCancelled(true);
                     } else {
+                        // Offhand click?
+                        if (e.getHotbarButton() < 0 && e.getAction() == InventoryAction.HOTBAR_SWAP) {
+                            final ItemStack item = p.getInventory().getItemInOffHand();
+                            if (api.isBanned(p, item, true, BanAction.TRANSFER, new BanData(BanDataType.INVENTORY_FROM, bottom.getType()), new BanData(BanDataType.INVENTORY_TO, top.getType()))) {
+                                e.setCancelled(true);
+                                return;
+                            }
+                        }
+
                         // Hot bar click?
                         if (e.getHotbarButton() > -1) {
                             final ItemStack hotBarItem = bottom.getItem(e.getHotbarButton());
