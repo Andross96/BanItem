@@ -6,7 +6,7 @@
 
     <groupId>fr.andross.banitem</groupId>
     <artifactId>BanItemParent</artifactId>
-    <version>3.6</version>
+    <version>3.7</version>
     <modules>
         <module>BanItemPlugin</module>
         <module>Hooks</module>

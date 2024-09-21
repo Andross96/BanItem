@@ -59,10 +59,12 @@ public final class BanHooks {
         // AdvancedEnchantments?
         if (pl.getBanConfig().getConfig().getBoolean("hooks.advancedenchantments") && pl.getServer().getPluginManager().isPluginEnabled("AdvancedEnchantments")) {
             try {
-                if (n3kas.ae.api.AEAPI.getAllEnchantments() == null) throw new Exception();
+                if (net.advancedplugins.ae.api.AEAPI.getAllEnchantments() == null) {
+                    throw new Exception();
+                }
                 isAdvancedEnchantmentsEnabled = true;
             } catch (final Throwable e) {
-                pl.getUtils().sendMessage(sender, "&c[Hooks] Can not hook with AdvancedEnchantments.");
+                pl.getUtils().sendMessage(sender, "&c[Hooks] Can not hook with AdvancedEnchantments: " + e.getMessage());
                 isAdvancedEnchantmentsEnabled = false;
             }
         }

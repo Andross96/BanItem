@@ -20,11 +20,8 @@ package fr.andross.banitem.items.meta;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
-import n3kas.ae.api.AEAPI;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import net.advancedplugins.ae.api.AEAPI;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 

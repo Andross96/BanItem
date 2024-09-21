@@ -1,3 +1,6 @@
+v3.7:
+  - Fix AdvancedEnchantments hook
+--------------------------------------------
 v3.6:
   - Fix console error "BLOCK is not an item"
   - Fix offhand glitch with the transfer action
