@@ -1,5 +1,6 @@
 v3.7:
   - Fix AdvancedEnchantments hook
+  - Fix hold offhand inventory glitch
 --------------------------------------------
 v3.6:
   - Fix console error "BLOCK is not an item"

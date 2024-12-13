@@ -511,6 +511,22 @@ public final class BanListener {
                     if (cursor != null && api.isBanned(p, cursor, true, BanAction.HOLD))
                         e.setCancelled(true);
                 }
+
+                // Added item into the offhand slot ?
+                if (BanVersion.v9OrMore && e.getSlot() == 40) {
+                    // Using hotkey ?
+                    if (e.getHotbarButton() >= 0) {
+                        final ItemStack item = p.getInventory().getItem(e.getHotbarButton());
+                        if (item != null && api.isBanned(p, item, true, BanAction.HOLD)) {
+                            e.setCancelled(true);
+                        }
+                    }
+
+                    final ItemStack cursorItem = e.getCursor();
+                    if (cursorItem != null && api.isBanned(p, cursorItem, true, BanAction.HOLD)) {
+                        e.setCancelled(true);
+                    }
+                }
             }, priority.contains(BanAction.HOLD));
 
             // Pickup
