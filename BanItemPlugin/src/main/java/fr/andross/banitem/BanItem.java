@@ -101,12 +101,12 @@ public final class BanItem extends JavaPlugin {
         final long end = System.currentTimeMillis();
         final boolean moredebug = banConfig.getConfig().getBoolean("debug.reload");
         if (moredebug) {
-            utils.sendMessage(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s) &7&o[" + (end - start) + "ms]&2.");
-            utils.sendMessage(sender, "&2Listeners activated: &e" + listener.getActivated());
-            utils.sendMessage(sender, "&2Meta items loaded: &e" + banDatabase.getMetaItems().size());
-            utils.sendMessage(sender, "&2Custom items loaded: &e" + banDatabase.getCustomItems().size());
+            utils.sendBanMessageAndAnimation(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s) &7&o[" + (end - start) + "ms]&2.");
+            utils.sendBanMessageAndAnimation(sender, "&2Listeners activated: &e" + listener.getActivated());
+            utils.sendBanMessageAndAnimation(sender, "&2Meta items loaded: &e" + banDatabase.getMetaItems().size());
+            utils.sendBanMessageAndAnimation(sender, "&2Custom items loaded: &e" + banDatabase.getCustomItems().size());
         } else
-            utils.sendMessage(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s).");
+            utils.sendBanMessageAndAnimation(sender, "&2Successfully loaded &e" + banDatabase.getBlacklist().getTotal() + "&2 blacklisted & &e" + banDatabase.getWhitelist().getTotal() + "&2 whitelisted item(s).");
     }
 
     @Override
@@ -133,31 +133,31 @@ public final class BanItem extends JavaPlugin {
         // Trying to show help?
         if (!sender.hasPermission("banitem.command.help")) {
             final String message = getConfig().getString("no-permission");
-            if (message != null) utils.sendMessage(sender, message);
+            if (message != null) utils.sendBanMessageAndAnimation(sender, message);
             return true;
         }
 
         // Help messages
         if (sender instanceof Player) {
-            utils.sendMessage(sender, "&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
-            utils.sendMessage(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
-            utils.sendMessage(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
-            utils.sendMessage(sender, " &7- /bi &3help&7: gives additional informations.");
-            utils.sendMessage(sender, " &7- /bi &3info&7: get info about your item in hand.");
-            utils.sendMessage(sender, " &7- /bi &3load&7: load a specific config file.");
-            utils.sendMessage(sender, " &7- /bi &3log&7: activate the log mode.");
-            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
-            utils.sendMessage(sender, " &7- /bi &3reload&7: reload the config.");
-            utils.sendMessage(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
+            utils.sendBanMessageAndAnimation(sender, "&7&m     &r &l[&7&lUsage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3help&7: gives additional informations.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3info&7: get info about your item in hand.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3load&7: load a specific config file.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3log&7: activate the log mode.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3reload&7: reload the config.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
         } else {
-            utils.sendMessage(sender, "&7&m     &r &l[&7&lConsole Usage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
-            utils.sendMessage(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
-            utils.sendMessage(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
-            utils.sendMessage(sender, " &7- /bi &3help&7: gives additional informations.");
-            utils.sendMessage(sender, " &7- /bi &3load&7: load a specific config file.");
-            utils.sendMessage(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
-            utils.sendMessage(sender, " &7- /bi &3reload&7: reload the config.");
-            utils.sendMessage(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
+            utils.sendBanMessageAndAnimation(sender, "&7&m     &r &l[&7&lConsole Usage - &e&lv" + getDescription().getVersion() + "&r&l] &7&m     ");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3add&7: add an item in blacklist for current world.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3check&7: check if any player has a blacklisted item.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3help&7: gives additional informations.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3load&7: load a specific config file.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3metaitem&7: add/remove/list meta items.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3reload&7: reload the config.");
+            utils.sendBanMessageAndAnimation(sender, " &7- /bi &3remove&7: remove and unban the item if banned.");
         }
         return true;
     }

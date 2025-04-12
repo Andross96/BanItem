@@ -70,7 +70,7 @@ public final class IllegalStackScanner {
         vanillaMaxStackSize = section.getBoolean("vanilla-max-stack-size");
         defaultBlockType = getBlockType(section.getString("block-type"));
         if (defaultBlockType == null) {
-            utils.sendMessage(sender, "&c[Illegal-Stack] The default 'block-type' is not set or invalid.");
+            utils.sendBanMessageAndAnimation(sender, "&c[Illegal-Stack] The default 'block-type' is not set or invalid.");
             enabledInConfig = false;
             return;
         }

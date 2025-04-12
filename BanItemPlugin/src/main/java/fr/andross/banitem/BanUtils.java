@@ -231,14 +231,11 @@ public final class BanUtils {
      * @param player any player
      */
     public void deleteItemFromInventoryView(@NotNull final Player player) {
-        // Op or all permissions?
-        if (player.isOp() || player.hasPermission("banitem.bypass.*")) return;
-
         // Getting blacklist
         final Blacklist blacklist = pl.getBanDatabase().getBlacklist();
         if (!blacklist.containsKey(player.getWorld())) return; // nothing banned in this world
 
-        // Checking!
+        // Checking
         final Inventory[] invs;
         final InventoryView iv = player.getOpenInventory();
         final Inventory top = iv.getTopInventory();
@@ -271,30 +268,18 @@ public final class BanUtils {
     }
 
     /**
-     * This method is used to send a ban message to player, if exists.
-     * Mainly used for blacklist
+     * This method is used to send a ban message to player, if configured.
+     * Mainly used for blacklist.
      * @param player player involved in the action
      * @param itemName the item name involved
      * @param action the ban action <i>(used for log)</i>
      * @param data the ban data <i>(containing the messages)</i>
      */
-    public void sendMessage(@NotNull final Player player, @NotNull final String itemName, @NotNull final BanAction action, @Nullable final BanActionData data) {
+    public void sendBanMessageAndAnimation(@NotNull final Player player, @NotNull final String itemName, @NotNull final BanAction action, @Nullable final BanActionData data) {
         if (data == null) return; // no message neither log
 
-        // Checking action cooldown, to prevent spam
-        if (action == BanAction.PICKUP || action == BanAction.HOLD || action == BanAction.SMITH) {
-            // Adding in cooldown
-            if (!messagesCooldown.containsKey(player.getUniqueId()))
-                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
-            else {
-                final long lastTime = messagesCooldown.get(player.getUniqueId());
-                if (lastTime + 1000L > System.currentTimeMillis()) return; // not sending message again
-                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
-            }
-        }
-
         // Getting datas
-        final List<String> message = data.getData(BanDataType.MESSAGE);
+        final List<String> messages = data.getData(BanDataType.MESSAGE);
         final boolean log = data.getLog();
 
         // Logging?
@@ -310,39 +295,58 @@ public final class BanUtils {
             logging.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(t -> t.sendMessage(m));
         }
 
-        // No message set
-        if (message == null) return;
-
         // Sending message & animation
-        message.forEach(player::sendMessage);
+        sendBanMessageAndAnimation(player, action, messages);
+    }
+
+    /**
+     * Sending the configured ban message to the player.
+     * Replacing the placeholders if PlaceholderAPI enabled.
+     * Mainly used for blacklist and whitelist.
+     *
+     * @param player the involved player
+     * @param action the action involved
+     * @param messages the messages to send
+     */
+    public void sendBanMessageAndAnimation(final Player player, final BanAction action, final List<String> messages) {
+        if (messages != null && !messages.isEmpty()) {
+            // Checking action cooldown, to prevent spam
+            if (action == BanAction.PICKUP || action == BanAction.HOLD || action == BanAction.SMITH) {
+                // Adding in cooldown
+                if (!messagesCooldown.containsKey(player.getUniqueId()))
+                    messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
+                else {
+                    final long lastTime = messagesCooldown.get(player.getUniqueId());
+                    if (lastTime + 1000L > System.currentTimeMillis()) return; // not sending message again
+                    messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
+                }
+            }
+
+            if (pl.getHooks().isPlaceholderApiEnabled()) {
+                messages.forEach(messageToSend -> {
+                    final String messageWithPlaceholderReplaced = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, messageToSend);
+                    player.sendMessage(messageWithPlaceholderReplaced);
+                });
+            } else {
+                messages.forEach(player::sendMessage);
+            }
+        }
+
         pl.getBanConfig().getAnimation().runAnimation(player);
     }
 
     /**
-     * This method is used to send a ban message to player, if exists.
-     * Mainly used for whitelist
-     * @param player send the message to
-     * @param action the ban action <i>(used for log)</i>
-     * @param messages list of messages
+     * Sending a prefixed and colored (if player) message to sender.
+     * This method is used only for plugin configuration (ex. plugin load, plugin command)
+     *
+     * @param sender sender
+     * @param message message
      */
-    public void sendMessage(@NotNull final Player player, @NotNull final BanAction action, @NotNull final List<String> messages) {
-        if (messages.isEmpty()) return; // no message
-
-        // Checking pick up cooldown, to prevent spam
-        if (action == BanAction.PICKUP || action == BanAction.HOLD) {
-            // Adding in cooldown
-            if (!messagesCooldown.containsKey(player.getUniqueId()))
-                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
-            else {
-                final long lastTime = messagesCooldown.get(player.getUniqueId());
-                if (lastTime + 1000L > System.currentTimeMillis()) return; // not sending message again
-                messagesCooldown.put(player.getUniqueId(), System.currentTimeMillis());
-            }
-        }
-
-        // Sending message & animation
-        messages.forEach(player::sendMessage);
-        pl.getBanConfig().getAnimation().runAnimation(player);
+    public void sendBanMessageAndAnimation(@NotNull final CommandSender sender, @Nullable final String message) {
+        if (message == null) return;
+        final String finalMessage = pl.getBanConfig().getPrefix() + Chat.color(message);
+        final boolean colorInConsole = pl.getBanConfig().getConfig().getBoolean("debug.colors-console");
+        sender.sendMessage((colorInConsole || sender instanceof Player ? finalMessage : Chat.uncolor(finalMessage)));
     }
 
     /**
@@ -526,19 +530,6 @@ public final class BanUtils {
         else p.getInventory().setItem(freeSlot, item);
     }
 
-
-    /**
-     * Sending a prefixed and colored (if player) message to sender
-     * @param sender sender
-     * @param message message
-     */
-    public void sendMessage(@NotNull final CommandSender sender, @Nullable final String message) {
-        if (message == null) return;
-        final String finalMessage = pl.getBanConfig().getPrefix() + Chat.color(message);
-        final boolean colorInConsole = pl.getBanConfig().getConfig().getBoolean("debug.colors-console");
-        sender.sendMessage((colorInConsole || sender instanceof Player ? finalMessage : Chat.uncolor(finalMessage)));
-    }
-
     /**
      * Send a message if an update is available
      * This <b>must</b> be executed async
@@ -549,9 +540,9 @@ public final class BanUtils {
             c.setRequestMethod("GET");
             final String lastVersion = new BufferedReader(new InputStreamReader(c.getInputStream())).readLine();
             if (!lastVersion.equals(pl.getDescription().getVersion()))
-                sendMessage(Bukkit.getConsoleSender(), "&aA newer version (&lv" + lastVersion + "&a) is available!");
+                sendBanMessageAndAnimation(Bukkit.getConsoleSender(), "&aA newer version (&lv" + lastVersion + "&a) is available!");
         } catch (final IOException e) {
-            sendMessage(Bukkit.getConsoleSender(), "&cUnable to communicate with the spigot api to check for newer versions.");
+            sendBanMessageAndAnimation(Bukkit.getConsoleSender(), "&cUnable to communicate with the spigot api to check for newer versions.");
         }
     }
 

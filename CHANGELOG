@@ -1,5 +1,6 @@
 v3.7:
   - Add new action "crafter" (MC>=1.21): prevent Crafter block to craft an item
+  - Add PlaceholderAPI support in ban messages
   - Fix AdvancedEnchantments hook
   - Fix hold offhand inventory glitch
   - API Breaking Change: changed "BanVersion" class to "MinecraftVersion"

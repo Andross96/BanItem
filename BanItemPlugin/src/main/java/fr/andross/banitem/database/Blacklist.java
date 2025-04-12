@@ -239,7 +239,7 @@ public final class Blacklist extends HashMap<World, Items> {
                         message.stream().map(m -> m.replace("{time}", pl.getUtils().getCooldownString(finalCooldown - System.currentTimeMillis()))).forEach(player::sendMessage);
                     }
                 } else
-                    pl.getUtils().sendMessage(player, itemName, action, blacklistData);
+                    pl.getUtils().sendBanMessageAndAnimation(player, itemName, action, blacklistData);
             }
 
             // Run?

@@ -21,19 +21,22 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
 import fr.andross.banitem.utils.hooks.WorldGuard6Hook;
 import fr.andross.banitem.utils.hooks.WorldGuard7Hook;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Hooks manager
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class BanHooks {
     private boolean isWorldGuardEnabled = false;
     private IWorldGuardHook worldGuardHook = null;
     private boolean isAdvancedEnchantmentsEnabled = false;
+    private boolean isPlaceholderApiEnabled = false;
 
     /**
      * Loading the hooks.
@@ -52,26 +55,38 @@ public final class BanHooks {
                 else throw new Exception();
                 isWorldGuardEnabled = true;
             } catch (final Throwable e) {
-                pl.getUtils().sendMessage(sender, "&c[Hooks] Can not hook with WorldGuard.");
+                pl.getUtils().sendBanMessageAndAnimation(sender, "&c[Hooks] Can not hook with WorldGuard.");
                 isWorldGuardEnabled = false;
             }
 
         // AdvancedEnchantments?
-        if (pl.getBanConfig().getConfig().getBoolean("hooks.advancedenchantments") && pl.getServer().getPluginManager().isPluginEnabled("AdvancedEnchantments")) {
+        if (pl.getBanConfig().getConfig().getBoolean("hooks.advancedenchantments")) {
             try {
                 if (net.advancedplugins.ae.api.AEAPI.getAllEnchantments() == null) {
                     throw new Exception();
                 }
                 isAdvancedEnchantmentsEnabled = true;
             } catch (final Throwable e) {
-                pl.getUtils().sendMessage(sender, "&c[Hooks] Can not hook with AdvancedEnchantments: " + e.getMessage());
+                pl.getUtils().sendBanMessageAndAnimation(sender, "&c[Hooks] Can not hook with AdvancedEnchantments: " + e.getMessage());
                 isAdvancedEnchantmentsEnabled = false;
+            }
+        }
+
+        // PlaceholderAPI?
+        if (pl.getBanConfig().getConfig().getBoolean("hooks.placeholderapi")) {
+            try {
+                PlaceholderAPI.getRegisteredIdentifiers();
+                isPlaceholderApiEnabled = true;
+            } catch (final Throwable e) {
+                pl.getUtils().sendBanMessageAndAnimation(sender, "&c[Hooks] Can not hook with PlaceholderAPI: " + e.getMessage());
+                isPlaceholderApiEnabled = false;
             }
         }
     }
 
     /**
      * Check if the plugin is successfully hooked with WorldGuard
+     *
      * @return true if the plugin is successfully hooked with WorldGuard
      */
     public boolean isWorldGuardEnabled() {
@@ -80,6 +95,7 @@ public final class BanHooks {
 
     /**
      * Get the worldguard hook
+     *
      * @return the worldguard hook if hooked, otherwise null
      */
     @Nullable
@@ -89,9 +105,19 @@ public final class BanHooks {
 
     /**
      * Check if the plugin is hooked with AdvancedEnchantments
-     * @return true if the plugin if successfully hooked with AdvancedEnchantments
+     *
+     * @return true if the plugin is successfully hooked with AdvancedEnchantments
      */
     public boolean isAdvancedEnchantmentsEnabled() {
         return isAdvancedEnchantmentsEnabled;
+    }
+
+    /**
+     * Check if the plugin is hooked with PlaceholderAPI
+     *
+     * @return true if the plugin is successfully hooked with PlaceholderAPI
+     */
+    public boolean isPlaceholderApiEnabled() {
+        return isPlaceholderApiEnabled;
     }
 }

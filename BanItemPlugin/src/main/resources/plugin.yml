@@ -4,7 +4,7 @@ version: '${project.version}'
 author: Andross
 description: Ban item
 api-version: '1.13'
-softdepend: [AdvancedEnchantments, ItemsAdder, NBTAPI, WorldGuard]
+softdepend: [AdvancedEnchantments, ItemsAdder, NBTAPI, PlaceholderAPI, WorldGuard]
 commands:
   banitem:
     description: Banitem command. Show help.

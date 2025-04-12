@@ -198,7 +198,7 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
                     final Set<GameMode> set = whitelisted.getData(BanDataType.GAMEMODE);
                     if (set != null && !set.contains(player.getGameMode())) { // Gamemode not whitelisted
                         if (sendMessage)
-                            pl.getUtils().sendMessage(player, itemName, action, whitelisted);
+                            pl.getUtils().sendBanMessageAndAnimation(player, itemName, action, whitelisted);
                         return false;
                     }
                 }
@@ -212,7 +212,7 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
                             final Set<ProtectedRegion> standingRegions = hook.getStandingRegions(location == null ? player.getLocation() : location);
                             if (regions.stream().noneMatch(standingRegions::contains)) {
                                 if (sendMessage)
-                                    pl.getUtils().sendMessage(player, itemName, action, whitelisted);
+                                    pl.getUtils().sendBanMessageAndAnimation(player, itemName, action, whitelisted);
                                 return false;
                             }
                         }
@@ -262,7 +262,7 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
             }
         }
 
-        if (sendMessage) pl.getUtils().sendMessage(player, action, ww.getMessages());
+        if (sendMessage) pl.getUtils().sendBanMessageAndAnimation(player, action, ww.getMessages());
         return false;
     }
 

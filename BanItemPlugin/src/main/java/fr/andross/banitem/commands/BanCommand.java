@@ -46,7 +46,7 @@ public abstract class BanCommand {
      * Sending a header separator
      */
     protected void header(@NotNull final String title) {
-        pl.getUtils().sendMessage(sender, String.format(HEADER, title));
+        pl.getUtils().sendBanMessageAndAnimation(sender, String.format(HEADER, title));
     }
 
     /**
@@ -54,7 +54,7 @@ public abstract class BanCommand {
      * @param message message to send
      */
     protected void message(@Nullable final String message) {
-        pl.getUtils().sendMessage(sender, message);
+        pl.getUtils().sendBanMessageAndAnimation(sender, message);
     }
 
     /**

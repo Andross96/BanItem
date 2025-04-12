@@ -308,7 +308,7 @@ public final class BanListener {
                 try {
                     denied = new ItemStackBuilder(pl.getBanConfig().getConfig().getConfigurationSection("actions.enchant")).build();
                 } catch (final Exception e) {
-                    pl.getUtils().sendMessage(sender, "&cUnable to load denied item 'actions.enchant' from config: " + e.getMessage());
+                    pl.getUtils().sendBanMessageAndAnimation(sender, "&cUnable to load denied item 'actions.enchant' from config: " + e.getMessage());
                     denied = new ItemStack(Material.BARRIER);
                 }
                 final ItemStack finalDenied = denied;

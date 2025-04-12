@@ -1,11 +1,11 @@
 # +———————————————————————————————————————————————————+ #
 # |——————————     BANITEM CONFIGURATION     ——————————| #
-# |——————————————————      v3.5      —————————————————| #
+# |——————————————————      v3.7      —————————————————| #
 # +———————————————————————————————————————————————————+ #
 # |                   Documentation:                  | #
 # |             https://banitem.andross.fr/           | #
 # +———————————————————————————————————————————————————+ #
-# For any bugs/suggestions: Andross96
+# For any bugs/suggestions, contact me on Discord: andross96
 # +——————————————————————————————————————————————————————————————————————————————————————————————+
 # General Informations:
 #  - The blacklist will block the items.
@@ -74,6 +74,7 @@
 #      -> Special data: material - the block clicked, if there is one
 #    - CONSUME: when the player try to consume a food [no specific data]
 #    - CRAFT: the item will not be craftable anymore [no specific data]
+#    - CRAFTER: the item will not be crafted by Crafter block (MC>=1.21) [no specific data]
 #    - DELETE: when a player open & close an inventory, it will check and delete items which have this action [no specific data]
 #    - DISPENSE: when an item is dispensed from a block [no specific data]
 #    - DROP: when an item is dropped by a player [no specific data]
@@ -163,20 +164,18 @@ check-update: true
 # You can use the actions formatting ('*', 'action1, action2', '*,!break' etc.)
 priority: use,consume,click
 
-# Some configurable stuffs for actions
+# Some additional configuration for actions
 actions:
-  # The item for denied enchantment in anvil. Only for MC1.9+
   enchant:
+    # The item for denied enchantment in anvil. Only for MC1.9+
     material: BARRIER
     displayname: '&cBANNED'
     lore:
       - '&cYou can not add this'
       - '&cenchantement.'
-
   # List of rename commands which a player could use to rename an item
   rename:
     - '/rename'
-
   # Block hoppers to take/give banned item from/to inventories
   # This is more resource intensive
   transfer:
@@ -190,7 +189,7 @@ actions:
     scanner: true
 
   # The plugin will not take in consideration inventories which name is in this list
-  # WITHOUT color codes & case sensitive: color codes from GUI titles will be removed to be compared
+  # WITHOUT color codes & case-sensitive: color codes from GUI titles will be removed to be compared
   delete:
     ignored-inventories-titles:
       - 'My Cool Gui'
@@ -203,6 +202,8 @@ hooks:
   worldguard: false
   # For AdvancedEnchantments enchantments into custom items
   advancedenchantments: false
+  # For PlaceholderAPI on ban messages
+  placeholderapi: false
 
 # Animations when a ban item message is sent
 sound:
