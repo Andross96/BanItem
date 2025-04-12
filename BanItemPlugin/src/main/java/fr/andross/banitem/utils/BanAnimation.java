@@ -67,7 +67,7 @@ public final class BanAnimation {
         }
         // Particle
         final boolean particleEnabled = config.getBoolean("particle.enabled");
-        if (particleEnabled && BanVersion.v9OrMore) {
+        if (particleEnabled && MinecraftVersion.v9OrMore) {
             try {
                 particle = Particle.valueOf(config.getString("particle.type"));
                 amount = config.getInt("particle.amount");

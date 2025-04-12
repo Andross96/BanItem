@@ -18,17 +18,14 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
 import fr.andross.banitem.utils.potions.PotionHelper;
 import fr.andross.banitem.utils.potions.PotionWrapper;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +58,7 @@ public final class Potion extends MetaTypeComparator {
                 }
 
                 // Adding
-                potionsWithoutLevels.add(BanVersion.v13OrMore ? potionEffectType : potionEffectType.getName());
+                potionsWithoutLevels.add(MinecraftVersion.v13OrMore ? potionEffectType : potionEffectType.getName());
                 continue;
             }
 
@@ -116,7 +113,7 @@ public final class Potion extends MetaTypeComparator {
                 }
 
                 // Adding
-                potionsIntervals.put(BanVersion.v13OrMore ? potionEffectType : potionEffectType.getName(), new Integer[]{ minLevel, maxLevel });
+                potionsIntervals.put(MinecraftVersion.v13OrMore ? potionEffectType : potionEffectType.getName(), new Integer[]{ minLevel, maxLevel });
             }
         }
     }
@@ -139,7 +136,7 @@ public final class Potion extends MetaTypeComparator {
             }
 
             final int level = e.getValue();
-            final Object object = BanVersion.v13OrMore ? potionEffectType : potionEffectType.getName();
+            final Object object = MinecraftVersion.v13OrMore ? potionEffectType : potionEffectType.getName();
 
             // Containing potion effect (not considering level) ?
             if (potionsWithoutLevels.contains(object)) return true;

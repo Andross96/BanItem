@@ -20,7 +20,7 @@ package fr.andross.banitem.items.meta;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.attributes.AttributeLegacy;
 import fr.andross.banitem.utils.attributes.AttributeLevels;
 import fr.andross.banitem.utils.attributes.ReflectionUtils;
@@ -28,7 +28,6 @@ import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +47,7 @@ public final class AttributeContains extends MetaTypeComparator {
         super(o);
 
         // Not available?
-        if (!BanVersion.v8OrMore) {
+        if (!MinecraftVersion.v8OrMore) {
             debug.clone().add("&cTrying to use Attribute but you are below MC1.8.").sendDebug();
             setValid(false);
             return;
@@ -117,7 +116,7 @@ public final class AttributeContains extends MetaTypeComparator {
     @Nullable
     private Object getAttributeKey(@NotNull final String attributeName, @NotNull final Debug debug) {
         try {
-            return (BanVersion.v9OrMore) ? Attribute.valueOf(attributeName) : AttributeLegacy.valueOf(attributeName);
+            return (MinecraftVersion.v9OrMore) ? Attribute.valueOf(attributeName) : AttributeLegacy.valueOf(attributeName);
         } catch (final IllegalArgumentException e) {
             invalidateMetaType(debug, "Unknown attribute '" + attributeName + "'.");
             return null;
@@ -132,7 +131,7 @@ public final class AttributeContains extends MetaTypeComparator {
     @NotNull
     private Multimap<Object, Double> getAttributesModifiers(@NotNull final ItemStack itemStack) {
         final Multimap<Object, Double> map = HashMultimap.create();
-        if (BanVersion.v9OrMore) {
+        if (MinecraftVersion.v9OrMore) {
             // Extract attributes with bukkit api
             if (itemStack.getItemMeta() != null && itemStack.getItemMeta().getAttributeModifiers() != null) {
                 itemStack.getItemMeta().getAttributeModifiers().entries().forEach(entry ->

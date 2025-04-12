@@ -60,7 +60,7 @@ public final class ItemStackBuilder {
         // Checking durability
         if (section.contains("durability")) {
             final short durability = (short) section.getInt("durability");
-            if (BanVersion.v13OrMore) {
+            if (MinecraftVersion.v13OrMore) {
                 if (!(itemMeta instanceof org.bukkit.inventory.meta.Damageable)) throw new Exception("&ccan not set durability to this item.");
                 final org.bukkit.inventory.meta.Damageable d = (org.bukkit.inventory.meta.Damageable) itemMeta;
                 d.setDamage(durability);

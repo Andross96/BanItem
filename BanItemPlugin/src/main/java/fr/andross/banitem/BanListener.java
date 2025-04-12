@@ -21,7 +21,7 @@ import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.actions.BanData;
 import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.events.PlayerRegionChangeEvent;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.ItemStackBuilder;
 import fr.andross.banitem.utils.Utils;
@@ -92,7 +92,7 @@ public final class BanListener {
 
         // Registering listeners, only if action is used
         if (blacklist.contains(BanAction.ARMORSTANDPLACE) || whitelist) {
-            if (!BanVersion.v8OrMore) {
+            if (!MinecraftVersion.v8OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
                     sender.sendMessage(Chat.color("&cCan not use the '&earmorstandplace&c' action in Minecraft < 1.8."));
             } else
@@ -105,7 +105,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.ARMORSTANDTAKE) || whitelist) {
-            if (!BanVersion.v8OrMore) {
+            if (!MinecraftVersion.v8OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
                     sender.sendMessage(Chat.color("&cCan not use the '&earmorstandtake&c' action in Minecraft < 1.8."));
             } else
@@ -148,7 +148,7 @@ public final class BanListener {
                     final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
                     if (api.isBanned(e.getPlayer(), e.getClickedBlock().getLocation(), e.getClickedBlock().getType(), true, BanAction.BREAK, new BanData(BanDataType.MATERIAL, itemInHand.getType()))) {
                         e.setCancelled(true);
-                        if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                        if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                     }
                 }
             }, priority.contains(BanAction.BREAK));
@@ -159,7 +159,7 @@ public final class BanListener {
                 final ItemStack itemInHand = Utils.getItemInHand(e.getPlayer());
                 if (api.isBanned(e.getPlayer(), e.getBlock().getLocation(), e.getBlock().getType(), true, BanAction.BREAK, new BanData(BanDataType.MATERIAL, itemInHand.getType()))) {
                     e.setCancelled(true);
-                    if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                    if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                 }
             }, priority.contains(BanAction.BREAK));
         }
@@ -200,12 +200,12 @@ public final class BanListener {
                     if (e.getClickedBlock() != null) {
                         if (api.isBanned(e.getPlayer(), itemInHand, true, BanAction.CLICK, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
                             e.setCancelled(true);
-                            if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                            if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     } else {
                         if (api.isBanned(e.getPlayer(), itemInHand, true, BanAction.CLICK)) {
                             e.setCancelled(true);
-                            if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                            if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     }
                 }
@@ -218,7 +218,7 @@ public final class BanListener {
                 if (Utils.isNullOrAir(e.getItem())) return;
                 if (api.isBanned(e.getPlayer(), e.getItem(), true, BanAction.CONSUME)) {
                     e.setCancelled(true);
-                    if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                    if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                 }
             }, priority.contains(BanAction.CONSUME));
         }
@@ -235,6 +235,19 @@ public final class BanListener {
                         e.getInventory().setResult(null);
                 }
             }, priority.contains(BanAction.CRAFT));
+        }
+
+        if (MinecraftVersion.v21OrMore && (blacklist.contains(BanAction.CRAFTER) || whitelist)) {
+            registerEvent(CrafterCraftEvent.class, (ll, event) -> {
+                if (!(event instanceof CrafterCraftEvent)) return;
+                final CrafterCraftEvent e = (CrafterCraftEvent) event;
+                final ItemStack craftedItem = e.getResult();
+                if (Utils.isNullOrAir(craftedItem)) return;
+                if (api.isBanned(e.getBlock().getWorld(), craftedItem, BanAction.CRAFTER)) {
+                    e.setCancelled(true);
+                    e.setResult(new ItemStack(Material.AIR));
+                }
+            }, priority.contains(BanAction.CRAFTER));
         }
 
         if (blacklist.contains(BanAction.DELETE)) {
@@ -264,7 +277,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.DROPS) || whitelist) {
-            if (BanVersion.v13OrMore)
+            if (MinecraftVersion.v13OrMore)
                 registerEvent(BlockDropItemEvent.class, (li, event) -> {
                     if (!(event instanceof BlockDropItemEvent)) return; // also called for FurnaceExtractEvent...
                     final BlockDropItemEvent e = (BlockDropItemEvent) event;
@@ -289,7 +302,7 @@ public final class BanListener {
                     e.setCancelled(true);
             }, priority.contains(BanAction.ENCHANT));
 
-            if (BanVersion.v9OrMore) {
+            if (MinecraftVersion.v9OrMore) {
                 // Getting denied item
                 ItemStack denied;
                 try {
@@ -371,7 +384,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.ENTITYINTERACT) || whitelist) {
-            if (BanVersion.v9OrMore)
+            if (MinecraftVersion.v9OrMore)
                 registerEvent(PlayerInteractEntityEvent.class, (li, event) -> {
                     final PlayerInteractEntityEvent e = (PlayerInteractEntityEvent) event;
 
@@ -404,7 +417,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.GLIDE) || whitelist) {
-            if (!BanVersion.v9OrMore) {
+            if (!MinecraftVersion.v9OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
                     sender.sendMessage(Chat.color("&cCan not use the '&eglide&c' action in Minecraft < 1.9."));
             } else
@@ -513,7 +526,7 @@ public final class BanListener {
                 }
 
                 // Added item into the offhand slot ?
-                if (BanVersion.v9OrMore && e.getSlot() == 40) {
+                if (MinecraftVersion.v9OrMore && e.getSlot() == 40) {
                     // Using hotkey ?
                     if (e.getHotbarButton() >= 0) {
                         final ItemStack item = p.getInventory().getItem(e.getHotbarButton());
@@ -532,7 +545,7 @@ public final class BanListener {
             // Pickup
             // >=1.12: EntityPickupItemEvent
             // <1.12: PlayerPickupItemEvent
-            if (BanVersion.v12OrMore) {
+            if (MinecraftVersion.v12OrMore) {
                 registerEvent(org.bukkit.event.entity.EntityPickupItemEvent.class, (li, event) -> {
                     final org.bukkit.event.entity.EntityPickupItemEvent e = (org.bukkit.event.entity.EntityPickupItemEvent) event;
                     if (!(e.getEntity() instanceof Player)) return;
@@ -559,7 +572,7 @@ public final class BanListener {
                 if (e.getClickedBlock() != null && e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     final ItemStack item = Utils.getItemInHand(e.getPlayer());
                     if (api.isBanned(e.getPlayer(), e.getClickedBlock().getLocation(), e.getClickedBlock().getType(), true, BanAction.INTERACT, new BanData(BanDataType.MATERIAL, item.getType()))) {
-                        if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                        if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                         e.setCancelled(true);
                     }
                 }
@@ -611,7 +624,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.MENDING) || whitelist) {
-            if (!BanVersion.v13OrMore) {
+            if (!MinecraftVersion.v13OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
                     sender.sendMessage(Chat.color("&cCan not use the '&emending&c' action in Minecraft < 1.13."));
             } else
@@ -626,7 +639,7 @@ public final class BanListener {
             // Pickup cooldown map clearing
             registerEvent(PlayerQuitEvent.class, (li, event) -> pl.getUtils().getMessagesCooldown().remove(((PlayerQuitEvent) event).getPlayer().getUniqueId()), priority.contains(BanAction.PICKUP));
 
-            if (BanVersion.v12OrMore)
+            if (MinecraftVersion.v12OrMore)
                 registerEvent(org.bukkit.event.entity.EntityPickupItemEvent.class, (li, event) -> {
                     final org.bukkit.event.entity.EntityPickupItemEvent e = (org.bukkit.event.entity.EntityPickupItemEvent) event;
                     if (!(e.getEntity() instanceof Player)) return;
@@ -647,7 +660,7 @@ public final class BanListener {
                 if (Utils.isNullOrAir(e.getItemInHand())) return;
                 if (api.isBanned(e.getPlayer(), e.getItemInHand(), true, BanAction.PLACE, new BanData(BanDataType.MATERIAL, e.getBlockAgainst().getType()))) {
                     e.setCancelled(true);
-                    if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                    if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                 }
             }, priority.contains(BanAction.PLACE));
         }
@@ -660,12 +673,12 @@ public final class BanListener {
                     if (e.getClickedBlock() != null) {
                         if (api.isBanned(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()).getLocation(), e.getItem(), true, BanAction.USE, new BanData(BanDataType.MATERIAL, e.getClickedBlock().getType()))) {
                             e.setCancelled(true);
-                            if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                            if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     } else {
                         if (api.isBanned(e.getPlayer(), e.getItem(), true, BanAction.USE)) {
                             e.setCancelled(true);
-                            if (!BanVersion.v12OrMore) e.getPlayer().updateInventory();
+                            if (!MinecraftVersion.v12OrMore) e.getPlayer().updateInventory();
                         }
                     }
                 }
@@ -729,7 +742,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.SMITH) || whitelist) {
-            if (!BanVersion.v16OrMore) {
+            if (!MinecraftVersion.v16OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
                     sender.sendMessage(Chat.color("&cCan not use the '&esmith&c' action in Minecraft < 1.16."));
             } else
@@ -747,7 +760,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.SWAP) || whitelist) {
-            if (!BanVersion.v9OrMore) {
+            if (!MinecraftVersion.v9OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
                     sender.sendMessage(Chat.color("&cCan not use the '&eswap&c' action in Minecraft < 1.9."));
             } else {
@@ -798,7 +811,7 @@ public final class BanListener {
         }
 
         if (blacklist.contains(BanAction.SWEEPINGEDGE) || whitelist) {
-            if (!BanVersion.v12OrMore) {
+            if (!MinecraftVersion.v12OrMore) {
                 if (!all && !whitelist) // notifying if used an action unavailable on the current minecraft version
                     sender.sendMessage(Chat.color("&cCan not use the '&esweepingedge&c' action in Minecraft < 1.12."));
             } else

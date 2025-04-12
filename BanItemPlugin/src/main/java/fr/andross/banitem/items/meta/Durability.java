@@ -18,13 +18,11 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.debug.Debug;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A simple meta comparator to compare the durability
@@ -79,7 +77,7 @@ public final class Durability extends MetaTypeComparator {
     public boolean matches(@NotNull final BannedItem bannedItem) {
         final int durability;
 
-        if (BanVersion.v13OrMore) {
+        if (MinecraftVersion.v13OrMore) {
             final ItemMeta itemMeta = bannedItem.getItemMeta();
             if (itemMeta == null) {
                 return false;

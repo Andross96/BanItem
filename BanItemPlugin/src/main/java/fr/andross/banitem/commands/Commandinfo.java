@@ -20,7 +20,7 @@ package fr.andross.banitem.commands;
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.CustomBannedItem;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -73,7 +73,7 @@ public class Commandinfo extends BanCommand {
 
             final StringBuilder materialBuilder = new StringBuilder("&7Material name: ");
             materialBuilder.append("&e").append(item.getType().name().toLowerCase(Locale.ROOT));
-            if (!BanVersion.v13OrMore)
+            if (!MinecraftVersion.v13OrMore)
                 materialBuilder.append(" &o(ID: ").append(item.getType().getId()).append(")");
             message(materialBuilder.toString());
 

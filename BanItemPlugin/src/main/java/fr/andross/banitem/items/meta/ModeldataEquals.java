@@ -18,12 +18,10 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.debug.Debug;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A simple meta comparator to compare the model data
@@ -36,7 +34,7 @@ public final class ModeldataEquals extends MetaTypeComparator {
     public ModeldataEquals(final Object o, final Debug debug) {
         super(o);
 
-        if (!BanVersion.v14OrMore) {
+        if (!MinecraftVersion.v14OrMore) {
             debug.clone().add("&cCan not use model data on MC<1.14 '" + o + ".").sendDebug();
             setValid(false);
             return;

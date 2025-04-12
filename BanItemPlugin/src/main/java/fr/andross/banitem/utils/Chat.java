@@ -46,7 +46,7 @@ public final class Chat {
         if (text == null) return "";
 
         String newText = text;
-        if (BanVersion.v16OrMore) {
+        if (MinecraftVersion.v16OrMore) {
             final Matcher matcher = hexPattern.matcher(text);
             while (matcher.find()) {
                 String color = text.substring(matcher.start(), matcher.end()); // &#1258DA
@@ -85,7 +85,7 @@ public final class Chat {
     public static String revertColor(@Nullable String text) {
         if (text == null) return null;
 
-        if (BanVersion.v16OrMore) {
+        if (MinecraftVersion.v16OrMore) {
             final Matcher matcher = hexStripPattern.matcher(text);
             while (matcher.find()) {
                 final String color = text.substring(matcher.start(), matcher.end()); // ex: §x§1§2§5§8§D§A

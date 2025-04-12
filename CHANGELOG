@@ -1,6 +1,8 @@
 v3.7:
+  - Add new action "crafter" (MC>=1.21): prevent Crafter block to craft an item
   - Fix AdvancedEnchantments hook
   - Fix hold offhand inventory glitch
+  - API Breaking Change: changed "BanVersion" class to "MinecraftVersion"
 --------------------------------------------
 v3.6:
   - Fix console error "BLOCK is not an item"

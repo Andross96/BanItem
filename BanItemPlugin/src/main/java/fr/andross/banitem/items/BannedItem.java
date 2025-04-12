@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.items;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -55,7 +55,7 @@ public class BannedItem {
     public BannedItem(@NotNull final ItemStack item) {
         m = item.getType();
         itemMeta = item.hasItemMeta() ? item.getItemMeta() : null;
-        data = BanVersion.v13OrMore ? 0 : item.getDurability();
+        data = MinecraftVersion.v13OrMore ? 0 : item.getDurability();
         itemStack = item;
     }
 
@@ -94,7 +94,7 @@ public class BannedItem {
         if (itemStack != null) return itemStack;
         itemStack = new ItemStack(m);
         if (itemMeta != null) itemStack.setItemMeta(itemMeta.clone());
-        if (!BanVersion.v13OrMore) itemStack.setDurability(data);
+        if (!MinecraftVersion.v13OrMore) itemStack.setDurability(data);
         return itemStack;
     }
 
@@ -104,14 +104,14 @@ public class BannedItem {
         if (!(o instanceof BannedItem)) return false;
         final BannedItem that = (BannedItem) o;
         return itemMeta == null ?
-                (BanVersion.v13OrMore ? m == that.m : (m == that.m && data == that.data)) :
-                (m == that.m && Objects.equals(itemMeta, that.itemMeta) && (BanVersion.v13OrMore || Objects.equals(data, that.data)));
+                (MinecraftVersion.v13OrMore ? m == that.m : (m == that.m && data == that.data)) :
+                (m == that.m && Objects.equals(itemMeta, that.itemMeta) && (MinecraftVersion.v13OrMore || Objects.equals(data, that.data)));
     }
 
     @Override
     public int hashCode() {
         return itemMeta == null ?
-                (BanVersion.v13OrMore ? m.hashCode() : Objects.hash(m, data)) :
-                (BanVersion.v13OrMore ? Objects.hash(m, itemMeta) : Objects.hash(m, itemMeta, data));
+                (MinecraftVersion.v13OrMore ? m.hashCode() : Objects.hash(m, data)) :
+                (MinecraftVersion.v13OrMore ? Objects.hash(m, itemMeta) : Objects.hash(m, itemMeta, data));
     }
 }

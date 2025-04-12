@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.utils.enchantments;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,13 +72,13 @@ public final class EnchantmentWrapper {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EnchantmentWrapper that = (EnchantmentWrapper) o;
-        return level == that.level && (BanVersion.v13OrMore ?
+        return level == that.level && (MinecraftVersion.v13OrMore ?
                 Objects.equals(enchantment, that.enchantment) :
                 Objects.equals(enchantment.getName(), that.enchantment.getName()));
     }
 
     @Override
     public int hashCode() {
-        return BanVersion.v13OrMore ? Objects.hash(enchantment, level) : Objects.hash(enchantment.getName(), level);
+        return MinecraftVersion.v13OrMore ? Objects.hash(enchantment, level) : Objects.hash(enchantment.getName(), level);
     }
 }

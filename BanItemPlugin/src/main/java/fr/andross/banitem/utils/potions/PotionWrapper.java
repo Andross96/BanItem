@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.utils.potions;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,13 +59,13 @@ public final class PotionWrapper {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PotionWrapper that = (PotionWrapper) o;
-        return level == that.level && (BanVersion.v13OrMore ?
+        return level == that.level && (MinecraftVersion.v13OrMore ?
                 Objects.equals(potionEffectType, that.potionEffectType) :
                 Objects.equals(potionEffectType.getName(), that.potionEffectType.getName()));
     }
 
     @Override
     public int hashCode() {
-        return BanVersion.v13OrMore ? Objects.hash(potionEffectType, level) : Objects.hash(potionEffectType.getName(), level);
+        return MinecraftVersion.v13OrMore ? Objects.hash(potionEffectType, level) : Objects.hash(potionEffectType.getName(), level);
     }
 }

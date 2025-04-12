@@ -18,17 +18,14 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
 import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +58,7 @@ public final class EnchantmentContains extends MetaTypeComparator {
                 }
 
                 // Adding
-                enchantsWithoutLevels.add(BanVersion.v13OrMore ? enchantment : enchantment.getName());
+                enchantsWithoutLevels.add(MinecraftVersion.v13OrMore ? enchantment : enchantment.getName());
                 continue;
             }
 
@@ -116,7 +113,7 @@ public final class EnchantmentContains extends MetaTypeComparator {
                 }
 
                 // Adding
-                enchantsIntervals.put(BanVersion.v13OrMore ? enchantment : enchantment.getName(), new Integer[]{ minLevel, maxLevel });
+                enchantsIntervals.put(MinecraftVersion.v13OrMore ? enchantment : enchantment.getName(), new Integer[]{ minLevel, maxLevel });
             }
         }
     }
@@ -132,7 +129,7 @@ public final class EnchantmentContains extends MetaTypeComparator {
         for (final Map.Entry<Enchantment, Integer> e : enchantsOnItem.entrySet()) {
             final Enchantment enchantment = e.getKey();
             final int level = e.getValue();
-            final Object object = BanVersion.v13OrMore ? enchantment : enchantment.getName();
+            final Object object = MinecraftVersion.v13OrMore ? enchantment : enchantment.getName();
 
             // Containing enchantment (not considering level) ?
             if (enchantsWithoutLevels.contains(object)) return true;

@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.actions;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import org.bukkit.GameMode;
@@ -100,7 +100,7 @@ public final class BanActionData {
                     final Collection<EnchantmentWrapper> enchantments = (Collection<EnchantmentWrapper>) entry.getValue();
                     c = new HashSet<>();
                     for (final EnchantmentWrapper e : enchantments) {
-                        final String name = BanVersion.v13OrMore ? e.getEnchantment().getKey().getKey() : e.getEnchantment().getName();
+                        final String name = MinecraftVersion.v13OrMore ? e.getEnchantment().getKey().getKey() : e.getEnchantment().getName();
                         c.add(name);
                     }
                 }

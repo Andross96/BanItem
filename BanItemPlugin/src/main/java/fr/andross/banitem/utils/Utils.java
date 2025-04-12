@@ -76,7 +76,7 @@ public final class Utils {
     public static ItemStack getItemInHand(@NotNull final Player p) {
         final EntityEquipment ee = p.getEquipment();
         if (ee == null) return new ItemStack(Material.AIR);
-        final ItemStack itemInHand = BanVersion.v9OrMore ? ee.getItemInMainHand() : ee.getItemInHand();
+        final ItemStack itemInHand = MinecraftVersion.v9OrMore ? ee.getItemInMainHand() : ee.getItemInHand();
         return itemInHand == null ? new ItemStack(Material.AIR) : itemInHand;
     }
 
@@ -188,7 +188,7 @@ public final class Utils {
 
         // Getting base effect
         final ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : null;
-        if (!BanVersion.v9OrMore && item.getType() == Material.POTION) {
+        if (!MinecraftVersion.v9OrMore && item.getType() == Material.POTION) {
             final Potion p = Potion.fromDamage(item.getDurability());
             if (p.getType().getEffectType() != null)
                 map.put(p.getType().getEffectType(), p.getLevel());

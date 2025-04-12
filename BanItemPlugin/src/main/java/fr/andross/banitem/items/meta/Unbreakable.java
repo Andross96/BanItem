@@ -18,13 +18,11 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.hooks.OldItemUtils;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A simple meta comparator to compare unbreakable
@@ -42,7 +40,7 @@ public final class Unbreakable extends MetaTypeComparator {
     @Override
     public boolean matches(@NotNull final BannedItem bannedItem) {
         final ItemMeta itemMeta = bannedItem.getItemMeta();
-        final boolean isUnbreakable = itemMeta != null && (BanVersion.v11OrMore ? itemMeta.isUnbreakable() : OldItemUtils.isUnbreakable(itemMeta));
+        final boolean isUnbreakable = itemMeta != null && (MinecraftVersion.v11OrMore ? itemMeta.isUnbreakable() : OldItemUtils.isUnbreakable(itemMeta));
         return isUnbreakable && unbreakable;
     }
 }

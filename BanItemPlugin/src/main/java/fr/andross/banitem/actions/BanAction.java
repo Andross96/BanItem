@@ -81,6 +81,12 @@ public enum BanAction {
     CRAFT("craft"),
 
     /**
+     * When the crafter item try to craft an item
+     * Special data: none
+     */
+    CRAFTER("crafter"),
+
+    /**
      * When the player open or close an inventory, it will delete the banned items
      * Special data: none
      */

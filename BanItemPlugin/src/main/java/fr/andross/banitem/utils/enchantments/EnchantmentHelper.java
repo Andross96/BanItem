@@ -17,7 +17,7 @@
  */
 package fr.andross.banitem.utils.enchantments;
 
-import fr.andross.banitem.utils.BanVersion;
+import fr.andross.banitem.utils.MinecraftVersion;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +77,7 @@ public final class EnchantmentHelper {
         Enchantment ench;
 
         // Getting by key?
-        if (BanVersion.v13OrMore) {
+        if (MinecraftVersion.v13OrMore) {
             ench = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(name.toLowerCase()));
             if (ench != null) return ench;
         }
@@ -125,7 +125,7 @@ public final class EnchantmentHelper {
 
     @NotNull
     public static List<String> getEnchantmentsNames() {
-        return BanVersion.v13OrMore ?
+        return MinecraftVersion.v13OrMore ?
                 Arrays.stream(Enchantment.values()).map(Enchantment::getKey).map(NamespacedKey::getKey).collect(Collectors.toList()) :
                 Arrays.stream(Enchantment.values()).map(Enchantment::getName).collect(Collectors.toList());
     }

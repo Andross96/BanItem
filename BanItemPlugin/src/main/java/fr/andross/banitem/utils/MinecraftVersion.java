@@ -25,7 +25,13 @@ import org.bukkit.Bukkit;
  * @version 3.4
  * @author Andross
  */
-public final class BanVersion {
+public final class MinecraftVersion {
+
+    /**
+     * In 1.21+, Crafter item has been added.
+     */
+    public static final boolean v21OrMore;
+
     /**
      * In 1.16+, color codes now support HEX.
      */
@@ -74,6 +80,7 @@ public final class BanVersion {
             subMcVersion = 1;
             Bukkit.getLogger().warning("[VERSION] Unrecognized/Unsupported Bukkit version!");
         }
+        v21OrMore = subMcVersion >= 21;
         v16OrMore = subMcVersion >= 16;
         v14OrMore = subMcVersion >= 14;
         v13OrMore = subMcVersion >= 13;
