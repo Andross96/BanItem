@@ -46,13 +46,13 @@ public final class Potion extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public Potion(final Object o, final Debug debug) {
-        super(o);
+    public Potion(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
-        for (final String string : Listable.getSplitStringList(o)) {
+        for (final String string : Listable.getSplitStringList(configurationProperties)) {
             final String[] s = string.split(":");
 
             // 'Potion': if the item contains this potion effect, does not consider the level;

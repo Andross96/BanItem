@@ -35,12 +35,12 @@ public final class DisplayNameContains extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
+     * @param configurationProperties     the configured property value
      * @param debug the debug handler
      */
-    public DisplayNameContains(final Object o, final Debug debug) {
-        super(o);
-        displayName = Chat.color(o.toString());
+    public DisplayNameContains(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
+        displayName = Chat.color(configurationProperties.toString());
     }
 
     @Override

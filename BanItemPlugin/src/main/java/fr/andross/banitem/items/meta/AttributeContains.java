@@ -49,11 +49,11 @@ public final class AttributeContains extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public AttributeContains(final Object o, final Debug debug) {
-        super(o);
+    public AttributeContains(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
         // Not available?
         if (!MinecraftVersion.v8OrMore) {
@@ -62,7 +62,7 @@ public final class AttributeContains extends MetaTypeComparator {
             return;
         }
 
-        final List<String> configAttributes = Listable.getSplitStringList(o);
+        final List<String> configAttributes = Listable.getSplitStringList(configurationProperties);
 
         for (final String attr : configAttributes) {
             final String[] s = attr.split(":");
@@ -174,7 +174,7 @@ public final class AttributeContains extends MetaTypeComparator {
                     }
                 }
             } catch (final ClassNotFoundException | InvocationTargetException | IllegalAccessException |
-                     NoSuchMethodException e) {
+                           NoSuchMethodException e) {
                 Bukkit.getLogger().log(Level.WARNING, "AttributeContains reflection error.", e);
             }
         }

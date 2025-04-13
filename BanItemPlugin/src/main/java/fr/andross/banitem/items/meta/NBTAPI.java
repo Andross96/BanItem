@@ -41,11 +41,11 @@ public final class NBTAPI extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public NBTAPI(final Object o, final Debug debug) {
-        super(o);
+    public NBTAPI(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
         // Not available?
         try {
@@ -56,14 +56,14 @@ public final class NBTAPI extends MetaTypeComparator {
             return;
         }
 
-        if (!(o instanceof ConfigurationSection)) {
+        if (!(configurationProperties instanceof ConfigurationSection)) {
             debug.clone().add("&cInvalid NBTAPI configuration syntax.").sendDebug();
             setValid(false);
             return;
         }
 
         // Loading
-        final ConfigurationSection section = (ConfigurationSection) o;
+        final ConfigurationSection section = (ConfigurationSection) configurationProperties;
         for (final String keyNodes : section.getKeys(false)) {
             final Object object = section.get(keyNodes);
             if (object == null) {

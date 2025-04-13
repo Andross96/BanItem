@@ -39,12 +39,12 @@ public final class LoreEquals extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public LoreEquals(final Object o, final Debug debug) {
-        super(o);
-        lore = Listable.getStringList(o).stream().map(Chat::color).collect(Collectors.toList());
+    public LoreEquals(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
+        lore = Listable.getStringList(configurationProperties).stream().map(Chat::color).collect(Collectors.toList());
     }
 
     @Override

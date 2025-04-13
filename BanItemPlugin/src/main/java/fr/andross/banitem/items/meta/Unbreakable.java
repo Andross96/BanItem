@@ -36,12 +36,12 @@ public final class Unbreakable extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public Unbreakable(final Object o, final Debug debug) {
-        super(o);
-        unbreakable = (o instanceof Boolean) ? (boolean) o : Boolean.parseBoolean(o.toString());
+    public Unbreakable(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
+        unbreakable = (configurationProperties instanceof Boolean) ? (boolean) configurationProperties : Boolean.parseBoolean(configurationProperties.toString());
     }
 
     @Override

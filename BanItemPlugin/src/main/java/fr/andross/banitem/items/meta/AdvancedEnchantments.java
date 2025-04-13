@@ -39,11 +39,11 @@ public final class AdvancedEnchantments extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public AdvancedEnchantments(final Object o, final Debug debug) {
-        super(o);
+    public AdvancedEnchantments(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
         // Not available?
         try {
@@ -54,7 +54,7 @@ public final class AdvancedEnchantments extends MetaTypeComparator {
             return;
         }
 
-        for (final String string : Listable.getSplitStringList(o)) {
+        for (final String string : Listable.getSplitStringList(configurationProperties)) {
             final String[] s = string.split(":");
 
             // 'Enchantment': if the item contains this enchantment, does not consider the level;

@@ -37,13 +37,14 @@ public final class DisplayNameEqualsRegex extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public DisplayNameEqualsRegex(final Object o, final Debug debug) {
-        super(o);
+    public DisplayNameEqualsRegex(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
+
         try {
-            pattern = Pattern.compile(o.toString());
+            pattern = Pattern.compile(configurationProperties.toString());
         } catch (final PatternSyntaxException e) {
             debug.clone().add("&cInvalid regex pattern entered.").sendDebug();
             setValid(false);

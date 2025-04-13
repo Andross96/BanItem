@@ -18,6 +18,7 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
+import fr.andross.banitem.utils.debug.Debug;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,27 +28,19 @@ import org.jetbrains.annotations.NotNull;
  * @version 3.1
  */
 public abstract class MetaTypeComparator {
-    private final Object propertiesConfiguration;
+    protected final Object configurationProperties;
     private boolean valid = true;
 
     /**
      * Represents a meta type which can be used to be compared with an item.
      * Implementer will handle the propertiesConfiguration representing the properties.
      *
-     * @param propertiesConfiguration the property configuration used
+     * @param configurationProperties the property configuration used
+     * @param debug                   the debug object
      */
-    public MetaTypeComparator(@NotNull final Object propertiesConfiguration) {
-        this.propertiesConfiguration = propertiesConfiguration;
-    }
-
-    /**
-     * Get the configured properties for this meta type.
-     *
-     * @return the configured properties for this meta type
-     */
-    @NotNull
-    public Object getPropertiesConfiguration() {
-        return propertiesConfiguration;
+    public MetaTypeComparator(final Object configurationProperties,
+                              final Debug debug) {
+        this.configurationProperties = configurationProperties;
     }
 
     /**

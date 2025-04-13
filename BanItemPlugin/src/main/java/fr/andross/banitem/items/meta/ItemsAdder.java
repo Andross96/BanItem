@@ -40,11 +40,11 @@ public final class ItemsAdder extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public ItemsAdder(final Object o, final Debug debug) {
-        super(o);
+    public ItemsAdder(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
         // Not available?
         try {
@@ -55,7 +55,7 @@ public final class ItemsAdder extends MetaTypeComparator {
             return;
         }
 
-        items.addAll(Listable.getSplitStringList(o).stream().map(String::toLowerCase).collect(Collectors.toList()));
+        items.addAll(Listable.getSplitStringList(configurationProperties).stream().map(String::toLowerCase).collect(Collectors.toList()));
     }
 
     @Override

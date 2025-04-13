@@ -40,13 +40,13 @@ public final class EnchantmentEquals extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public EnchantmentEquals(final Object o, final Debug debug) {
-        super(o);
+    public EnchantmentEquals(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
-        for (final String string : Listable.getSplitStringList(o)) {
+        for (final String string : Listable.getSplitStringList(configurationProperties)) {
             final Enchantment enchantment;
             final int level;
 

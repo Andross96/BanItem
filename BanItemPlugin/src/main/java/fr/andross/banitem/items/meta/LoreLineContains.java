@@ -37,12 +37,12 @@ public final class LoreLineContains extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public LoreLineContains(final Object o, final Debug debug) {
-        super(o);
-        lore = Chat.color(o.toString());
+    public LoreLineContains(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
+        lore = Chat.color(configurationProperties.toString());
     }
 
     @Override

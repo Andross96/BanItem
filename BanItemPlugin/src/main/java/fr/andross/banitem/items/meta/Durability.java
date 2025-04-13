@@ -36,16 +36,16 @@ public final class Durability extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public Durability(final Object o, final Debug debug) {
-        super(o);
+    public Durability(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
-        if (o instanceof String) {
-            final String[] s = o.toString().split("-");
+        if (configurationProperties instanceof String) {
+            final String[] s = configurationProperties.toString().split("-");
             if (s.length != 2) {
-                debug.clone().add("&cInvalid interval '" + o + "' for meta type &e&ldurability&c.").sendDebug();
+                debug.clone().add("&cInvalid interval '" + configurationProperties + "' for meta type &e&ldurability&c.").sendDebug();
                 setValid(false);
                 return;
             }
@@ -72,9 +72,9 @@ public final class Durability extends MetaTypeComparator {
             }
         } else {
             try {
-                min = max = Integer.parseInt(o.toString());
+                min = max = Integer.parseInt(configurationProperties.toString());
             } catch (final NumberFormatException e) {
-                debug.clone().add("&cInvalid durability '" + o + "' for meta type &e&ldurability&c.").sendDebug();
+                debug.clone().add("&cInvalid durability '" + configurationProperties + "' for meta type &e&ldurability&c.").sendDebug();
                 setValid(false);
             }
         }

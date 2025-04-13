@@ -35,22 +35,22 @@ public final class ModeldataEquals extends MetaTypeComparator {
     /**
      * Prepare the configured property to be compared with an item.
      *
-     * @param o     the configured property value
-     * @param debug the debug handler
+     * @param configurationProperties the configured property value
+     * @param debug                   the debug handler
      */
-    public ModeldataEquals(final Object o, final Debug debug) {
-        super(o);
+    public ModeldataEquals(final Object configurationProperties, final Debug debug) {
+        super(configurationProperties, debug);
 
         if (!MinecraftVersion.v14OrMore) {
-            debug.clone().add("&cCan not use model data on MC<1.14 '" + o + ".").sendDebug();
+            debug.clone().add("&cCan not use model data on MC<1.14 '" + configurationProperties + ".").sendDebug();
             setValid(false);
             return;
         }
 
         try {
-            modelData = Integer.parseInt(o.toString());
+            modelData = Integer.parseInt(configurationProperties.toString());
         } catch (final NumberFormatException e) {
-            debug.clone().add("&cInvalid integer model data '" + o + ".").sendDebug();
+            debug.clone().add("&cInvalid integer model data '" + configurationProperties + ".").sendDebug();
             setValid(false);
         }
     }
