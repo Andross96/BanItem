@@ -114,10 +114,21 @@ public enum BanDataType {
 
     private final String name;
 
+    /**
+     * Enum constructor.
+     *
+     * @param name Name of the ban data type
+     */
     BanDataType(@NotNull final String name) {
         this.name = name;
     }
 
+    /**
+     * Get the name of the ban data type.
+     * Name is hardcoded to avoid utility {@link String#toLowerCase()} method to be called each time.
+     *
+     * @return The name of the ban data type
+     */
     @NotNull
     public String getName() {
         return name;

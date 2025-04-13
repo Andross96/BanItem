@@ -22,11 +22,13 @@ import fr.andross.banitem.items.meta.MetaTypeComparator;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * An item wrapper, which store custom item meta.
@@ -41,6 +43,14 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     private boolean valid = true;
     private boolean reverted = false;
 
+    /**
+     * Represents a custom item, handled by BanItem, which will match specific meta types
+     * on the item.
+     *
+     * @param name    name of the custom item
+     * @param section the section in the configuration file
+     * @param debug   the debug
+     */
     public CustomBannedItem(@NotNull final String name,
                             @NotNull final ConfigurationSection section,
                             @NotNull final Debug debug) {
@@ -64,7 +74,9 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
 
         // Meta
         for (final String key : section.getKeys(false)) {
-            if (key.equalsIgnoreCase("material")) continue;
+            if (key.equalsIgnoreCase("material")) {
+                continue;
+            }
             if (key.equalsIgnoreCase("reverted")) {
                 reverted = section.getBoolean(key);
                 continue;
@@ -81,7 +93,9 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
 
             // Creating comparator
             try {
-                final MetaTypeComparator comparator = type.getClazz().getDeclaredConstructor(Object.class, Debug.class).newInstance(section.get(key), debug.clone().add(key));
+                final MetaTypeComparator comparator = type.getClazz()
+                        .getDeclaredConstructor(Object.class, Debug.class)
+                        .newInstance(section.get(key), debug.clone().add(key));
                 if (!comparator.isValid()) {
                     valid = false;
                     return;
@@ -89,7 +103,7 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
                 meta.put(type, comparator);
             } catch (final Exception e) {
                 debug.clone().add(ListType.METATYPE, "&cError loading &e&l" + key + "&c. More information on console.").sendDebug();
-                e.printStackTrace();
+                Bukkit.getLogger().log(Level.WARNING, "Error loading '" + key + "'.", e);
             }
         }
     }

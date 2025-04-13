@@ -26,17 +26,39 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Abstract sub command class
+ * Abstract sub command class.
  *
  * @author Andross
  * @version 3.2
  */
 public abstract class BanCommand {
+    /**
+     * Header used into the message sent to the command sender.
+     */
     private static final String HEADER = Chat.color("&7&m     &r &l[%s&r&l] &7&m     ");
+
+    /**
+     * BanItem plugin instance.
+     */
     protected final BanItem plugin;
+
+    /**
+     * Command sender.
+     */
     protected final CommandSender sender;
+
+    /**
+     * Arguments used by the command sender into the command.
+     */
     protected final String[] args;
 
+    /**
+     * Create a BanCommand object which handles in game BanItem commands.
+     *
+     * @param plugin ban item plugin instance
+     * @param sender the command sender
+     * @param args the arguments for the command used by the sender
+     */
     public BanCommand(@NotNull final BanItem plugin,
                       @NotNull final CommandSender sender,
                       @NotNull final String[] args) {
@@ -64,7 +86,9 @@ public abstract class BanCommand {
     }
 
     /**
-     * @return the no permission message from config
+     * Get the "no-permission" message from config
+     *
+     * @return the "no-permission" message from config
      */
     @Nullable
     protected String getNoPermMessage() {

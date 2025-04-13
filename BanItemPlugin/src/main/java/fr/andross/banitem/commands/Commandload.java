@@ -25,17 +25,27 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Sub command load
+ * Sub command load.
  *
  * @author Andross
  * @version 3.1
  */
 public class Commandload extends BanCommand {
 
-    public Commandload(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem load command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandload(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Permission?
@@ -62,6 +72,11 @@ public class Commandload extends BanCommand {
         plugin.getApi().load(sender, f);
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Override
     public List<String> runTab() {
         return Collections.emptyList();

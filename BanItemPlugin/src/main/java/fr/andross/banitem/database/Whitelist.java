@@ -35,7 +35,6 @@ import fr.andross.banitem.utils.debug.DebugMessage;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
 import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -55,6 +54,9 @@ import java.util.stream.Collectors;
  * @version 3.3
  */
 public class Whitelist extends HashMap<World, WhitelistedWorld> {
+    /**
+     * BanItem plugin instance.
+     */
     private final BanItem plugin;
 
     /**
@@ -304,8 +306,13 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
 
                 // Calling event?
                 if (plugin.getBanConfig().getConfig().getBoolean("api.playerbanitemevent")) {
-                    final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.WHITELIST, item, action, whitelisted, data);
-                    Bukkit.getPluginManager().callEvent(e);
+                    final PlayerBanItemEvent e = new PlayerBanItemEvent(player,
+                            PlayerBanItemEvent.Type.WHITELIST,
+                            item,
+                            action,
+                            whitelisted,
+                            data);
+                    plugin.getServer().getPluginManager().callEvent(e);
                     return !e.isCancelled();
                 }
 
@@ -322,7 +329,7 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
                                 commandWithPlaceholderReplaced = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, commandWithPlaceholderReplaced);
                             }
 
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandWithPlaceholderReplaced);
+                            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), commandWithPlaceholderReplaced);
                         }
                     }
                 }
@@ -373,7 +380,9 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
     }
 
     /**
-     * @return the total amount of items allowed, in all worlds
+     * The total amount of items allowed, in all worlds.
+     *
+     * @return The total amount of items allowed, in all worlds
      */
     public int getTotalWhitelistedItems() {
         return values().stream().mapToInt(WhitelistedWorld::getTotalAmountOfItems).sum();

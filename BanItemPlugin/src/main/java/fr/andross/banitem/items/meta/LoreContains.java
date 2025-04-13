@@ -37,6 +37,12 @@ import java.util.stream.Collectors;
 public final class LoreContains extends MetaTypeComparator {
     private final Set<String> lore;
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public LoreContains(final Object o, final Debug debug) {
         super(o);
         lore = Listable.getStringList(o).stream().map(Chat::color).collect(Collectors.toSet());

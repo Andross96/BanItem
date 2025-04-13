@@ -27,8 +27,17 @@ import org.jetbrains.annotations.NotNull;
  * @version 3.3
  */
 public final class MetaItem extends BannedItem implements ICustomName {
+    /**
+     * Name of the meta item.
+     */
     private final String name;
 
+    /**
+     * Constructor of a meta item, which represents a Bukkit ItemStack with a custom name.
+     *
+     * @param name The name of this meta item
+     * @param itemStack The item stack representing the item
+     */
     public MetaItem(@NotNull final String name, @NotNull final ItemStack itemStack) {
         super(itemStack);
         this.name = name;

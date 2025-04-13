@@ -49,6 +49,13 @@ public final class BanItem extends JavaPlugin {
     private final BanUtils utils = new BanUtils(this);
     private final BanListener listener = new BanListener(this);
 
+    /**
+     * Default constructor
+     */
+    public BanItem() {
+        super();
+    }
+
     @Override
     public void onEnable() {
         instance = this;

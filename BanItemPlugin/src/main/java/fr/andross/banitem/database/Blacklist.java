@@ -36,7 +36,6 @@ import fr.andross.banitem.utils.debug.DebugMessage;
 import fr.andross.banitem.utils.hooks.IWorldGuardHook;
 import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -55,6 +54,9 @@ import java.util.*;
  * @version 3.3
  */
 public final class Blacklist extends HashMap<World, Items> {
+    /**
+     * BanItem plugin instance.
+     */
     private final BanItem plugin;
 
     /**
@@ -272,8 +274,13 @@ public final class Blacklist extends HashMap<World, Items> {
 
             // Calling event?
             if (plugin.getBanConfig().getConfig().getBoolean("api.playerbanitemevent")) {
-                final PlayerBanItemEvent e = new PlayerBanItemEvent(player, PlayerBanItemEvent.Type.BLACKLIST, item, action, blacklistData, data);
-                Bukkit.getPluginManager().callEvent(e);
+                final PlayerBanItemEvent e = new PlayerBanItemEvent(player,
+                        PlayerBanItemEvent.Type.BLACKLIST,
+                        item,
+                        action,
+                        blacklistData,
+                        data);
+                plugin.getServer().getPluginManager().callEvent(e);
                 if (e.isCancelled()) {
                     return false;
                 }
@@ -281,7 +288,7 @@ public final class Blacklist extends HashMap<World, Items> {
 
             // Checking delete?
             if (map.containsKey(BanAction.DELETE)) {
-                Bukkit.getScheduler().runTask(plugin, () -> plugin.getUtils().deleteItemFromInventoryView(player));
+                plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getUtils().deleteItemFromInventoryView(player));
             }
 
             if (sendMessage) {
@@ -309,7 +316,7 @@ public final class Blacklist extends HashMap<World, Items> {
                             commandWithPlaceholderReplaced = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, commandWithPlaceholderReplaced);
                         }
 
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandWithPlaceholderReplaced);
+                        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), commandWithPlaceholderReplaced);
                     }
                 }
             }
@@ -338,6 +345,8 @@ public final class Blacklist extends HashMap<World, Items> {
     }
 
     /**
+     * Total amount of banned items in all worlds.
+     *
      * @return the total amount of banned items in all worlds
      */
     public int getTotalBlacklistedItems() {

@@ -30,9 +30,12 @@ import java.util.stream.Collectors;
  * @author Andross
  * @version 3.1.1
  */
-public final class PotionHelper {
-    private static final List<String> potionNames = Arrays.stream(PotionEffectType.values()).filter(Objects::nonNull).map(PotionEffectType::getName).collect(Collectors.toList()); // some of them are null in 1.8, why?!
-    private static final Map<String, String> names = new HashMap<>();
+public abstract class PotionHelper {
+    private static final List<String> POTION_NAMES = Arrays.stream(PotionEffectType.values())
+            .filter(Objects::nonNull)
+            .map(PotionEffectType::getName)
+            .collect(Collectors.toList()); // some of them are null in 1.8, why?!
+    private static final Map<String, String> POTION_FRIENDLY_NAMES = new HashMap<>();
 
     static {
         add("heal", "health", "healing", "instant_heal");
@@ -50,9 +53,21 @@ public final class PotionHelper {
         add("damage_resistance", "resistance", "damageresistance");
     }
 
+    /**
+     * Static utility class.
+     */
+    private PotionHelper() {}
+
+    /**
+     * Utility method to instantiate the potion names map.
+     *
+     * @param bukkitName bukkit potion name
+     * @param friendlyNames friendly name which can be used to represent the potion
+     */
     private static void add(final String bukkitName, final String... friendlyNames) {
-        for (final String friendlyName : friendlyNames)
-            names.put(friendlyName, bukkitName);
+        for (final String friendlyName : friendlyNames) {
+            POTION_FRIENDLY_NAMES.put(friendlyName, bukkitName);
+        }
     }
 
     /**
@@ -70,7 +85,7 @@ public final class PotionHelper {
         }
 
         // Last chance, getting by friendly names above ?
-        return names.containsKey(name.toLowerCase()) ? PotionEffectType.getByName(names.get(name)) : null;
+        return POTION_FRIENDLY_NAMES.containsKey(name.toLowerCase()) ? PotionEffectType.getByName(POTION_FRIENDLY_NAMES.get(name)) : null;
     }
 
     /**
@@ -98,9 +113,14 @@ public final class PotionHelper {
         return new PotionWrapper(potionEffectType, level);
     }
 
+    /**
+     * Get the name of the potions.
+     *
+     * @return the name of the potions
+     */
     @NotNull
     public static List<String> getPotionNames() {
-        return potionNames;
+        return POTION_NAMES;
     }
 }
 

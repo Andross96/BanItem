@@ -31,9 +31,24 @@ public final class AttributeLevels {
      * An enum to define how to compare attribute levels
      */
     public enum Comparator {
+        /**
+         * If the attribute is between specific values.
+         */
         BETWEEN,
+
+        /**
+         * If the attribute is equal to a specific value.
+         */
         EQUALS,
+
+        /**
+         * If the attribute is below a specific value.
+         */
         LOWER,
+
+        /**
+         * If the attribute is above a specific value.
+         */
         HIGHER;
 
         /**
@@ -55,16 +70,39 @@ public final class AttributeLevels {
         }
     }
 
+    /**
+     * Comparator used for the levels.
+     */
     private final Comparator comparator;
+
+    /**
+     * The minimum attribute level.
+     */
     private final Double minLevel;
+
+    /**
+     * The maximum attribute level.
+     */
     private final Double maxLevel;
 
+    /**
+     * Instantiate an attribute which should match the specific level using the specified comparator.
+     *
+     * @param level The attribute level
+     * @param comparator The level comparator
+     */
     public AttributeLevels(@NotNull final Double level, @NotNull final Comparator comparator) {
         this.comparator = comparator;
         this.minLevel = level;
         this.maxLevel = null;
     }
 
+    /**
+     * Instantiate an attribute with a comparator between the minLevel and maxLevel.
+     *
+     * @param minLevel The minimum level required to represents this attribute
+     * @param maxLevel The maximum level required to represents this attribute
+     */
     public AttributeLevels(@NotNull final Double minLevel, @NotNull final Double maxLevel) {
         this.comparator = Comparator.BETWEEN;
         this.minLevel = minLevel;

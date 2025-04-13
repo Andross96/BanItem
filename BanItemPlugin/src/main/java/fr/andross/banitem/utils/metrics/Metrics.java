@@ -44,34 +44,54 @@ public class Metrics {
         }
     }
 
-    // The version of this bStats class
+    /**
+     * The version of this bStats class.
+     */
     public static final int B_STATS_VERSION = 1;
 
-    // The url to which the data is sent
+    /**
+     * The url to which the data is sent.
+     */
     private static final String URL = "https://bStats.org/submitData/bukkit";
 
-    // Is bStats enabled on this server?
+    /**
+     * Is bStats enabled on this server?
+     */
     private boolean enabled;
 
-    // Should failed requests be logged?
+    /**
+     * Should failed requests be logged?
+     */
     private static boolean logFailedRequests;
 
-    // Should the sent data be logged?
+    /**
+     * Should the sent data be logged?
+     */
     private static boolean logSentData;
 
-    // Should the response text be logged?
+    /**
+     * Should the response text be logged?
+     */
     private static boolean logResponseStatusText;
 
-    // The uuid of the server
+    /**
+     * The uuid of the server.
+     */
     private static String serverUUID;
 
-    // The plugin
+    /**
+     * The plugin.
+     */
     private final Plugin plugin;
 
-    // The plugin id
+    /**
+     * The plugin id.
+     */
     private final int pluginId;
 
-    // A list with all custom charts
+    /**
+     * A list with all custom charts.
+     */
     private final List<CustomChart> charts = new ArrayList<>();
 
     /**
@@ -426,6 +446,11 @@ public class Metrics {
             return chart;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         protected abstract JsonObject getChartData() throws Exception;
 
     }
@@ -448,6 +473,11 @@ public class Metrics {
             this.callable = callable;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         @Override
         protected JsonObject getChartData() throws Exception {
             JsonObject data = new JsonObject();
@@ -479,6 +509,11 @@ public class Metrics {
             this.callable = callable;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         @Override
         protected JsonObject getChartData() throws Exception {
             JsonObject data = new JsonObject();
@@ -523,6 +558,11 @@ public class Metrics {
             this.callable = callable;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         @Override
         public JsonObject getChartData() throws Exception {
             JsonObject data = new JsonObject();
@@ -572,6 +612,11 @@ public class Metrics {
             this.callable = callable;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         @Override
         protected JsonObject getChartData() throws Exception {
             JsonObject data = new JsonObject();
@@ -604,6 +649,11 @@ public class Metrics {
             this.callable = callable;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         @Override
         protected JsonObject getChartData() throws Exception {
             JsonObject data = new JsonObject();
@@ -649,6 +699,11 @@ public class Metrics {
             this.callable = callable;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         @Override
         protected JsonObject getChartData() throws Exception {
             JsonObject data = new JsonObject();
@@ -687,6 +742,11 @@ public class Metrics {
             this.callable = callable;
         }
 
+        /**
+         * Missing internal bStats doc.
+         * @return Missing internal bStats doc.
+         * @throws Exception Missing internal bStats doc.
+         */
         @Override
         protected JsonObject getChartData() throws Exception {
             JsonObject data = new JsonObject();

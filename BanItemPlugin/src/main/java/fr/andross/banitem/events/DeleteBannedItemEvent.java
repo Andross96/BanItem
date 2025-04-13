@@ -37,6 +37,12 @@ public final class DeleteBannedItemEvent extends PlayerEvent implements Cancella
     private final BannedItem bannedItem;
     private boolean cancelled = false;
 
+    /**
+     * Event triggered when an item will be deleted by BanItem because it is banned.
+     *
+     * @param who the player involved
+     * @param bannedItem the item involved
+     */
     public DeleteBannedItemEvent(@NotNull final Player who,
                                  @NotNull final BannedItem bannedItem) {
         super(who);
@@ -53,22 +59,42 @@ public final class DeleteBannedItemEvent extends PlayerEvent implements Cancella
         return bannedItem;
     }
 
+    /**
+     * Check if the event is cancelled.
+     *
+     * @return true if the event is cancelled, otherwise false
+     */
     @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
+    /**
+     * Cancel the event.
+     *
+     * @param cancel true if you wish to cancel this event
+     */
     @Override
     public void setCancelled(final boolean cancel) {
         cancelled = cancel;
     }
 
+    /**
+     * Internal Bukkit event handler list.
+     *
+     * @return internal bukkit event handler list
+     */
     @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    /**
+     * Bukkit event handler list.
+     *
+     * @return the bukkit event handler list
+     */
     @NotNull
     public static HandlerList getHandlerList() {
         return handlers;

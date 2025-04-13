@@ -37,6 +37,12 @@ import java.util.stream.Collectors;
 public final class ItemsAdder extends MetaTypeComparator {
     private final Set<String> items = new HashSet<>();
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public ItemsAdder(final Object o, final Debug debug) {
         super(o);
 

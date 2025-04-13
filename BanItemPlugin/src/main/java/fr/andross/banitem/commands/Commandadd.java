@@ -37,17 +37,27 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Sub command add
+ * Sub command add.
  *
  * @author Andross
  * @version 3.1
  */
 public class Commandadd extends BanCommand {
 
-    public Commandadd(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem add command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandadd(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Permission?
@@ -201,6 +211,11 @@ public class Commandadd extends BanCommand {
         sendMessage("&cCheck the console for more information.");
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Override
     public List<String> runTab() {
         if (args.length == 2)

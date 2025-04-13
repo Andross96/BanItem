@@ -36,15 +36,22 @@ public final class EnchantmentWrapper {
     private final Enchantment enchantment;
     private final int level;
 
+    /**
+     * Wrap a minecraft enchantment with its level, so it can easily be compared depending
+     * on the Minecraft version used.
+     *
+     * @param enchantment the Minecraft enchantment
+     * @param level the enchantment level
+     */
     public EnchantmentWrapper(@NotNull final Enchantment enchantment, final int level) {
         this.enchantment = enchantment;
         this.level = level;
     }
 
     /**
-     * Get the Bukkit enchantment
+     * Get the Minecraft enchantment.
      *
-     * @return the bukkit enchantment
+     * @return the Minecraft enchantment
      */
     @NotNull
     public Enchantment getEnchantment() {
@@ -52,7 +59,7 @@ public final class EnchantmentWrapper {
     }
 
     /**
-     * Get the level of the enchantment
+     * Get the level of the enchantment.
      *
      * @return the level of the enchantment
      */
@@ -68,7 +75,8 @@ public final class EnchantmentWrapper {
      */
     @NotNull
     public static Set<EnchantmentWrapper> from(@NotNull final Map<Enchantment, Integer> map) {
-        return map.entrySet().stream().map(e -> new EnchantmentWrapper(e.getKey(), e.getValue())).collect(Collectors.toSet());
+        return map.entrySet().stream().map(e ->
+                new EnchantmentWrapper(e.getKey(), e.getValue())).collect(Collectors.toSet());
     }
 
     @Override

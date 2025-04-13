@@ -32,6 +32,12 @@ import org.jetbrains.annotations.NotNull;
 public final class ModeldataEquals extends MetaTypeComparator {
     private int modelData;
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public ModeldataEquals(final Object o, final Debug debug) {
         super(o);
 

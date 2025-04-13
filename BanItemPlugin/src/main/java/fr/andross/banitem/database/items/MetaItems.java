@@ -39,7 +39,14 @@ import java.util.Locale;
  * @version 3.1.1
  */
 public final class MetaItems extends DoubleMap<String, BannedItem> {
+    /**
+     * Represents the metaitems.yml file.
+     */
     private final File file;
+
+    /**
+     * Represents the loaded configuration from metaitems.yml file.
+     */
     private final FileConfiguration config;
 
     /**
@@ -71,6 +78,8 @@ public final class MetaItems extends DoubleMap<String, BannedItem> {
     }
 
     /**
+     * The file configuration used to create this instance
+     *
      * @return the file configuration used to create this instance
      */
     @NotNull
@@ -79,7 +88,9 @@ public final class MetaItems extends DoubleMap<String, BannedItem> {
     }
 
     /**
-     * @return the "items.yml" file of the BanItem plugin
+     * The "metaitems.yml" file of the BanItem plugin.
+     *
+     * @return the "metaitems.yml" file of the BanItem plugin
      */
     @NotNull
     public File getFile() {

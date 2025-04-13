@@ -33,6 +33,13 @@ public final class PotionWrapper {
     private final PotionEffectType potionEffectType;
     private final int level;
 
+    /**
+     * Wrap a minecraft potion with its level, so it can easily be compared depending
+     * on the Minecraft version used.
+     *
+     * @param potionEffectType the Minecraft potion
+     * @param level the potion level
+     */
     public PotionWrapper(@NotNull final PotionEffectType potionEffectType, final int level) {
         this.potionEffectType = potionEffectType;
         this.level = level;

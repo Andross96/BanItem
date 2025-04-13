@@ -50,6 +50,13 @@ public final class Debug implements Cloneable {
     private final CommandSender sender;
     private List<DebugMessage> nodes = new ArrayList<>();
 
+    /**
+     * Creating debug object, which will contains the debug messages.
+     *
+     * @param banConfig Ban item configuration used
+     * @param sender The command sender
+     * @param dm The debug message
+     */
     public Debug(@NotNull final BanConfig banConfig,
                  @NotNull final CommandSender sender,
                  final DebugMessage... dm) {

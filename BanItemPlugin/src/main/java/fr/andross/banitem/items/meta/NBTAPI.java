@@ -38,6 +38,12 @@ import java.util.function.BiPredicate;
 public final class NBTAPI extends MetaTypeComparator {
     private final Map<List<String>, List<BiPredicate<NBTCompound, String>>> map = new HashMap<>();
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public NBTAPI(final Object o, final Debug debug) {
         super(o);
 

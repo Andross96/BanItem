@@ -29,14 +29,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BanData {
     private final BanDataType type;
-    private final Object o;
+    private final Object object;
 
-    public BanData(@NotNull final BanDataType type, @NotNull final Object o) {
+    /**
+     * Constructor a BanData object, where the type represents the type of data and the
+     * object represents an instance of the type as described in its documentation {@link BanDataType}.
+     *
+     * @param type   Type of ban data
+     * @param object Object related to the ban data
+     */
+    public BanData(@NotNull final BanDataType type, @NotNull final Object object) {
         this.type = type;
-        this.o = o;
+        this.object = object;
     }
 
     /**
+     * Ban data type.
+     *
      * @return the ban data type
      */
     @NotNull
@@ -45,10 +54,12 @@ public final class BanData {
     }
 
     /**
+     * Object, which is an instance described by the {@link BanDataType}.
+     *
      * @return the object, which is an instance described by the {@link BanDataType}
      */
     @NotNull
     public Object getObject() {
-        return o;
+        return object;
     }
 }

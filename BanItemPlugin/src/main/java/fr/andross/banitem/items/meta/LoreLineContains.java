@@ -34,6 +34,12 @@ import java.util.List;
 public final class LoreLineContains extends MetaTypeComparator {
     private final String lore;
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public LoreLineContains(final Object o, final Debug debug) {
         super(o);
         lore = Chat.color(o.toString());

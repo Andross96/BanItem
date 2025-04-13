@@ -44,6 +44,11 @@ public final class BanActionData {
     private final Map<UUID, Long> cooldowns = new HashMap<>();
 
     /**
+     * Instantiation of the ban action data.
+     */
+    public BanActionData() {}
+
+    /**
      * Gets the data from this map.
      *
      * @param type the type of data to retrieve, as defined in {@link BanDataType}
@@ -241,6 +246,8 @@ public final class BanActionData {
     }
 
     /**
+     * Map containing players cooldowns time.
+     *
      * @return map containing players cooldowns time
      */
     @NotNull

@@ -32,23 +32,27 @@ import java.util.Optional;
  * @author EpiCanard
  * @version 3.4
  */
-public class ReflectionUtils {
+public abstract class ReflectionUtils {
 
-    private final static String bukkitPackageVersion;
+    /**
+     * Static utility class.
+     */
+    private ReflectionUtils() {}
 
-    static {
-        // Bukkit package version (ex: V1_8_R3)
-        bukkitPackageVersion = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-    }
+    private final static String BUKKIT_PACKAGE_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
     /**
      * Create an NMSItemStack from Bukkit ItemStack.
      *
      * @param itemStack Bukkit ItemStack to convert
      * @return Converted ItemStack
+     * @throws ClassNotFoundException    If an exception occurred
+     * @throws InvocationTargetException If an exception occurred
+     * @throws IllegalAccessException    If an exception occurred
+     * @throws NoSuchMethodException     If an exception occurred
      */
     public static Object asNMSCopy(@NotNull final ItemStack itemStack) throws ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        final String craftPath = String.format("org.bukkit.craftbukkit.%s.inventory.CraftItemStack", bukkitPackageVersion);
+        final String craftPath = String.format("org.bukkit.craftbukkit.%s.inventory.CraftItemStack", BUKKIT_PACKAGE_VERSION);
         final Class<?> craftItemStack = Class.forName(craftPath);
         final Method asNMSCopy = craftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
         return asNMSCopy.invoke(null, itemStack);
@@ -61,12 +65,17 @@ public class ReflectionUtils {
      * @param returnType Return type class that must be returned by the method
      * @param <T>        Return type
      * @return The value returned by the call to the method
+     * @throws InvocationTargetException If an exception occurred
+     * @throws IllegalAccessException    If an exception occurred
+     * @throws NoSuchMethodException     If an exception occurred
      */
     @SuppressWarnings("unchecked")
-    public static <T> T callMethodWithReturnType(@NotNull final Object obj, @NotNull final Class<? extends T> returnType) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    public static <T> T callMethodWithReturnType(@NotNull final Object obj,
+                                                 @NotNull final Class<? extends T> returnType) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         final Optional<Method> maybeMethod = Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getReturnType() == returnType).findFirst();
-        if (maybeMethod.isPresent())
+        if (maybeMethod.isPresent()) {
             return (T) maybeMethod.get().invoke(obj);
+        }
         throw new NoSuchMethodException("Can't find method with type : " + returnType.getName());
     }
 
@@ -77,6 +86,9 @@ public class ReflectionUtils {
      * @param name Name of method to call
      * @param <T>  Return type
      * @return The value returned by the call to the method
+     * @throws NoSuchMethodException     If an exception occurred
+     * @throws InvocationTargetException If an exception occurred
+     * @throws IllegalAccessException    If an exception occurred
      */
     @SuppressWarnings("unchecked")
     public static <T> T callMethodWithName(@NotNull final Object obj, @NotNull final String name) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {

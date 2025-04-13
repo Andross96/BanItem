@@ -26,6 +26,7 @@ import fr.andross.banitem.utils.attributes.AttributeLevels;
 import fr.andross.banitem.utils.attributes.ReflectionUtils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 /**
  * A simple meta comparator to compare attributes.
@@ -44,6 +46,12 @@ import java.util.Map;
 public final class AttributeContains extends MetaTypeComparator {
     private final Multimap<Object, AttributeLevels> attributes = HashMultimap.create();
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public AttributeContains(final Object o, final Debug debug) {
         super(o);
 
@@ -167,7 +175,7 @@ public final class AttributeContains extends MetaTypeComparator {
                 }
             } catch (final ClassNotFoundException | InvocationTargetException | IllegalAccessException |
                      NoSuchMethodException e) {
-                e.printStackTrace();
+                Bukkit.getLogger().log(Level.WARNING, "AttributeContains reflection error.", e);
             }
         }
         return map;

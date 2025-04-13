@@ -26,17 +26,27 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Sub command log
+ * Sub command log.
  *
  * @author Andross
  * @version 3.1
  */
 public class Commandlog extends BanCommand {
 
-    public Commandlog(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem log command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandlog(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Not player?
@@ -63,6 +73,11 @@ public class Commandlog extends BanCommand {
         }
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Override
     public List<String> runTab() {
         return Collections.emptyList();

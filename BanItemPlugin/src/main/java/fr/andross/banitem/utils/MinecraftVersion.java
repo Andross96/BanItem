@@ -26,7 +26,12 @@ import org.bukkit.Bukkit;
  * @author Andross
  * @version 3.4
  */
-public final class MinecraftVersion {
+public abstract class MinecraftVersion {
+
+    /**
+     * Static utility class.
+     */
+    private MinecraftVersion() {}
 
     /**
      * In 1.21+, Crafter item has been added.

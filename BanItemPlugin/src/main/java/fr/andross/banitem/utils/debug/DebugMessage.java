@@ -31,10 +31,21 @@ public final class DebugMessage {
     private final ListType type;
     private final String node;
 
+    /**
+     * Creating a DebugMessage object with a first debug message node.
+     *
+     * @param node first debug message
+     */
     public DebugMessage(@NotNull final String node) {
         this(null, node);
     }
 
+    /**
+     * Creating a DebugMessage object with a first debug message node and its type.
+     *
+     * @param type type of debug message
+     * @param node debug message
+     */
     public DebugMessage(@Nullable final ListType type, @NotNull final String node) {
         this.type = type;
         this.node = node;

@@ -33,16 +33,31 @@ import org.jetbrains.annotations.NotNull;
 public final class PlayerRegionChangeEvent extends PlayerEvent {
     private static final HandlerList handlers = new HandlerList();
 
+    /**
+     * Create the event with the involved player.
+     *
+     * @param player the involved player
+     */
     public PlayerRegionChangeEvent(@NotNull final Player player) {
         super(player);
     }
 
+    /**
+     * Internal Bukkit event handler list.
+     *
+     * @return internal bukkit event handler list
+     */
     @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    /**
+     * Bukkit event handler list.
+     *
+     * @return the bukkit event handler list
+     */
     @NotNull
     public static HandlerList getHandlerList() {
         return handlers;

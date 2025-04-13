@@ -40,6 +40,12 @@ public final class ItemStackBuilder {
     private final ItemStack itemStack;
     private final ItemMeta itemMeta;
 
+    /**
+     * Builder to create an ItemStack through configuration properties.
+     *
+     * @param section properties section
+     * @throws Exception if an invalid configuration is entered
+     */
     public ItemStackBuilder(@Nullable final ConfigurationSection section) throws Exception {
         if (section == null) {
             throw new Exception("&cunknown section.");

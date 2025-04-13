@@ -19,8 +19,10 @@ public class PlaceholderApiCondition {
     /**
      * Prepare a PlaceholderAPI condition check.
      * The configuration must have the syntax:
+     * <ul>
      * <li><code>%placeholder_value%=expectedValue</code> - for exact string matching</li>
      * <li><code>%placeholder_value%=#expectedRegex</code> - for regex matching</li>
+     * </ul>
      *
      * @param placeholderConditionConfiguration a placeholder API condition handler
      */
@@ -46,6 +48,13 @@ public class PlaceholderApiCondition {
         }
     }
 
+    /**
+     * Check if the current placeholder value for the player match the configured
+     * expected value.
+     *
+     * @param player the involved player
+     * @return true if the placeholder value matches the configured expected value, otherwise false
+     */
     public boolean doesConditionMatch(final Player player) {
         final String placeholderValue = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, placeholder);
         if (pattern != null) {
@@ -54,5 +63,4 @@ public class PlaceholderApiCondition {
             return expectedValue.equals(placeholderValue);
         }
     }
-
 }

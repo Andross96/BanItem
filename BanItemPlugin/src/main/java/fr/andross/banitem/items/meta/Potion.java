@@ -43,6 +43,12 @@ public final class Potion extends MetaTypeComparator {
     private final Set<PotionWrapper> potions = new HashSet<>(); // Specific potions with specific levels
     private final Map<Object, Integer[]> potionsIntervals = new HashMap<>();
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public Potion(final Object o, final Debug debug) {
         super(o);
 

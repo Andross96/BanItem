@@ -31,11 +31,31 @@ import java.util.regex.Pattern;
  * @author Andross
  * @version 3.2
  */
-public final class Chat {
+public abstract class Chat {
+    /**
+     * Represents the color character.
+     */
     private static final char COLOR_CHAR = '\u00A7';
+
+    /**
+     * Represents the regex which match a color code.
+     */
     private static final Pattern stripColorPattern = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-ORX]");
+
+    /**
+     * Represents the regex which match a HEX color.
+     */
     private static final Pattern hexPattern = Pattern.compile("&#[A-Fa-f0-9]{6}");
+
+    /**
+     * Represents the regex which match a converted HEX color.
+     */
     private static final Pattern hexStripPattern = Pattern.compile("(?i)" + COLOR_CHAR + "x(" + COLOR_CHAR + "[0-9A-FK-OR]){6}");
+
+    /**
+     * Static utility class.
+     */
+    private Chat() {}
 
     /**
      * Translate the color codes to make the string colored.

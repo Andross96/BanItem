@@ -52,7 +52,12 @@ import java.util.stream.Stream;
  * @author Andross
  * @version 3.1
  */
-public final class Listable {
+public abstract class Listable {
+
+    /**
+     * Static utility class
+     */
+    private Listable() {}
 
     /**
      * Split a string into a list of string, based on ',' character.

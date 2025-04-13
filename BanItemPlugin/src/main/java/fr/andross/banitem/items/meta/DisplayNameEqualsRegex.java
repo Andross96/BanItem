@@ -34,6 +34,12 @@ import java.util.regex.PatternSyntaxException;
 public final class DisplayNameEqualsRegex extends MetaTypeComparator {
     private Pattern pattern;
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public DisplayNameEqualsRegex(final Object o, final Debug debug) {
         super(o);
         try {

@@ -37,17 +37,27 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Sub command meta item
+ * Sub command meta item.
  *
  * @author Andross
  * @version 3.1.1
  */
 public class Commandmetaitem extends BanCommand {
 
-    public Commandmetaitem(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem metaitem command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandmetaitem(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Checking permission
@@ -242,6 +252,11 @@ public class Commandmetaitem extends BanCommand {
         }
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Nullable
     @Override
     public List<String> runTab() {

@@ -37,18 +37,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Sub command help
+ * Sub command help.
  *
  * @author Andross
  * @version 3.1
  */
 public class Commandhelp extends BanCommand {
-    private static final List<String> types = Arrays.asList("worlds", "actions", "entities", "gamemodes", "inventories", "enchantments", "potions");
+    private static final List<String> HELP_TYPES = Arrays.asList("worlds", "actions", "entities", "gamemodes", "inventories", "enchantments", "potions");
 
-    public Commandhelp(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem help command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandhelp(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Permission?
@@ -63,7 +73,7 @@ public class Commandhelp extends BanCommand {
             sendMessage("&b/bi help &3<type>");
             sendMessage("&7 >> Gives information about");
             sendMessage("&7 >> the type entered.");
-            sendMessage("&7Types: &o" + types.stream().collect(Collectors.joining(",", "", "&7.")));
+            sendMessage("&7Types: &o" + HELP_TYPES.stream().collect(Collectors.joining(",", "", "&7.")));
             return;
         }
 
@@ -130,15 +140,20 @@ public class Commandhelp extends BanCommand {
 
             default: {
                 sendMessage("&cUnknown help type.");
-                sendMessage("&7 >> Type: " + String.join(",", types));
+                sendMessage("&7 >> Type: " + String.join(",", HELP_TYPES));
                 break;
             }
         }
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Nullable
     @Override
     public List<String> runTab() {
-        return args.length == 2 ? StringUtil.copyPartialMatches(args[1], types, new ArrayList<>()) : Collections.emptyList();
+        return args.length == 2 ? StringUtil.copyPartialMatches(args[1], HELP_TYPES, new ArrayList<>()) : Collections.emptyList();
     }
 }

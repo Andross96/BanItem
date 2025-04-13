@@ -36,6 +36,12 @@ public final class AdvancedEnchantments extends MetaTypeComparator {
     private final Map<String, Integer> enchants = new HashMap<>(); // Specific enchantments with specific levels
     private final Map<Object, Integer[]> enchantsIntervals = new HashMap<>(); // Enchantment interval
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public AdvancedEnchantments(final Object o, final Debug debug) {
         super(o);
 

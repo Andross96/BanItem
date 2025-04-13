@@ -38,7 +38,12 @@ import java.util.*;
  * @author Andross
  * @version 3.4.1
  */
-public final class Utils {
+public abstract class Utils {
+
+    /**
+     * Static utility class.
+     */
+    private Utils() {}
 
     /**
      * Check if the item is null or if its type is Material.AIR.

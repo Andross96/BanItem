@@ -43,6 +43,12 @@ public final class EnchantmentContains extends MetaTypeComparator {
     private final Set<EnchantmentWrapper> enchants = new HashSet<>(); // Specific enchantments with specific levels
     private final Map<Object, Integer[]> enchantsIntervals = new HashMap<>(); // >=1.13: Enchantment, <1.13 String
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public EnchantmentContains(final Object o, final Debug debug) {
         super(o);
 

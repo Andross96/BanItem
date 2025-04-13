@@ -26,11 +26,23 @@ import java.util.Map;
 /**
  * A simple double map, used to handle custom and meta items.
  *
+ * @param <K> The map key type
+ * @param <V> The map value type
  * @author Andross
  * @version 3.1
  */
 public class DoubleMap<K, V> extends HashMap<K, V> {
+    /**
+     * Represents the reversed map (value, key).
+     */
     private final Map<V, K> reversed = new HashMap<>();
+
+    /**
+     * Creates a new DoubleMap with default settings.
+     */
+    public DoubleMap() {
+        super();
+    }
 
     /**
      * Adding in both maps.

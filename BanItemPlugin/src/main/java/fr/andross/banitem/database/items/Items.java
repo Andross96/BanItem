@@ -34,8 +34,20 @@ import java.util.*;
  * @version 3.1.1
  */
 public class Items {
-    protected final Map<BannedItem, Map<BanAction, BanActionData>> items = new HashMap<>(); // includes normal & meta items
+    /**
+     * Items map, containing all items. Includes normal and meta items.
+     */
+    protected final Map<BannedItem, Map<BanAction, BanActionData>> items = new HashMap<>();
+
+    /**
+     * Items map, containing all custom items.
+     */
     protected final Map<CustomBannedItem, Map<BanAction, BanActionData>> customItems = new HashMap<>();
+
+    /**
+     * Constructor
+     */
+    public Items() {}
 
     /**
      * Get a map of actions and their respective data for a banned item object, if present.

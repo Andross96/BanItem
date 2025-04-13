@@ -27,14 +27,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * An enchantment helper class to retrieve correct Bukkit
+ * An enchantment helper class to retrieve correct Minecraft
  * enchantments object across versions.
  *
  * @author Andross
  * @version 3.3.1
  */
-public final class EnchantmentHelper {
-    private static final Map<String, String> names = new HashMap<>();
+public abstract class EnchantmentHelper {
+    private static final Map<String, String> ENCHANTMENT_NAMES = new HashMap<>();
 
     static {
         add("water_worker", "aqua_affinity", "aquaaffinity", "aa");
@@ -64,9 +64,21 @@ public final class EnchantmentHelper {
         add("durability", "unbreaking");
     }
 
+    /**
+     * Static utility class.
+     */
+    private EnchantmentHelper() {}
+
+    /**
+     * Utility method to instantiate the enchantment names map.
+     *
+     * @param bukkitName bukkit enchantment name
+     * @param friendlyNames friendly name which can be used to represent the enchantment
+     */
     private static void add(final String bukkitName, final String... friendlyNames) {
-        for (final String friendlyName : friendlyNames)
-            names.put(friendlyName, bukkitName);
+        for (final String friendlyName : friendlyNames) {
+            ENCHANTMENT_NAMES.put(friendlyName, bukkitName);
+        }
     }
 
     /**
@@ -94,7 +106,7 @@ public final class EnchantmentHelper {
         }
 
         // Last chance, getting by my friendly names?
-        return names.containsKey(name.toLowerCase()) ? Enchantment.getByName(names.get(name).toUpperCase()) : null;
+        return ENCHANTMENT_NAMES.containsKey(name.toLowerCase()) ? Enchantment.getByName(ENCHANTMENT_NAMES.get(name).toUpperCase()) : null;
     }
 
     /**
@@ -134,10 +146,20 @@ public final class EnchantmentHelper {
         return list;
     }
 
+    /**
+     * Get the list of enchantments name based on the Minecraft version used.
+     *
+     * @return list of enchantments name based on the Minecraft version used.
+     */
     @NotNull
     public static List<String> getEnchantmentsNames() {
         return MinecraftVersion.v13OrMore ?
-                Arrays.stream(Enchantment.values()).map(Enchantment::getKey).map(NamespacedKey::getKey).collect(Collectors.toList()) :
-                Arrays.stream(Enchantment.values()).map(Enchantment::getName).collect(Collectors.toList());
+                Arrays.stream(Enchantment.values())
+                        .map(Enchantment::getKey)
+                        .map(NamespacedKey::getKey)
+                        .collect(Collectors.toList()) :
+                Arrays.stream(Enchantment.values())
+                        .map(Enchantment::getName)
+                        .collect(Collectors.toList());
     }
 }

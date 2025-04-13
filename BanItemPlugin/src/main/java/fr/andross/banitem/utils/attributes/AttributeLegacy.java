@@ -30,25 +30,82 @@ import java.util.Arrays;
  * @version 3.4
  */
 public enum AttributeLegacy {
+    /**
+     * Represents the legacy generic max health attribute.
+     */
     GENERIC_MAX_HEALTH("generic.maxHealth"),
+
+    /**
+     * Represents the legacy follow range attribute.
+     */
     GENERIC_FOLLOW_RANGE("generic.followRange"),
+
+    /**
+     * Represents the legacy knock back resistance attribute.
+     */
     GENERIC_KNOCKBACK_RESISTANCE("generic.knockbackResistance"),
+
+    /**
+     * Represents the legacy movement speed attribute.
+     */
     GENERIC_MOVEMENT_SPEED("generic.movementSpeed"),
+
+    /**
+     * Represents the legacy flying speed attribute.
+     */
     GENERIC_FLYING_SPEED("generic.flyingSpeed"),
+
+    /**
+     * Represents the legacy attack damage attribute.
+     */
     GENERIC_ATTACK_DAMAGE("generic.attackDamage"),
+
+    /**
+     * Represents the legacy attack speed attribute.
+     */
     GENERIC_ATTACK_SPEED("generic.attackSpeed"),
+
+    /**
+     * Represents the legacy generic armor attribute.
+     */
     GENERIC_ARMOR("generic.armor"),
+
+    /**
+     * Represents the legacy armor toughness attribute.
+     */
     GENERIC_ARMOR_TOUGHNESS("generic.armorToughness"),
+
+    /**
+     * Represents the legacy luck attribute.
+     */
     GENERIC_LUCK("generic.luck"),
+
+    /**
+     * Represents the legacy horse jump strength attribute.
+     */
     HORSE_JUMP_STRENGTH("horse.jumpStrength"),
+
+    /**
+     * Represents the legacy zombie spawn reinforcements attribute.
+     */
     ZOMBIE_SPAWN_REINFORCEMENTS("zombie.spawnReinforcements");
 
     private final String name;
 
+    /**
+     * Enum constructor.
+     *
+     * @param name Legal attribute name
+     */
     AttributeLegacy(@NotNull final String name) {
         this.name = name;
     }
 
+    /**
+     * Get the legacy name of the attribute.
+     *
+     * @return The legacy name of the attribute
+     */
     @NotNull
     public String getName() {
         return name;

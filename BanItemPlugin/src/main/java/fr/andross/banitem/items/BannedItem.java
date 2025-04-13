@@ -34,18 +34,33 @@ import java.util.Objects;
  * @version 3.1.1
  */
 public class BannedItem {
-    private final Material m;
+    /**
+     * Minecraft material representing the item.
+     */
+    private final Material material;
+
+    /**
+     * Possible item meta attached to the item.
+     */
     private final ItemMeta itemMeta;
+
+    /**
+     * Possible data (old minecraft version) related to the item.
+     */
     private final short data;
+
+    /**
+     * Possible built item representing the item.
+     */
     private ItemStack itemStack;
 
     /**
      * Create a banned item without metadata.
      *
-     * @param m material
+     * @param material material
      */
-    public BannedItem(@NotNull final Material m) {
-        this.m = m;
+    public BannedItem(@NotNull final Material material) {
+        this.material = material;
         itemMeta = null;
         data = 0;
     }
@@ -56,21 +71,25 @@ public class BannedItem {
      * @param item item stack
      */
     public BannedItem(@NotNull final ItemStack item) {
-        m = item.getType();
+        material = item.getType();
         itemMeta = item.hasItemMeta() ? item.getItemMeta() : null;
         data = MinecraftVersion.v13OrMore ? 0 : item.getDurability();
         itemStack = item;
     }
 
     /**
+     * Material type of the item.
+     *
      * @return the material of the item
      */
     @NotNull
     public Material getType() {
-        return m;
+        return material;
     }
 
     /**
+     * Possible item meta attached to the item.
+     *
      * @return the item meta
      */
     @Nullable
@@ -79,25 +98,40 @@ public class BannedItem {
     }
 
     /**
+     * Possible item data attached to the item.
+     *
      * @return the item data, ignored after 1.13+
      */
     public short getData() {
         return data;
     }
 
+    /**
+     * Possible item built for the item.
+     *
+     * @return possible item built for the item.
+     */
     @Nullable
     public ItemStack getItemStack() {
         return itemStack;
     }
 
     /**
-     * @return an ItemStack representing this item
+     * Minecraft ItemStack representing the item.
+     *
+     * @return an ItemStack representing the item
      */
     public ItemStack toItemStack() {
-        if (itemStack != null) return itemStack;
-        itemStack = new ItemStack(m);
-        if (itemMeta != null) itemStack.setItemMeta(itemMeta.clone());
-        if (!MinecraftVersion.v13OrMore) itemStack.setDurability(data);
+        if (itemStack != null) {
+            return itemStack;
+        }
+        itemStack = new ItemStack(material);
+        if (itemMeta != null) {
+            itemStack.setItemMeta(itemMeta.clone());
+        }
+        if (!MinecraftVersion.v13OrMore) {
+            itemStack.setDurability(data);
+        }
         return itemStack;
     }
 
@@ -107,14 +141,14 @@ public class BannedItem {
         if (!(o instanceof BannedItem)) return false;
         final BannedItem that = (BannedItem) o;
         return itemMeta == null ?
-                (MinecraftVersion.v13OrMore ? m == that.m : (m == that.m && data == that.data)) :
-                (m == that.m && Objects.equals(itemMeta, that.itemMeta) && (MinecraftVersion.v13OrMore || Objects.equals(data, that.data)));
+                (MinecraftVersion.v13OrMore ? material == that.material : (material == that.material && data == that.data)) :
+                (material == that.material && Objects.equals(itemMeta, that.itemMeta) && (MinecraftVersion.v13OrMore || Objects.equals(data, that.data)));
     }
 
     @Override
     public int hashCode() {
         return itemMeta == null ?
-                (MinecraftVersion.v13OrMore ? m.hashCode() : Objects.hash(m, data)) :
-                (MinecraftVersion.v13OrMore ? Objects.hash(m, itemMeta) : Objects.hash(m, itemMeta, data));
+                (MinecraftVersion.v13OrMore ? material.hashCode() : Objects.hash(material, data)) :
+                (MinecraftVersion.v13OrMore ? Objects.hash(material, itemMeta) : Objects.hash(material, itemMeta, data));
     }
 }

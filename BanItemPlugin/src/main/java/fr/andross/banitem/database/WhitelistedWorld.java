@@ -92,6 +92,8 @@ public final class WhitelistedWorld extends Items {
     }
 
     /**
+     * The bukkit world.
+     *
      * @return the bukkit world
      */
     @NotNull
@@ -100,6 +102,8 @@ public final class WhitelistedWorld extends Items {
     }
 
     /**
+     * List of messages, empty if none configured.
+     *
      * @return list of messages, empty if none configured
      */
     @NotNull
@@ -108,6 +112,8 @@ public final class WhitelistedWorld extends Items {
     }
 
     /**
+     * Set of ignored actions, empty if none configured.
+     *
      * @return set of ignored actions, empty if none configured
      */
     @NotNull

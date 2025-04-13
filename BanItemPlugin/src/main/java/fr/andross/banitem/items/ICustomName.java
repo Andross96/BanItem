@@ -27,6 +27,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ICustomName {
 
+    /**
+     * Get the name of this item.
+     *
+     * @return name of this item
+     */
     @NotNull
     String getName();
 

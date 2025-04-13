@@ -34,6 +34,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * Class that contains all the maps.
@@ -42,6 +43,7 @@ import java.util.Set;
  * @version 3.1
  */
 public final class BanDatabase {
+    private final BanItem plugin;
     private final CustomItems customItems;
     private final MetaItems metaItems;
     private final Blacklist blacklist;
@@ -52,13 +54,14 @@ public final class BanDatabase {
      * This should not be used externally.
      * Use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, File)} instead.
      */
-    BanDatabase(@NotNull final BanItem pl,
+    BanDatabase(@NotNull final BanItem plugin,
                 @NotNull final CommandSender sender,
                 @NotNull final FileConfiguration config) {
-        this.customItems = new CustomItems(pl, sender);
-        this.metaItems = new MetaItems(pl, sender);
-        this.blacklist = new Blacklist(pl, this, sender, config.getConfigurationSection("blacklist"));
-        this.whitelist = new Whitelist(pl, this, sender, config.getConfigurationSection("whitelist"));
+        this.plugin = plugin;
+        this.customItems = new CustomItems(plugin, sender);
+        this.metaItems = new MetaItems(plugin, sender);
+        this.blacklist = new Blacklist(plugin, this, sender, config.getConfigurationSection("blacklist"));
+        this.whitelist = new Whitelist(plugin, this, sender, config.getConfigurationSection("whitelist"));
     }
 
     /**
@@ -90,7 +93,7 @@ public final class BanDatabase {
         try {
             config.save(metaItems.getFile());
         } catch (final Exception e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.WARNING, "Error saving meta item file.", e);
         }
     }
 
@@ -110,10 +113,16 @@ public final class BanDatabase {
         try {
             config.save(metaItems.getFile());
         } catch (final Exception e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.WARNING, "Error saving meta item file.", e);
         }
     }
 
+    /**
+     * Try to get the custom or meta item name of the item.
+     *
+     * @param bannedItem The involved item
+     * @return the custom/meta item name of the item
+     */
     @NotNull
     public String getName(@NotNull final BannedItem bannedItem) {
         if (bannedItem instanceof CustomBannedItem) {

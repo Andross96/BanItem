@@ -577,6 +577,13 @@ public final class BanItemAPI {
         return removeFromBlacklist(Collections.singletonList(item), worlds);
     }
 
+    /**
+     * Remove the banned items from blacklisted worlds and save the config file used.
+     *
+     * @param items  The banned items to remove
+     * @param worlds Worlds where the banned item can be present, all worlds if null
+     * @return True if the item is successfully removed, otherwise false
+     */
     public boolean removeFromBlacklist(@NotNull final Collection<? extends BannedItem> items,
                                        @Nullable final World... worlds) {
         // Preparing variables

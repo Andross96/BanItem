@@ -37,7 +37,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- * Sub command info
+ * Sub command info.
  *
  * @author Andross
  * @version 3.2
@@ -46,10 +46,20 @@ public class Commandinfo extends BanCommand {
     private static final String CHECK = "\u2713";
     private static final String UNCHECK = "\u2A09";
 
-    public Commandinfo(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem info command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandinfo(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Not player?
@@ -127,6 +137,11 @@ public class Commandinfo extends BanCommand {
         sendMessage(" &7>> &ebanitem.bypass." + player.getWorld().getName().toLowerCase() + "." + (metaItemName != null ? metaItemName.toLowerCase() : materialName) + ".action.*");
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Nullable
     @Override
     public List<String> runTab() {

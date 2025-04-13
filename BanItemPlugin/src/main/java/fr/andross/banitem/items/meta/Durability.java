@@ -33,6 +33,12 @@ import org.jetbrains.annotations.NotNull;
 public final class Durability extends MetaTypeComparator {
     private int min = -1, max = -1;
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public Durability(final Object o, final Debug debug) {
         super(o);
 

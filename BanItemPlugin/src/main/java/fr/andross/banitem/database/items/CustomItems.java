@@ -40,7 +40,14 @@ import java.util.Locale;
  * @version 3.1
  */
 public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
+    /**
+     * Represents the customitems.yml file.
+     */
     private final File file;
+
+    /**
+     * Represents the loaded configuration from customitems.yml file.
+     */
     private final FileConfiguration config;
 
     /**
@@ -48,12 +55,14 @@ public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
      * This should not be used externally, as it could create two different instance of this object.
      * You should use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, File)} instead.
      *
-     * @param pl     main instance
+     * @param plugin     main instance
      * @param sender the sender who executed this command, for debug
      */
-    public CustomItems(@NotNull final BanItem pl, @NotNull final CommandSender sender) {
-        this.file = new File(pl.getDataFolder(), "customitems.yml");
-        if (!file.exists()) pl.saveResource("customitems.yml", false);
+    public CustomItems(@NotNull final BanItem plugin, @NotNull final CommandSender sender) {
+        this.file = new File(plugin.getDataFolder(), "customitems.yml");
+        if (!file.exists()) {
+            plugin.saveResource("customitems.yml", false);
+        }
         this.config = YamlConfiguration.loadConfiguration(file);
 
         // Loading custom items
@@ -62,7 +71,7 @@ public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
             if (section == null) {
                 continue;
             }
-            final Debug d = new Debug(pl.getBanConfig(), sender, new DebugMessage("customitems.yml"), new DebugMessage(key));
+            final Debug d = new Debug(plugin.getBanConfig(), sender, new DebugMessage("customitems.yml"), new DebugMessage(key));
             final CustomBannedItem customBannedItem = new CustomBannedItem(key.toLowerCase(Locale.ROOT), section, d);
             if (customBannedItem.isValid()) {
                 put(key, customBannedItem);
@@ -71,7 +80,9 @@ public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
     }
 
     /**
-     * @return the "customitems.yml" file of the BanItem plugin
+     * Represents the file "customitems.yml".
+     *
+     * @return The "customitems.yml" file of the BanItem plugin
      */
     @NotNull
     public File getFile() {
@@ -79,7 +90,9 @@ public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
     }
 
     /**
-     * @return the "customitems.yml" file configuration
+     * Represents the loaded configuration from "customitems.yml" file.
+     *
+     * @return The "customitems.yml" file configuration
      */
     @NotNull
     public FileConfiguration getConfig() {

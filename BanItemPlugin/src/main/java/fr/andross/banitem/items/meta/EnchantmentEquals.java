@@ -37,6 +37,12 @@ import java.util.Map;
 public final class EnchantmentEquals extends MetaTypeComparator {
     private final Map<Enchantment, Integer> enchants = new HashMap<>();
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public EnchantmentEquals(final Object o, final Debug debug) {
         super(o);
 

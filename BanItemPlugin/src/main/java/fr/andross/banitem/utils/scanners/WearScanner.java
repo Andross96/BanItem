@@ -34,15 +34,31 @@ public final class WearScanner {
     private boolean enabled;
     private int taskId = -1;
 
+    /**
+     * Prepare wear scanner.
+     *
+     * @param plugin The ban item plugin instance
+     * @param utils The ban item plugin utility class
+     */
     public WearScanner(@NotNull final BanItem plugin, @NotNull final BanUtils utils) {
         this.plugin = plugin;
         this.utils = utils;
     }
 
+    /**
+     * Check if the wear scanner is enabled.
+     *
+     * @return true if the wear scanner is enabled, otherwise false.
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * Set if the wear scanner is enabled.
+     *
+     * @param enabled If the wear scanner should be enabled
+     */
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
         if (enabled) {

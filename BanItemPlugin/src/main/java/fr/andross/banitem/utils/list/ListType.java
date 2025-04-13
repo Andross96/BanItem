@@ -24,15 +24,58 @@ package fr.andross.banitem.utils.list;
  * @version 3.1
  */
 public enum ListType {
+    /**
+     * Represents a banned action.
+     */
     ACTION,
+
+    /**
+     * Represents additional information about an action (specificities).
+     */
     ACTIONDATA,
+
+    /**
+     * Represents a Minecraft enchantment.
+     */
     ENCHANTMENT,
+
+    /**
+     * Represents a Minecraft entity.
+     */
     ENTITY,
+
+    /**
+     * Represents a Minecraft game mode.
+     */
     GAMEMODE,
+
+    /**
+     * Represents a Minecraft inventory type.
+     */
     INVENTORY,
+
+    /**
+     * Represents a Minecraft item.
+     */
     ITEM,
+
+    /**
+     * Represents a Minecraft item material.
+     */
     MATERIAL,
+
+    /**
+     * Represents a BanItem custom item meta.
+     */
     METATYPE,
+
+    /**
+     * Represents a WorldGuard protected region.
+     */
     REGION,
+
+    /**
+     * Represents a Minecraft world.
+     */
     WORLD,
 }

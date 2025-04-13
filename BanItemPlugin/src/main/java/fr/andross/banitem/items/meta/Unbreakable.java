@@ -33,6 +33,12 @@ import org.jetbrains.annotations.NotNull;
 public final class Unbreakable extends MetaTypeComparator {
     private final boolean unbreakable;
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public Unbreakable(final Object o, final Debug debug) {
         super(o);
         unbreakable = (o instanceof Boolean) ? (boolean) o : Boolean.parseBoolean(o.toString());

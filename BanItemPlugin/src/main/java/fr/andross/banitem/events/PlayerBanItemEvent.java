@@ -45,6 +45,16 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
     private final BanData[] data;
     private boolean cancelled;
 
+    /**
+     * Construct the event with all information about the occurring banning process.
+     *
+     * @param player the involved player
+     * @param type the {@link Type} of ban
+     * @param bannedItem the item involved
+     * @param action the action triggered
+     * @param actionData the complete data configured for the action
+     * @param data optional additional data about the action triggered
+     */
     public PlayerBanItemEvent(@NotNull final Player player,
                               @NotNull final Type type,
                               @NotNull final BannedItem bannedItem,
@@ -113,26 +123,53 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
      * The ban type.
      */
     public enum Type {
+        /**
+         * The item is on blacklist.
+         */
         BLACKLIST,
+
+        /**
+         * The item is not on whitelist.
+         */
         WHITELIST
     }
 
+    /**
+     * Check if the event is cancelled.
+     *
+     * @return true if the event is cancelled, otherwise false
+     */
     @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
+    /**
+     * Cancel the event.
+     *
+     * @param cancel true if you wish to cancel this event
+     */
     @Override
     public void setCancelled(final boolean cancel) {
         cancelled = cancel;
     }
 
+    /**
+     * Internal Bukkit event handler list.
+     *
+     * @return internal bukkit event handler list
+     */
     @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    /**
+     * Bukkit event handler list.
+     *
+     * @return the bukkit event handler list
+     */
     @NotNull
     public static HandlerList getHandlerList() {
         return handlers;

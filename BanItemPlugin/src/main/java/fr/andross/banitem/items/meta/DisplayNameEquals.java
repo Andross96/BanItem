@@ -32,6 +32,12 @@ import org.jetbrains.annotations.NotNull;
 public final class DisplayNameEquals extends MetaTypeComparator {
     private final String displayName;
 
+    /**
+     * Prepare the configured property to be compared with an item.
+     *
+     * @param o     the configured property value
+     * @param debug the debug handler
+     */
     public DisplayNameEquals(final Object o, final Debug debug) {
         super(o);
         displayName = Chat.color(o.toString());

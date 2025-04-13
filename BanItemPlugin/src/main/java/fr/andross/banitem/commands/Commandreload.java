@@ -26,17 +26,27 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Sub command reload
+ * Sub command reload.
  *
  * @author Andross
  * @version 3.1
  */
 public class Commandreload extends BanCommand {
 
-    public Commandreload(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem reload command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandreload(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Permission?
@@ -50,6 +60,11 @@ public class Commandreload extends BanCommand {
         plugin.getApi().load(sender, config.getName().equals("config.yml") ? null : config);
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Nullable
     @Override
     public List<String> runTab() {

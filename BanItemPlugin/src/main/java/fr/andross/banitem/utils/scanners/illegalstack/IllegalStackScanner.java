@@ -50,6 +50,12 @@ public final class IllegalStackScanner {
     private boolean vanillaMaxStackSize = false;
     private IllegalStackBlockType defaultBlockType;
 
+    /**
+     * Prepare the illegal stack scanner.
+     *
+     * @param plugin the ban item plugin instance
+     * @param utils the ban item utility class
+     */
     public IllegalStackScanner(@NotNull final BanItem plugin, @NotNull final BanUtils utils) {
         this.plugin = plugin;
         this.utils = utils;
@@ -135,6 +141,12 @@ public final class IllegalStackScanner {
         }
     }
 
+    /**
+     * Get the type of blocking applied from a String value/property.
+     *
+     * @param blockType type of blocking if illegal stack is reached
+     * @return the blocking type
+     */
     private IllegalStackBlockType getBlockType(@Nullable final String blockType) {
         if (blockType == null) {
             return null;
@@ -146,11 +158,18 @@ public final class IllegalStackScanner {
         }
     }
 
+    /**
+     * Add an illegal stack item configuration in memory to be checked.
+     *
+     * @param world the related world
+     * @param material the item material type
+     * @param illegalStackItemConfig the configuration
+     */
     public void addIllegalStackItem(final World world,
-                                    final Material m,
+                                    final Material material,
                                     final IllegalStackItemConfig illegalStackItemConfig) {
         final Map<Material, IllegalStackItemConfig> subMap = items.getOrDefault(world, new HashMap<>());
-        subMap.put(m, illegalStackItemConfig);
+        subMap.put(material, illegalStackItemConfig);
         items.put(world, subMap);
     }
 

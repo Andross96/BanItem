@@ -29,6 +29,12 @@ public final class IllegalStackItemConfig {
     private final int amount;
     private final IllegalStackBlockType blockType;
 
+    /**
+     * Configuration of an illegal stack item.
+     *
+     * @param amount Minimum amount considered as illegal
+     * @param blockType The type of blocking if amount is exceeded
+     */
     public IllegalStackItemConfig(final int amount,
                                   @NotNull final IllegalStackBlockType blockType) {
         this.amount = amount;

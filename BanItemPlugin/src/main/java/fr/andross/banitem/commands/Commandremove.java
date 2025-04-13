@@ -34,17 +34,27 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- * Sub command remove
+ * Sub command remove.
  *
  * @author Andross
  * @version 3.1
  */
 public class Commandremove extends BanCommand {
 
-    public Commandremove(final BanItem pl, final CommandSender sender, final String[] args) {
-        super(pl, sender, args);
+    /**
+     * Constructor of the /banitem remove command.
+     *
+     * @param plugin The ban item plugin instance
+     * @param sender The command sender
+     * @param args   The command arguments used by the command sender
+     */
+    public Commandremove(final BanItem plugin, final CommandSender sender, final String[] args) {
+        super(plugin, sender, args);
     }
 
+    /**
+     * Run the command.
+     */
     @Override
     public void run() {
         // Permission?
@@ -131,6 +141,11 @@ public class Commandremove extends BanCommand {
         }
     }
 
+    /**
+     * Run the tab completion of the command.
+     *
+     * @return the tab completion of the command.
+     */
     @Override
     public List<String> runTab() {
         return Collections.emptyList();
