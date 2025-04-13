@@ -25,6 +25,7 @@ import fr.andross.banitem.database.Blacklist;
 import fr.andross.banitem.events.DeleteBannedItemEvent;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.PlaceholderApiCondition;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
@@ -241,6 +242,30 @@ public final class BanUtils {
                 case PERMISSION: {
                     final String permission = (String) o;
                     banActionData.getMap().put(BanDataType.PERMISSION, permission.toLowerCase(Locale.ROOT));
+                    break;
+                }
+
+                case PLACEHOLDERAPI_CONDITION: {
+                    final String placeholderApiConditionConfiguration = (String) o;
+
+                    if (!plugin.getHooks().isPlaceholderApiEnabled()) {
+                        debug.clone()
+                                .add(ListType.ACTIONDATA, "&cTrying to use PlaceholderAPI condition but PlaceholderAPI plugin is not available.")
+                                .sendDebug();
+                        continue;
+                    }
+
+                    final PlaceholderApiCondition placeholderApiCondition;
+                    try {
+                        placeholderApiCondition = new PlaceholderApiCondition(placeholderApiConditionConfiguration);
+                    } catch (final IllegalArgumentException e) {
+                        debug.clone()
+                                .add(ListType.ACTIONDATA, "&cUnable to prepare PlaceholderAPI condition : " + e.getMessage() + ".")
+                                .sendDebug();
+                        continue;
+                    }
+
+                    banActionData.getMap().put(BanDataType.PLACEHOLDERAPI_CONDITION, placeholderApiCondition);
                     break;
                 }
 

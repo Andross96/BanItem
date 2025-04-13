@@ -55,6 +55,7 @@
 #     -> permission(*): check if the player has the custom permission
 #     -> log(*): true/false - if players with /banitem log will receive a message for this ban
 #     -> message(*): a string or list of string to be sent if the item is banned
+#     -> placeholderapi_condition(*): action apply only if the placeholder API value match
 #     -> region(*): worldguard region
 #     -> run(*): list of commands run when the action is banned:
 #       -> '{player}' : the player name

@@ -28,6 +28,7 @@ import fr.andross.banitem.actions.BanDataType;
 import fr.andross.banitem.events.PlayerBanItemEvent;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Chat;
+import fr.andross.banitem.utils.PlaceholderApiCondition;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
@@ -288,6 +289,15 @@ public class Whitelist extends HashMap<World, WhitelistedWorld> {
                     // Not in cooldown anymore?
                     if (playerCooldown < System.currentTimeMillis()) {
                         cooldowns.remove(player.getUniqueId()); // not in cooldown anymore, cleaning up'
+                        return true;
+                    }
+                }
+
+                // Placeholder API condition ?
+                if (plugin.getHooks().isPlaceholderApiEnabled() &&
+                        whitelisted.getMap().containsKey(BanDataType.PLACEHOLDERAPI_CONDITION)) {
+                    final PlaceholderApiCondition placeholderApiCondition = (PlaceholderApiCondition) whitelisted.getMap().get(BanDataType.PLACEHOLDERAPI_CONDITION);
+                    if (placeholderApiCondition.doesConditionMatch(player)) {
                         return true;
                     }
                 }

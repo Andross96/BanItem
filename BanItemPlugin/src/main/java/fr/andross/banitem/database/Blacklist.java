@@ -29,6 +29,7 @@ import fr.andross.banitem.events.PlayerBanItemEvent;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.CustomBannedItem;
 import fr.andross.banitem.items.ICustomName;
+import fr.andross.banitem.utils.PlaceholderApiCondition;
 import fr.andross.banitem.utils.Utils;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
@@ -256,6 +257,15 @@ public final class Blacklist extends HashMap<World, Items> {
             } else {
                 // Bypass permission?
                 if (plugin.getUtils().hasPermission(player, itemName, action, data)) {
+                    return false;
+                }
+            }
+
+            // Placeholder API condition ?
+            if (plugin.getHooks().isPlaceholderApiEnabled() &&
+                    dataMap.containsKey(BanDataType.PLACEHOLDERAPI_CONDITION)) {
+                final PlaceholderApiCondition placeholderApiCondition = (PlaceholderApiCondition) dataMap.get(BanDataType.PLACEHOLDERAPI_CONDITION);
+                if (!placeholderApiCondition.doesConditionMatch(player)) {
                     return false;
                 }
             }

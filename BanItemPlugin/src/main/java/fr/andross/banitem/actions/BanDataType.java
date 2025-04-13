@@ -95,6 +95,12 @@ public enum BanDataType {
     PERMISSION("permission"),
 
     /**
+     * Used to check if a specific placeholderapi condition if required for the action.
+     * <p>Type: {@link fr.andross.banitem.utils.PlaceholderApiCondition}
+     */
+    PLACEHOLDERAPI_CONDITION("placeholderapi_condition"),
+
+    /**
      * Used to check if the ban applies into the region.
      * <p>Type: Set of {@link com.sk89q.worldguard.protection.regions.ProtectedRegion}
      */

@@ -2,6 +2,7 @@ v3.7:
   - Add new action "crafter" (MC>=1.21): prevent Crafter block to craft an item
   - Add PlaceholderAPI support in ban messages
   - Add PlaceholderAPI support in ban commands run
+  - Add PlaceholderAPI condition (depending of a variable) for banning an item
   - Worlds with spaces are now supported
   - Fix AdvancedEnchantments hook
   - Fix hold offhand inventory glitch
