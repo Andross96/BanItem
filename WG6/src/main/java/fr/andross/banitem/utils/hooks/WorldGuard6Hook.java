@@ -36,7 +36,8 @@ public final class WorldGuard6Hook implements IWorldGuardHook {
 
     @Nullable
     @Override
-    public ProtectedRegion getProtectedRegion(@NotNull final World world, @NotNull final String regionName) {
+    public ProtectedRegion getProtectedRegion(@NotNull final World world,
+                                              @NotNull final String regionName) {
         final RegionContainer container = WorldGuardPlugin.inst().getRegionContainer();
         final RegionManager regions = container.get(world);
         return regions == null ? null : regions.getRegion(regionName);
@@ -47,10 +48,12 @@ public final class WorldGuard6Hook implements IWorldGuardHook {
     public List<ProtectedRegion> getAllProtectedRegions(@NotNull final World world) {
         final RegionContainer container = WorldGuardPlugin.inst().getRegionContainer();
         final RegionManager regions = container.get(world);
-        final List<ProtectedRegion> list = new ArrayList<>();
-        if (regions == null) return list;
-        list.addAll(regions.getRegions().values());
-        return list;
+        final List<ProtectedRegion> protectedRegions = new ArrayList<>();
+        if (regions == null) {
+            return protectedRegions;
+        }
+        protectedRegions.addAll(regions.getRegions().values());
+        return protectedRegions;
     }
 
     @NotNull
@@ -58,10 +61,13 @@ public final class WorldGuard6Hook implements IWorldGuardHook {
     public Set<ProtectedRegion> getStandingRegions(@NotNull final Location loc) {
         final RegionContainer container = WorldGuardPlugin.inst().getRegionContainer();
         final RegionManager regions = container.get(loc.getWorld());
-        final Set<ProtectedRegion> set = new HashSet<>();
-        if (regions == null) return set;
+        final Set<ProtectedRegion> protectedRegions = new HashSet<>();
+        if (regions == null) {
+            return protectedRegions;
+        }
         final ApplicableRegionSet applicableRegionSet = regions.getApplicableRegions(loc);
-        return applicableRegionSet == null || applicableRegionSet.size() == 0 ? set : applicableRegionSet.getRegions();
+        return applicableRegionSet == null ||
+                applicableRegionSet.size() == 0 ? protectedRegions : applicableRegionSet.getRegions();
     }
 }
 

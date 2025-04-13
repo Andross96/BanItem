@@ -27,34 +27,40 @@ import java.util.List;
 
 /**
  * Abstract sub command class
- * @version 3.2
+ *
  * @author Andross
+ * @version 3.2
  */
 public abstract class BanCommand {
     private static final String HEADER = Chat.color("&7&m     &r &l[%s&r&l] &7&m     ");
-    protected final BanItem pl;
+    protected final BanItem plugin;
     protected final CommandSender sender;
     protected final String[] args;
 
-    public BanCommand(@NotNull final BanItem pl, @NotNull final CommandSender sender, @NotNull final String[] args) {
-        this.pl = pl;
+    public BanCommand(@NotNull final BanItem plugin,
+                      @NotNull final CommandSender sender,
+                      @NotNull final String[] args) {
+        this.plugin = plugin;
         this.sender = sender;
         this.args = args;
     }
 
     /**
-     * Sending a header separator
+     * Sending a header separator.
+     *
+     * @param title the title of the header
      */
-    protected void header(@NotNull final String title) {
-        pl.getUtils().sendBanMessageAndAnimation(sender, String.format(HEADER, title));
+    protected void sendHeaderMessage(@NotNull final String title) {
+        plugin.getUtils().sendMessage(sender, String.format(HEADER, title));
     }
 
     /**
-     * Send a <i>(colored)</i> message to the sender
+     * Send a <i>(colored)</i> message to the sender.
+     *
      * @param message message to send
      */
-    protected void message(@Nullable final String message) {
-        pl.getUtils().sendBanMessageAndAnimation(sender, message);
+    protected void sendMessage(@Nullable final String message) {
+        plugin.getUtils().sendMessage(sender, message);
     }
 
     /**
@@ -62,17 +68,18 @@ public abstract class BanCommand {
      */
     @Nullable
     protected String getNoPermMessage() {
-        return pl.getBanConfig().getConfig().getString("no-permission");
+        return plugin.getBanConfig().getConfig().getString("no-permission");
     }
 
     /**
-     * Running a subcommand
+     * Running a subcommand.
      */
     public abstract void run();
 
     /**
-     * Running a subcommand tab
-     * @return list of tab completition
+     * Running a subcommand tab.
+     *
+     * @return list of tab completion
      */
     @Nullable
     public abstract List<String> runTab();

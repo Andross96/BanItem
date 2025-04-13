@@ -25,9 +25,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple meta comparator to compare unbreakable
- * @version 3.1
+ * A simple meta comparator to check if the item is unbreakable.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class Unbreakable extends MetaTypeComparator {
     private final boolean unbreakable;

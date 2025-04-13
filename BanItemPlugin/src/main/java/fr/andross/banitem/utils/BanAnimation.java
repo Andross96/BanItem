@@ -29,9 +29,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Animation class
- * @version 3.1
+ * Animation class.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class BanAnimation {
     // Sound
@@ -46,10 +47,12 @@ public final class BanAnimation {
 
     /**
      * Loading a ban animation.
-     * @param sender the sender using this
+     *
+     * @param sender    the sender using this
      * @param banConfig the ban configuration used
      */
-    public BanAnimation(@NotNull final CommandSender sender, @NotNull final BanConfig banConfig) {
+    public BanAnimation(@NotNull final CommandSender sender,
+                        @NotNull final BanConfig banConfig) {
         final FileConfiguration config = banConfig.getConfig();
 
         // Sound
@@ -62,7 +65,7 @@ public final class BanAnimation {
                 worldSound = config.getBoolean("sound.worldSound");
             } catch (final Exception e) {
                 final String message = banConfig.getPrefix() + Chat.color("&cInvalid sound parameters set in " + banConfig.getConfigName() + ".");
-                sender.sendMessage(sender instanceof Player ? message : Chat.uncolor(message));
+                sender.sendMessage(sender instanceof Player ? message : Chat.stripColors(message));
             }
         }
         // Particle
@@ -73,27 +76,34 @@ public final class BanAnimation {
                 amount = config.getInt("particle.amount");
             } catch (final Exception e) {
                 final String message = banConfig.getPrefix() + Chat.color("&cInvalid particle parameters set in " + banConfig.getConfigName() + ".");
-                sender.sendMessage(sender instanceof Player ? message : Chat.uncolor(message));
+                sender.sendMessage(sender instanceof Player ? message : Chat.stripColors(message));
             }
         }
     }
 
     /**
-     * Running animation, if available
+     * Running animation, if available.
+     *
      * @param p the player
      */
     public void runAnimation(@NotNull final Player p) {
         // Sound
         if (sound != null) {
-            if (worldSound) p.getWorld().playSound(p.getLocation(), sound, volume, pitch);
-            else p.playSound(p.getLocation(), sound, volume, pitch);
+            if (worldSound) {
+                p.getWorld().playSound(p.getLocation(), sound, volume, pitch);
+            } else {
+                p.playSound(p.getLocation(), sound, volume, pitch);
+            }
         }
         // Particle
-        if (particle != null) p.spawnParticle(particle, p.getLocation().add(0, 2.5, 0), amount);
+        if (particle != null) {
+            p.spawnParticle(particle, p.getLocation().add(0, 2.5, 0), amount);
+        }
     }
 
     /**
-     * Serializing this ban animation object
+     * Serializing this ban animation object.
+     *
      * @return a serialized map of this ban animation
      */
     @NotNull
@@ -118,5 +128,4 @@ public final class BanAnimation {
 
         return map;
     }
-
 }

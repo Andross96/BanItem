@@ -26,9 +26,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A chat utility class
- * @version 3.2
+ * A chat utility class.
+ *
  * @author Andross
+ * @version 3.2
  */
 public final class Chat {
     private static final char COLOR_CHAR = '\u00A7';
@@ -37,7 +38,8 @@ public final class Chat {
     private static final Pattern hexStripPattern = Pattern.compile("(?i)" + COLOR_CHAR + "x(" + COLOR_CHAR + "[0-9A-FK-OR]){6}");
 
     /**
-     * Translate the color codes to make the string colored
+     * Translate the color codes to make the string colored.
+     *
      * @param text the text to translate
      * @return a colored string
      */
@@ -50,8 +52,9 @@ public final class Chat {
             final Matcher matcher = hexPattern.matcher(text);
             while (matcher.find()) {
                 String color = text.substring(matcher.start(), matcher.end()); // &#1258DA
-                if (color.startsWith("&"))
+                if (color.startsWith("&")) {
                     newText = newText.replace(color, ChatColor.of(color.substring(1)).toString());
+                }
             }
         }
 
@@ -66,24 +69,28 @@ public final class Chat {
     }
 
     /**
-     * Uncolor a string totally
+     * Remove the color codes on a string.
+     *
      * @param text colored string
      * @return uncolored string
      */
     @NotNull
-    public static String uncolor(@NotNull String text) {
+    public static String stripColors(@NotNull String text) {
         return stripColorPattern.matcher(text).replaceAll("");
     }
 
     /**
-     * Convert all color codes back
+     * Revert the {@link #color(String)} method.
+     *
      * @param text text
      * @return the uncolored text, with color codes
      */
     @Nullable
     @Contract("!null -> !null; null -> null")
     public static String revertColor(@Nullable String text) {
-        if (text == null) return null;
+        if (text == null) {
+            return null;
+        }
 
         if (MinecraftVersion.v16OrMore) {
             final Matcher matcher = hexStripPattern.matcher(text);

@@ -32,8 +32,9 @@ import java.util.*;
 
 /**
  * Map containing all allowed items of a world
- * @version 3.1.1
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public final class WhitelistedWorld extends Items {
     private final World world;
@@ -43,39 +44,51 @@ public final class WhitelistedWorld extends Items {
     /**
      * This constructor should not be used like this <i>(as it will not been stored into the Whitelist map)</i>
      * Use {@link Whitelist#createNewWhitelistedWorld(World, List, List)} instead.
-     * @param world bukkit world
+     *
+     * @param world    bukkit world
      * @param messages list of messages to send if the item is not allowed
-     * @param ignored list of ignored actions
+     * @param ignored  list of ignored actions
      */
-    public WhitelistedWorld(@NotNull final World world, @Nullable final List<String> messages, @Nullable final List<BanAction> ignored) {
+    public WhitelistedWorld(@NotNull final World world,
+                            @Nullable final List<String> messages,
+                            @Nullable final List<BanAction> ignored) {
         this.world = world;
-        if (messages != null) this.messages.addAll(messages);
-        if (ignored != null) this.ignored.addAll(ignored);
+        if (messages != null) {
+            this.messages.addAll(messages);
+        }
+        if (ignored != null) {
+            this.ignored.addAll(ignored);
+        }
     }
 
     /**
-     * This will add a new entry to the whitelist
+     * This will add a new entry to the whitelist.
+     *
      * @param item banned item <i>({@link BannedItem})</i>
-     * @param map map containing {@link BanAction} and their respective {@link BanActionData}
+     * @param map  map containing {@link BanAction} and their respective {@link BanActionData}
      */
-    public void addNewEntry(@NotNull final BannedItem item, @NotNull final Map<BanAction, BanActionData> map) {
+    public void addNewEntry(@NotNull final BannedItem item,
+                            @NotNull final Map<BanAction, BanActionData> map) {
         final String customName = item instanceof ICustomName ? ((ICustomName) item).getName() : null;
         final CustomBannedItem customBannedItem = item instanceof CustomBannedItem ? (CustomBannedItem) item : null;
         final Map<BanAction, BanActionData> bannedItemMap = customBannedItem != null ? customItems.getOrDefault(customBannedItem, new EnumMap<>(BanAction.class)) : items.getOrDefault(item, new EnumMap<>(BanAction.class));
 
-        if (customName == null)
+        if (customName == null) {
             bannedItemMap.putAll(map);
-        else
+        } else {
             for (final Map.Entry<BanAction, BanActionData> e : map.entrySet()) {
                 final BanActionData data = new BanActionData();
                 data.getMap().putAll(e.getValue().getMap());
                 data.getMap().put(BanDataType.CUSTOMNAME, customName);
                 bannedItemMap.put(e.getKey(), data);
             }
-        if (customBannedItem != null)
+        }
+
+        if (customBannedItem != null) {
             customItems.put(customBannedItem, bannedItemMap);
-        else
+        } else {
             items.put(item, bannedItemMap);
+        }
     }
 
     /**

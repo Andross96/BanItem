@@ -29,8 +29,9 @@ import java.util.Objects;
 /**
  * An item wrapper, which can handle matching Material/ItemStacks
  * with their ItemMeta and not considering the amount.
- * @version 3.1.1
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public class BannedItem {
     private final Material m;
@@ -39,7 +40,8 @@ public class BannedItem {
     private ItemStack itemStack;
 
     /**
-     * Creating an item without metadata
+     * Create a banned item without metadata.
+     *
      * @param m material
      */
     public BannedItem(@NotNull final Material m) {
@@ -49,8 +51,9 @@ public class BannedItem {
     }
 
     /**
-     * Creating an item, include the ItemMeta of the item
-     * @param item itemstack
+     * Create a banned item including the ItemMeta of the item.
+     *
+     * @param item item stack
      */
     public BannedItem(@NotNull final ItemStack item) {
         m = item.getType();

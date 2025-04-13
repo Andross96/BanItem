@@ -23,7 +23,6 @@ import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.debug.Debug;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,9 +30,10 @@ import java.util.*;
 import java.util.function.BiPredicate;
 
 /**
- * A simple meta comparator to compare NBT
- * @version 3.2
+ * A simple meta comparator to compare NBT.
+ *
  * @author Andross
+ * @version 3.2
  */
 public final class NBTAPI extends MetaTypeComparator {
     private final Map<List<String>, List<BiPredicate<NBTCompound, String>>> map = new HashMap<>();
@@ -51,7 +51,7 @@ public final class NBTAPI extends MetaTypeComparator {
         }
 
         if (!(o instanceof ConfigurationSection)) {
-            debug.clone().add("&cInvalid NBTAPI configuration synthax.").sendDebug();
+            debug.clone().add("&cInvalid NBTAPI configuration syntax.").sendDebug();
             setValid(false);
             return;
         }
@@ -60,7 +60,9 @@ public final class NBTAPI extends MetaTypeComparator {
         final ConfigurationSection section = (ConfigurationSection) o;
         for (final String keyNodes : section.getKeys(false)) {
             final Object object = section.get(keyNodes);
-            if (object == null) continue;
+            if (object == null) {
+                continue;
+            }
 
             // Preparing variables
             final List<String> keys = Arrays.asList(keyNodes.split("#"));
@@ -90,8 +92,9 @@ public final class NBTAPI extends MetaTypeComparator {
                 predicates.add(predicate);
             }
 
-            if (!predicates.isEmpty())
+            if (!predicates.isEmpty()) {
                 map.put(keys, predicates);
+            }
         }
     }
 
@@ -111,7 +114,7 @@ public final class NBTAPI extends MetaTypeComparator {
             final ItemStack item = c.getItemStack(k);
             return item != null && item.isSimilar((ItemStack) o);
         };
-        else return null;
+        return null;
     }
 
     @Override
@@ -136,17 +139,23 @@ public final class NBTAPI extends MetaTypeComparator {
                     lastKey = key;
                     break;
                 } else {
-                    if (!compound.hasKey(key)) return false;
+                    if (!compound.hasKey(key)) {
+                        return false;
+                    }
                     compound = compound.getCompound(key);
                 }
             }
 
-            if (lastKey == null || compound == null) return false;
+            if (lastKey == null || compound == null) {
+                return false;
+            }
 
             // Matching object?
-            for (final BiPredicate<NBTCompound, String> predicate : e.getValue())
-                if (predicate.test(compound, lastKey))
+            for (final BiPredicate<NBTCompound, String> predicate : e.getValue()) {
+                if (predicate.test(compound, lastKey)) {
                     return true;
+                }
+            }
         }
         return false;
     }

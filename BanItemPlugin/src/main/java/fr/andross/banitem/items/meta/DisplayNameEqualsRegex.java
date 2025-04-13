@@ -18,20 +18,18 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
-import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * A simple meta comparator to compare the display name with regex
- * @version 3.4.1
+ * A simple meta comparator to compare the display name with regex.
+ *
  * @author Andross
+ * @version 3.4.1
  */
 public final class DisplayNameEqualsRegex extends MetaTypeComparator {
     private Pattern pattern;

@@ -24,7 +24,6 @@ import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.debug.DebugMessage;
 import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -41,11 +40,13 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * A cached ban configuration from a FileConfiguration
- * @version 3.1
+ * A cached ban configuration from a FileConfiguration.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class BanConfig {
+    private final BanItem plugin;
     private final File configFile;
     private final FileConfiguration config;
     private final String prefix;
@@ -57,22 +58,29 @@ public final class BanConfig {
      * Loading the FileConfiguration.
      * This should not be used externally.
      * Use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, File)} instead.
+     *
+     * @param plugin ban item plugin instance
+     * @param sender the command sender
+     * @param configFile the configuration file to load
      */
-    BanConfig(@NotNull final BanItem pl, @NotNull final CommandSender sender, @Nullable final File configFile) {
+    BanConfig(@NotNull final BanItem plugin,
+              @NotNull final CommandSender sender,
+              @Nullable final File configFile) {
+        this.plugin = plugin;
         if (configFile == null) {
-            pl.saveDefaultConfig();
-            pl.reloadConfig();
-            this.configFile = new File(pl.getDataFolder(), "config.yml");
-            this.config = pl.getConfig();
+            plugin.saveDefaultConfig();
+            plugin.reloadConfig();
+            this.configFile = new File(plugin.getDataFolder(), "config.yml");
+            this.config = plugin.getConfig();
         } else {
             this.configFile = configFile;
             this.config = new YamlConfiguration();
             try {
                 config.load(configFile);
             } catch (final IOException | InvalidConfigurationException e) {
-                pl.getLogger().log(Level.WARNING, "Can not load config file '" + configFile.getName() + "': " + e.getMessage(), e);
+                plugin.getLogger().log(Level.WARNING, "Can not load config file '" + configFile.getName() + "': " + e.getMessage(), e);
                 sender.sendMessage(Chat.color("&cCan not load config file '" + configFile.getName() + "': " + e.getMessage()));
-                sender.sendMessage(Chat.color("&cDetailled error message on console."));
+                sender.sendMessage(Chat.color("&cDetailed error message on console."));
             }
         }
 
@@ -81,11 +89,12 @@ public final class BanConfig {
         this.prefix = prefix == null ? "" : Chat.color(prefix);
 
         // Loading priority
-        final List<String> priority = Listable.getSplittedStringList(this.config.get("priority"));
-        if (!priority.isEmpty())
+        final List<String> priority = Listable.getSplitStringList(this.config.get("priority"));
+        if (!priority.isEmpty()) {
             this.priority.addAll(Listable.getList(ListType.ACTION, priority, new Debug(this, sender, new DebugMessage(null, this.config.getName()), new DebugMessage(null, "priority"))));
+        }
 
-         // Loading animation
+        // Loading animation
         animation = new BanAnimation(sender, this);
 
         // Loading action configuration
@@ -94,7 +103,8 @@ public final class BanConfig {
     }
 
     /**
-     * Get the current config file name used
+     * Get the current config file name used.
+     *
      * @return the current config file name used
      */
     @NotNull
@@ -103,7 +113,8 @@ public final class BanConfig {
     }
 
     /**
-     * Get the config file used in this instance
+     * Get the config file used in this instance.
+     *
      * @return the config file used in this instance
      */
     @NotNull
@@ -112,7 +123,8 @@ public final class BanConfig {
     }
 
     /**
-     * FileConfiguration loaded in this instance
+     * FileConfiguration loaded in this instance.
+     *
      * @return the FileConfiguration loaded
      */
     @NotNull
@@ -121,21 +133,23 @@ public final class BanConfig {
     }
 
     /**
-     * Save the current config into the file
+     * Save the current config into the file.
+     *
      * @return true if successfully saved, otherwise false
      */
     public boolean saveConfig() {
         try {
             config.save(configFile);
         } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.WARNING, "Unable to save file '" + configFile.getName() + "': " + e.getMessage(), e);
+            plugin.getLogger().log(Level.WARNING,"Unable to save file '" + configFile.getName() + "': " + e.getMessage(), e);
             return false;
         }
         return true;
     }
 
     /**
-     * Gives the plugin prefix used in the config (already colored)
+     * Gives the plugin prefix used in the config (already colored).
+     *
      * @return plugin prefix used in the config (already colored)
      */
     @NotNull
@@ -144,7 +158,8 @@ public final class BanConfig {
     }
 
     /**
-     * Get the ban actions which requires the highest priority
+     * Get the ban actions which requires the highest priority.
+     *
      * @return the ban actions which requires the highest priority
      */
     @NotNull
@@ -153,7 +168,8 @@ public final class BanConfig {
     }
 
     /**
-     * Get the ban animation
+     * Get the ban animation.
+     *
      * @return the ban animation
      */
     @NotNull
@@ -162,7 +178,8 @@ public final class BanConfig {
     }
 
     /**
-     * Get the ignored inventories titles
+     * Get the ignored inventories titles.
+     *
      * @return the ignored inventories titles
      */
     @NotNull

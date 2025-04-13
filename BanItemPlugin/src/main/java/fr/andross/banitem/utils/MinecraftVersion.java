@@ -20,10 +20,11 @@ package fr.andross.banitem.utils;
 import org.bukkit.Bukkit;
 
 /**
- * Class that contains some notable versions nodes, so the plugin can handle multiple versions
- * Those variables are used to check versions compatibility
- * @version 3.4
+ * Class that contains some notable versions, so the plugin can handle multiple versions.
+ * Those variables are used to check versions compatibility.
+ *
  * @author Andross
+ * @version 3.4
  */
 public final class MinecraftVersion {
 
@@ -44,8 +45,8 @@ public final class MinecraftVersion {
 
     /**
      * In 1.13+, MaterialData are totally removed from ItemStack, and the durability is part of ItemMeta.
-     * Added NamespacedKey enchantments
-     * Added PlayerItemMendEvent event
+     * Added NamespacedKey enchantments.
+     * Added PlayerItemMendEvent event.
      */
     public static final boolean v13OrMore;
 
@@ -60,7 +61,7 @@ public final class MinecraftVersion {
     public static final boolean v11OrMore;
 
     /**
-     * In 1.9+, the off hand have been added. Also added PotionMeta#getBasePotionData(). Also added PrepareAnvilEvent.
+     * In 1.9+, the offhand have been added. Also added PotionMeta#getBasePotionData(). Also added PrepareAnvilEvent.
      */
     public static final boolean v9OrMore;
 
@@ -68,7 +69,6 @@ public final class MinecraftVersion {
      * In 1.8+, armor stand event have been added.
      */
     public static final boolean v8OrMore;
-
 
     static {
         final String bukkitVersion = Bukkit.getBukkitVersion();

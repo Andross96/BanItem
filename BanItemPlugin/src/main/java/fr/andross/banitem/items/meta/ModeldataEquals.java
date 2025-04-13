@@ -24,9 +24,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple meta comparator to compare the model data
- * @version 3.3
+ * A simple meta comparator to compare the model data.
+ *
  * @author Andross
+ * @version 3.3
  */
 public final class ModeldataEquals extends MetaTypeComparator {
     private int modelData;

@@ -27,9 +27,10 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Package utils that use the reflection api of java
- * @version 3.4
+ * Package utils that use the reflection api of java.
+ *
  * @author EpiCanard
+ * @version 3.4
  */
 public class ReflectionUtils {
 
@@ -41,41 +42,44 @@ public class ReflectionUtils {
     }
 
     /**
-     * Create an NMSItemStack from Bukkit ItemStack
+     * Create an NMSItemStack from Bukkit ItemStack.
+     *
      * @param itemStack Bukkit ItemStack to convert
      * @return Converted ItemStack
      */
     public static Object asNMSCopy(@NotNull final ItemStack itemStack) throws ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         final String craftPath = String.format("org.bukkit.craftbukkit.%s.inventory.CraftItemStack", bukkitPackageVersion);
-        final Class<?> craftItemStack =  Class.forName(craftPath);
+        final Class<?> craftItemStack = Class.forName(craftPath);
         final Method asNMSCopy = craftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
         return asNMSCopy.invoke(null, itemStack);
     }
 
     /**
-     * Call the first method matching the returnType
-     * @param obj Object that contains the method
+     * Call the first method matching the returnType.
+     *
+     * @param obj        Object that contains the method
      * @param returnType Return type class that must be returned by the method
-     * @param <T> Return type
+     * @param <T>        Return type
      * @return The value returned by the call to the method
      */
     @SuppressWarnings("unchecked")
     public static <T> T callMethodWithReturnType(@NotNull final Object obj, @NotNull final Class<? extends T> returnType) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         final Optional<Method> maybeMethod = Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getReturnType() == returnType).findFirst();
         if (maybeMethod.isPresent())
-            return (T)maybeMethod.get().invoke(obj);
+            return (T) maybeMethod.get().invoke(obj);
         throw new NoSuchMethodException("Can't find method with type : " + returnType.getName());
     }
 
     /**
-     * Call the first method matching the name
-     * @param obj Object that contains the method
+     * Call the first method matching the name.
+     *
+     * @param obj  Object that contains the method
      * @param name Name of method to call
-     * @param <T> Return type
+     * @param <T>  Return type
      * @return The value returned by the call to the method
      */
     @SuppressWarnings("unchecked")
     public static <T> T callMethodWithName(@NotNull final Object obj, @NotNull final String name) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        return (T)obj.getClass().getDeclaredMethod(name).invoke(obj);
+        return (T) obj.getClass().getDeclaredMethod(name).invoke(obj);
     }
 }

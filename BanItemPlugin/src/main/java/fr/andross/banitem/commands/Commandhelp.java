@@ -38,8 +38,9 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command help
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class Commandhelp extends BanCommand {
     private static final List<String> types = Arrays.asList("worlds", "actions", "entities", "gamemodes", "inventories", "enchantments", "potions");
@@ -52,68 +53,84 @@ public class Commandhelp extends BanCommand {
     public void run() {
         // Permission?
         if (!sender.hasPermission("banitem.command.help")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
         // No type entered?
         if (args.length < 2) {
-            header("&6&lHelp");
-            message("&b/bi help &3<type>");
-            message("&7 >> Gives informations about");
-            message("&7 >> the type entered.");
-            message("&7Types: &o" + types.stream().collect(Collectors.joining(",", "", "&7.")));
+            sendHeaderMessage("&6&lHelp");
+            sendMessage("&b/bi help &3<type>");
+            sendMessage("&7 >> Gives information about");
+            sendMessage("&7 >> the type entered.");
+            sendMessage("&7Types: &o" + types.stream().collect(Collectors.joining(",", "", "&7.")));
             return;
         }
 
         final String type = args[1].toLowerCase();
-        header("&6&lHelp");
+        sendHeaderMessage("&6&lHelp");
         switch (type) {
-            case "worlds": case "world": case "w": {
-                message("&7List of Bukkit worlds loaded:");
-                message("&7 >> " + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", "&7.")));
+            case "worlds":
+            case "world":
+            case "w": {
+                sendMessage("&7List of Bukkit worlds loaded:");
+                sendMessage("&7 >> " + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 
-            case "actions": case "action": case "o": {
-                message("&7List of bannable actions:");
-                message("&7 >> " + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", "&7.")));
+            case "actions":
+            case "action":
+            case "o": {
+                sendMessage("&7List of bannable actions:");
+                sendMessage("&7 >> " + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 
-            case "entities": case "entity": case "e": {
-                message("&7List of entity types:");
-                message("&7 >> " + Arrays.stream(EntityType.values()).map(EntityType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
+            case "entities":
+            case "entity":
+            case "e": {
+                sendMessage("&7List of entity types:");
+                sendMessage("&7 >> " + Arrays.stream(EntityType.values()).map(EntityType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 
-            case "gamemodes": case "gamemode": case "gm": case "g": {
-                message("&7List of available gamemodes:");
-                message("&7 >> " + Arrays.stream(GameMode.values()).map(GameMode::name).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
+            case "gamemodes":
+            case "gamemode":
+            case "gm":
+            case "g": {
+                sendMessage("&7List of available gamemodes:");
+                sendMessage("&7 >> " + Arrays.stream(GameMode.values()).map(GameMode::name).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 
-            case "inventories": case "inventory": case "inv": case "i": {
-                message("&7List of inventory type:");
-                message("&7 >> " + Arrays.stream(InventoryType.values()).map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
+            case "inventories":
+            case "inventory":
+            case "inv":
+            case "i": {
+                sendMessage("&7List of inventory type:");
+                sendMessage("&7 >> " + Arrays.stream(InventoryType.values()).map(InventoryType::name).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 
-            case "enchantments": case "enchantment": case "ench": {
-                message("&7List of (bukkit) enchantments:");
-                message("&7 >> " + Arrays.stream(Enchantment.values()).map(Enchantment::getName).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
+            case "enchantments":
+            case "enchantment":
+            case "ench": {
+                sendMessage("&7List of (bukkit) enchantments:");
+                sendMessage("&7 >> " + Arrays.stream(Enchantment.values()).map(Enchantment::getName).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 
-            case "potions": case "potion": case "pot": {
-                message("&7List of potions:");
-                message("&7 >> " + Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
+            case "potions":
+            case "potion":
+            case "pot": {
+                sendMessage("&7List of potions:");
+                sendMessage("&7 >> " + Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).map(String::toLowerCase).collect(Collectors.joining(",", "", "&7.")));
                 break;
             }
 
             default: {
-                message("&cUnknown help type.");
-                message("&7 >> Type: " + String.join(",", types));
+                sendMessage("&cUnknown help type.");
+                sendMessage("&7 >> Type: " + String.join(",", types));
                 break;
             }
         }

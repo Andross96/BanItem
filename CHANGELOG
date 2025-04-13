@@ -1,9 +1,15 @@
 v3.7:
   - Add new action "crafter" (MC>=1.21): prevent Crafter block to craft an item
   - Add PlaceholderAPI support in ban messages
+  - Add PlaceholderAPI support in ban commands run
+  - Worlds with spaces are now supported
   - Fix AdvancedEnchantments hook
   - Fix hold offhand inventory glitch
-  - API Breaking Change: changed "BanVersion" class to "MinecraftVersion"
+  - Fix metaitem remove command
+  - Internal code clean up + methods name standardization + update javadoc
+  - API Breaking Change:
+      - changed "BanVersion" class to "MinecraftVersion"
+      - removed deprecated methods in PlayerBanItemEvent
 --------------------------------------------
 v3.6:
   - Fix console error "BLOCK is not an item"

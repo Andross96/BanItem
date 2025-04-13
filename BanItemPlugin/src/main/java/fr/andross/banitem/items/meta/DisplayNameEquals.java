@@ -20,27 +20,26 @@ package fr.andross.banitem.items.meta;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * A simple meta comparator to compare the display name
- * @version 3.1
+ * A simple meta comparator to compare the display name.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class DisplayNameEquals extends MetaTypeComparator {
-    private final String displayname;
+    private final String displayName;
 
     public DisplayNameEquals(final Object o, final Debug debug) {
         super(o);
-        displayname = Chat.color(o.toString());
+        displayName = Chat.color(o.toString());
     }
 
     @Override
     public boolean matches(@NotNull final BannedItem bannedItem) {
         final ItemMeta itemMeta = bannedItem.getItemMeta();
-        return itemMeta != null && itemMeta.hasDisplayName() && itemMeta.getDisplayName().equals(displayname);
+        return itemMeta != null && itemMeta.hasDisplayName() && itemMeta.getDisplayName().equals(displayName);
     }
 }

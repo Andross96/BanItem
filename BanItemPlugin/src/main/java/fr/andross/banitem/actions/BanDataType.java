@@ -21,7 +21,7 @@ import fr.andross.banitem.utils.enchantments.EnchantmentWrapper;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple enum indicating what kind of data is used
+ * A simple enumeration indicating what kind of data is used.
  *
  * @author Andross
  * @version 3.3
@@ -29,80 +29,80 @@ import org.jetbrains.annotations.NotNull;
 public enum BanDataType {
 
     /**
-     * Type: Long (millis)
-     * Used to check if the banned item has a cooldown
+     * Used to check if the banned item has a cooldown.
+     * <p>Type: Long (millis)
      */
     COOLDOWN("cooldown"),
 
     /**
-     * Type: String
-     * Used to get the custom/meta item name
+     * Used to get the custom/meta item name.
+     * <p>Type: String
      */
     CUSTOMNAME("customname"),
 
     /**
-     * Type: Set of {@link EnchantmentWrapper}
-     * Used to check if the enchantments are banned on an item
+     * Used to check if the enchantments are banned on an item.
+     * <p>Type: Set of {@link EnchantmentWrapper}
      */
     ENCHANTMENT("enchantment"),
 
     /**
-     * Type: Set of {@link org.bukkit.entity.EntityType}
-     * Used to check if the ban will applies on this entity
+     * Used to check if the ban will apply on this entity.
+     * <p>Type: Set of {@link org.bukkit.entity.EntityType}
      */
     ENTITY("entity"),
 
     /**
-     * Type: Set of {@link org.bukkit.GameMode}
-     * Used to check if the ban applies on current player gamemode
+     * Used to check if the ban applies on current player gamemode.
+     * <p>Type: Set of {@link org.bukkit.GameMode}
      */
     GAMEMODE("gamemode"),
 
     /**
-     * Type: Set of {@link org.bukkit.event.inventory.InventoryType}
-     * Used to check if the ban will applies if the source inventory is included into this set
+     * Used to check if the ban will apply if the source inventory is included into this set.
+     * <p>Type: Set of {@link org.bukkit.event.inventory.InventoryType}
      */
     INVENTORY_FROM("inventory-from"),
 
     /**
-     * Type: Set of {@link org.bukkit.event.inventory.InventoryType}
-     * Used to check if the ban will applies if the destination inventory is included into this set
+     * Used to check if the ban will apply if the destination inventory is included into this set.
+     * <p>Type: Set of {@link org.bukkit.event.inventory.InventoryType}
      */
     INVENTORY_TO("inventory-to"),
 
     /**
-     * Type: boolean
-     * Used to check if a log message will be sent to players with log activated
+     * Used to check if a log message will be sent to players with log activated.
+     * <p>Type: boolean
      */
     LOG("log"),
 
     /**
-     * Type: Set of {@link org.bukkit.Material}
-     * Used to check if the ban will applies if a material is in the set
+     * Used to check if the ban will apply if a material is in the set.
+     * <p>Type: Set of {@link org.bukkit.Material}
      */
     MATERIAL("material"),
 
     /**
-     * Type: List of <i>(already colored)</i> String
-     * Used to get the ban message(s)
+     * Used to get the ban message(s).
+     * <p>Type: List of <i>(already colored)</i> String
      */
     MESSAGE("message"),
 
     /**
-     * Type: String
-     * Used to get a custom permission for an action
+     * Used to get a custom permission for an action.
+     * <p>Type: String
      */
     PERMISSION("permission"),
 
     /**
-     * Type: Set of {@link com.sk89q.worldguard.protection.regions.ProtectedRegion}
-     * Used to check if the ban applies into the region
+     * Used to check if the ban applies into the region.
+     * <p>Type: Set of {@link com.sk89q.worldguard.protection.regions.ProtectedRegion}
      */
     REGION("region"),
 
     /**
-     * Type: List of String
-     * Used to run commands when the banned action occurs
+     * Used to run commands when the banned action occurs.
+     * <p>Type: List of String
      */
     RUN("run");
 

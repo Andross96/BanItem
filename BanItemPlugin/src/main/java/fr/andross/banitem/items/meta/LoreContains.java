@@ -21,19 +21,18 @@ import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A simple meta comparator to compare the lore
- * @version 3.1
+ * A simple meta comparator to check if the lore contains a lore.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class LoreContains extends MetaTypeComparator {
     private final Set<String> lore;

@@ -25,15 +25,17 @@ import java.util.Map;
 
 /**
  * A simple double map, used to handle custom and meta items.
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class DoubleMap<K, V> extends HashMap<K, V> {
     private final Map<V, K> reversed = new HashMap<>();
 
     /**
-     * Adding in both maps
-     * @param key key
+     * Adding in both maps.
+     *
+     * @param key   key
      * @param value value
      * @see Map#put(Object, Object)
      */
@@ -44,7 +46,7 @@ public class DoubleMap<K, V> extends HashMap<K, V> {
     }
 
     /**
-     * Will clear the map and its reversed one
+     * Will clear the map and its reversed one.
      */
     @Override
     public void clear() {
@@ -53,7 +55,8 @@ public class DoubleMap<K, V> extends HashMap<K, V> {
     }
 
     /**
-     * Remove the key from both maps
+     * Remove the key from both maps.
+     *
      * @param key key
      * @see Map#remove(Object)
      */
@@ -64,7 +67,8 @@ public class DoubleMap<K, V> extends HashMap<K, V> {
     }
 
     /**
-     * Get the key of this value from the reversed map
+     * Get the key of this value from the reversed map.
+     *
      * @param value value
      * @return the key of this value if exists, otherwise null
      */
@@ -74,7 +78,8 @@ public class DoubleMap<K, V> extends HashMap<K, V> {
     }
 
     /**
-     * Get the reversed map
+     * Get the reversed map.
+     *
      * @return the reversed map
      */
     @NotNull

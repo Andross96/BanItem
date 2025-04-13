@@ -36,9 +36,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A simple meta comparator to compare attributes
- * @version 3.4
+ * A simple meta comparator to compare attributes.
+ *
  * @author EpiCanard
+ * @version 3.4
  */
 public final class AttributeContains extends MetaTypeComparator {
     private final Multimap<Object, AttributeLevels> attributes = HashMultimap.create();
@@ -53,16 +54,20 @@ public final class AttributeContains extends MetaTypeComparator {
             return;
         }
 
-        final List<String> configAttributes = Listable.getSplittedStringList(o);
+        final List<String> configAttributes = Listable.getSplitStringList(o);
 
         for (final String attr : configAttributes) {
             final String[] s = attr.split(":");
 
-            if (s.length <= 0) return;
+            if (s.length == 0) {
+                return;
+            }
 
             // Extract attribute
             final Object attribute = getAttributeKey(s[0], debug);
-            if (attribute == null) return;
+            if (attribute == null) {
+                return;
+            }
 
             // 'Attribute': if the item contains this enchantment, does not consider the level;
             if (s.length == 1) {
@@ -73,10 +78,12 @@ public final class AttributeContains extends MetaTypeComparator {
             // 'Attribute:Level': if the item contains this enchantment with this level;
             if (s.length == 2) {
                 final AttributeLevels.Comparator comparator = AttributeLevels.Comparator.fromString(s[1].substring(0, 1));
-                final String value = (comparator == AttributeLevels.Comparator.EQUALS) ? s[1]: s[1].substring(1);
+                final String value = (comparator == AttributeLevels.Comparator.EQUALS) ? s[1] : s[1].substring(1);
 
                 final Double level = parseLevel(value, debug);
-                if (level == null) return;
+                if (level == null) {
+                    return;
+                }
 
                 attributes.put(attribute, new AttributeLevels(level, comparator));
                 continue;
@@ -84,9 +91,13 @@ public final class AttributeContains extends MetaTypeComparator {
 
             // 'Attribute:MinLevel:MaxLevel': if the item contains this enchantment, within the min & max level interval [inclusive];
             final Double minLevel = parseLevel(s[1], debug);
-            if (minLevel == null) return;
+            if (minLevel == null) {
+                return;
+            }
             final Double maxLevel = parseLevel(s[2], debug);
-            if (maxLevel == null) return;
+            if (maxLevel == null) {
+                return;
+            }
 
             attributes.put(attribute, new AttributeLevels(minLevel, maxLevel));
         }
@@ -94,7 +105,9 @@ public final class AttributeContains extends MetaTypeComparator {
 
     @Override
     public boolean matches(@NotNull final BannedItem bannedItem) {
-        if (bannedItem.getItemMeta() == null) return false;
+        if (bannedItem.getItemMeta() == null) {
+            return false;
+        }
 
         // Not an item ?
         if (bannedItem.getItemStack() == null && !bannedItem.getType().isItem()) {
@@ -108,13 +121,15 @@ public final class AttributeContains extends MetaTypeComparator {
     }
 
     /**
-     * Get the attribute from config string
+     * Get the attribute from config string.
+     *
      * @param attributeName Name of attribute to find
-     * @param debug Debug
+     * @param debug         Debug
      * @return The Attribute found or null
      */
     @Nullable
-    private Object getAttributeKey(@NotNull final String attributeName, @NotNull final Debug debug) {
+    private Object getAttributeKey(@NotNull final String attributeName,
+                                   @NotNull final Debug debug) {
         try {
             return (MinecraftVersion.v9OrMore) ? Attribute.valueOf(attributeName) : AttributeLegacy.valueOf(attributeName);
         } catch (final IllegalArgumentException e) {
@@ -124,7 +139,8 @@ public final class AttributeContains extends MetaTypeComparator {
     }
 
     /**
-     * Extract attributes modifiers from item
+     * Extract attributes modifiers from item.
+     *
      * @param itemStack ItemStack
      * @return A Multimap of attribute name and amount
      */
@@ -145,10 +161,12 @@ public final class AttributeContains extends MetaTypeComparator {
                 final Multimap<String, Object> multimap = ReflectionUtils.callMethodWithReturnType(nmsItemStack, Multimap.class);
                 for (Map.Entry<String, Object> entry : multimap.entries()) {
                     final AttributeLegacy attribute = AttributeLegacy.valueFromName(entry.getKey());
-                    if (attribute != null)
+                    if (attribute != null) {
                         map.put(attribute, ReflectionUtils.callMethodWithName(entry.getValue(), "d"));
+                    }
                 }
-            } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            } catch (final ClassNotFoundException | InvocationTargetException | IllegalAccessException |
+                     NoSuchMethodException e) {
                 e.printStackTrace();
             }
         }
@@ -156,7 +174,8 @@ public final class AttributeContains extends MetaTypeComparator {
     }
 
     /**
-     * Parse the level from String to Double
+     * Parse the level from String to Double.
+     *
      * @param level String level to parse
      * @param debug Debug
      * @return the parsed level or null
@@ -172,8 +191,9 @@ public final class AttributeContains extends MetaTypeComparator {
     }
 
     /**
-     * Send the debug message and invalid the comparator
-     * @param debug Debug
+     * Send the debug message and invalid the comparator.
+     *
+     * @param debug   Debug
      * @param message Error message to send
      */
     private void invalidateMetaType(@NotNull final Debug debug, @NotNull final String message) {

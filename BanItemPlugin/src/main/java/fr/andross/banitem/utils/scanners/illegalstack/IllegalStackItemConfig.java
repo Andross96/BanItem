@@ -20,21 +20,24 @@ package fr.andross.banitem.utils.scanners.illegalstack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple wrapper to store the amount and the block type of an illegal stack material
- * @version 3.4
+ * A simple wrapper to store the amount and the block type of illegal stack material.
+ *
  * @author Andross
+ * @version 3.4
  */
 public final class IllegalStackItemConfig {
     private final int amount;
     private final IllegalStackBlockType blockType;
 
-    public IllegalStackItemConfig(final int amount, @NotNull final IllegalStackBlockType blockType) {
+    public IllegalStackItemConfig(final int amount,
+                                  @NotNull final IllegalStackBlockType blockType) {
         this.amount = amount;
         this.blockType = blockType;
     }
 
     /**
-     * Max amount allowed of the material
+     * Max amount allowed of the material.
+     *
      * @return the max amount allowed of the material
      */
     public int getAmount() {
@@ -42,7 +45,8 @@ public final class IllegalStackItemConfig {
     }
 
     /**
-     * The block type
+     * The block type.
+     *
      * @return the block type
      */
     @NotNull

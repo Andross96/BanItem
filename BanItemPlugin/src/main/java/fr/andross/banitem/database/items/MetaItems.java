@@ -20,7 +20,6 @@ package fr.andross.banitem.database.items;
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.MetaItem;
-import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.DoubleMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -32,11 +31,12 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * Map that contains all the meta items
+ * Map that contains all the meta items.
  * This is a double map <i>(include a reversed map)</i>, for easier access of
  * meta items names and their respective banned item.
- * @version 3.1.1
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public final class MetaItems extends DoubleMap<String, BannedItem> {
     private final File file;
@@ -46,7 +46,8 @@ public final class MetaItems extends DoubleMap<String, BannedItem> {
      * This will create a new instance of meta items map, with the items from <i>metaitems.yml</i> file.
      * This should not be used externally, as it could create two different instance of this object.
      * You should use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, File)} instead.
-     * @param pl main instance
+     *
+     * @param pl     main instance
      * @param sender the sender who executed this command, for debug
      */
     public MetaItems(@NotNull final BanItem pl, @NotNull final CommandSender sender) {
@@ -58,11 +59,13 @@ public final class MetaItems extends DoubleMap<String, BannedItem> {
         for (final String key : config.getKeys(false)) {
             try {
                 final ItemStack itemStack = (ItemStack) config.get(key);
-                if (itemStack == null) throw new Exception();
+                if (itemStack == null) {
+                    throw new Exception();
+                }
                 put(key, new MetaItem(key.toLowerCase(Locale.ROOT), itemStack));
             } catch (final Exception e) {
-                e.printStackTrace();
-                sender.sendMessage(pl.getBanConfig().getPrefix() + Chat.color("&cInvalid meta item &e" + key + "&c in metaitems.yml."));
+                pl.getLogger().warning("Unable to load meta item '" + key + "' : " + e);
+                pl.getUtils().sendMessage(sender, "&cInvalid meta item &e" + key + "&c in metaitems.yml.");
             }
         }
     }

@@ -28,21 +28,24 @@ import org.jetbrains.annotations.NotNull;
  * Called when a banned item has been detected
  * and should be deleted from the current inventory view of the player.
  * Cancelling the event will cancel the delete process.
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class DeleteBannedItemEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final BannedItem bannedItem;
     private boolean cancelled = false;
 
-    public DeleteBannedItemEvent(@NotNull final Player who, @NotNull final BannedItem bannedItem) {
+    public DeleteBannedItemEvent(@NotNull final Player who,
+                                 @NotNull final BannedItem bannedItem) {
         super(who);
         this.bannedItem = bannedItem;
     }
 
     /**
-     * The banned item involved
+     * The banned item involved.
+     *
      * @return the banned item
      */
     @NotNull

@@ -27,8 +27,9 @@ import java.util.UUID;
 
 /**
  * Sub command log
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class Commandlog extends BanCommand {
 
@@ -40,25 +41,25 @@ public class Commandlog extends BanCommand {
     public void run() {
         // Not player?
         if (!(sender instanceof Player)) {
-            message("Command IG only.");
+            sendMessage("Command IG only.");
             return;
         }
 
         // Permission?
         if (!sender.hasPermission("banitem.command.log")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
         // Toggling log
         final UUID uuid = ((Player) sender).getUniqueId();
-        header("&6&lLog");
-        if (pl.getUtils().getLogging().contains(uuid)) {
-            pl.getUtils().getLogging().remove(uuid);
-            message("&7[LOG]: &c&lOFF");
+        sendHeaderMessage("&6&lLog");
+        if (plugin.getUtils().getLogging().contains(uuid)) {
+            plugin.getUtils().getLogging().remove(uuid);
+            sendMessage("&7[LOG]: &c&lOFF");
         } else {
-            pl.getUtils().getLogging().add(uuid);
-            message("&7[LOG]: &a&lON");
+            plugin.getUtils().getLogging().add(uuid);
+            sendMessage("&7[LOG]: &a&lON");
         }
     }
 

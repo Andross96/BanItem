@@ -18,15 +18,13 @@
 package fr.andross.banitem.items.meta;
 
 import fr.andross.banitem.items.BannedItem;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * An abstract meta type comparator
- * @version 3.1
+ * An abstract meta type comparator.
+ *
  * @author Andross
+ * @version 3.1
  */
 public abstract class MetaTypeComparator {
     private final Object object;

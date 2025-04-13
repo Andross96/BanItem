@@ -34,12 +34,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * A simple async scanner to check if players has illegal stacks into their inventories
- * @version 3.4
+ * Async scanner to check if players has illegal stacks into their inventories.
+ * If an illegal stack is detected, a next sync task will be run to handle it.
+ *
  * @author Andross
+ * @version 3.4
  */
 public final class IllegalStackScanner {
-    private final BanItem pl;
+    private final BanItem plugin;
     private final BanUtils utils;
     private boolean enabledInConfig = false;
     private boolean enabled = false;
@@ -48,13 +50,14 @@ public final class IllegalStackScanner {
     private boolean vanillaMaxStackSize = false;
     private IllegalStackBlockType defaultBlockType;
 
-    public IllegalStackScanner(@NotNull final BanItem pl, @NotNull final BanUtils utils) {
-        this.pl = pl;
+    public IllegalStackScanner(@NotNull final BanItem plugin, @NotNull final BanUtils utils) {
+        this.plugin = plugin;
         this.utils = utils;
     }
 
     /**
-     * Load the configuration file and enable (if configured) the illegal stack scanner
+     * Load the configuration file and enable (if configured) the illegal stack scanner.
+     *
      * @param sender the executor
      * @param config the configuration file
      */
@@ -64,13 +67,17 @@ public final class IllegalStackScanner {
 
         // Loading config
         final ConfigurationSection section = config.getConfig().getConfigurationSection("illegal-stacks");
-        if (section == null) return;
+        if (section == null) {
+            return;
+        }
         enabledInConfig = section.getBoolean("enabled");
-        if (!enabledInConfig) return;
+        if (!enabledInConfig) {
+            return;
+        }
         vanillaMaxStackSize = section.getBoolean("vanilla-max-stack-size");
         defaultBlockType = getBlockType(section.getString("block-type"));
         if (defaultBlockType == null) {
-            utils.sendBanMessageAndAnimation(sender, "&c[Illegal-Stack] The default 'block-type' is not set or invalid.");
+            utils.sendMessage(sender, "&c[Illegal-Stack] The default 'block-type' is not set or invalid.");
             enabledInConfig = false;
             return;
         }
@@ -81,13 +88,19 @@ public final class IllegalStackScanner {
             final Debug d = new Debug(config, sender, new DebugMessage("illegal-stacks")).add("items");
             for (final String itemKey : itemsSection.getKeys(false)) {
                 final List<Material> materials = Listable.getMaterials(itemKey, d.clone().add(itemKey));
-                if (materials.isEmpty()) continue;
+                if (materials.isEmpty()) {
+                    continue;
+                }
 
                 // Loading material info
                 final ConfigurationSection itemSubSection = itemsSection.getConfigurationSection(itemKey);
-                if (itemSubSection == null) continue;
+                if (itemSubSection == null) {
+                    continue;
+                }
                 final int amount = itemSubSection.getInt("amount");
-                if (amount < 1) continue;
+                if (amount < 1) {
+                    continue;
+                }
                 String blockTypeString = itemSubSection.getString("block-type");
                 final IllegalStackBlockType blockType;
                 if (blockTypeString == null) {
@@ -111,13 +124,15 @@ public final class IllegalStackScanner {
 
                 // Adding
                 final IllegalStackItemConfig illegalStackItemConfig = new IllegalStackItemConfig(amount, blockType);
-                for (final World world : worlds)
+                for (final World world : worlds) {
                     materials.forEach(m -> addIllegalStackItem(world, m, illegalStackItemConfig));
+                }
             }
         }
 
-        if (enabledInConfig && !enabled && (vanillaMaxStackSize || !items.isEmpty()))
+        if (enabledInConfig && !enabled && (vanillaMaxStackSize || !items.isEmpty())) {
             setEnabled(true);
+        }
     }
 
     private IllegalStackBlockType getBlockType(@Nullable final String blockType) {
@@ -131,14 +146,17 @@ public final class IllegalStackScanner {
         }
     }
 
-    public void addIllegalStackItem(final World world, final Material m, final IllegalStackItemConfig illegalStackItemConfig) {
+    public void addIllegalStackItem(final World world,
+                                    final Material m,
+                                    final IllegalStackItemConfig illegalStackItemConfig) {
         final Map<Material, IllegalStackItemConfig> subMap = items.getOrDefault(world, new HashMap<>());
         subMap.put(m, illegalStackItemConfig);
         items.put(world, subMap);
     }
 
     /**
-     * Check if the scanner is running
+     * Check if the scanner is running.
+     *
      * @return true if the scanner is running, otherwise false
      */
     public boolean isEnabled() {
@@ -146,24 +164,27 @@ public final class IllegalStackScanner {
     }
 
     /**
-     * Enable or disable the scanner
+     * Enable or disable the scanner.
+     *
      * @param enabled the enabled state
      */
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
         if (enabled) {
-            if (taskId < 0)
-                taskId = pl.getServer().getScheduler().runTaskTimerAsynchronously(pl, () -> Bukkit.getOnlinePlayers().forEach(utils::checkPlayerIllegalStacks), 16L, 16L).getTaskId();
+            if (taskId < 0) {
+                taskId = plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> Bukkit.getOnlinePlayers().forEach(utils::checkPlayerIllegalStacks), 16L, 16L).getTaskId();
+            }
         } else {
             if (taskId > -1) {
-                pl.getServer().getScheduler().cancelTask(taskId);
+                plugin.getServer().getScheduler().cancelTask(taskId);
                 taskId = -1;
             }
         }
     }
 
     /**
-     * Check if the scanner should be enabled (in config)
+     * Check if the scanner should be enabled (in config).
+     *
      * @return if the scanner should be enabled (in config)
      */
     public boolean isEnabledInConfig() {
@@ -172,14 +193,16 @@ public final class IllegalStackScanner {
 
     /**
      * Set the variable. This does not edit the config file.
+     *
      * @param enabledInConfig set the variable
      */
-    public void setEnabledInConfig(boolean enabledInConfig) {
+    public void setEnabledInConfig(final boolean enabledInConfig) {
         this.enabledInConfig = enabledInConfig;
     }
 
     /**
-     * Get the scanner Bukkit Task id, -1 if not running
+     * Get the scanner Bukkit Task id, -1 if not running.
+     *
      * @return the scanner Bukkit Task id, -1 if not running
      */
     public int getTaskId() {
@@ -187,7 +210,8 @@ public final class IllegalStackScanner {
     }
 
     /**
-     * Get the map of illegal stacks configuration loaded from config
+     * Get the map of illegal stacks configuration loaded from config.
+     *
      * @return the map of illegal stacks configuration loaded from config
      */
     @NotNull
@@ -196,7 +220,8 @@ public final class IllegalStackScanner {
     }
 
     /**
-     * Check if the vanilla max stack size is enabled
+     * Check if the vanilla max stack size is enabled.
+     *
      * @return true if the vanilla max stack size is enabled, otherwise false
      */
     public boolean isVanillaMaxStackSize() {
@@ -204,17 +229,19 @@ public final class IllegalStackScanner {
     }
 
     /**
-     * Set the vanilla max stack size state
-     * This does not edit the config file
+     * Set the vanilla max stack size state.
+     * This does not edit the config file.
+     *
      * @param vanillaMaxStackSize the vanilla max stack size state
      */
-    public void setVanillaMaxStackSize(boolean vanillaMaxStackSize) {
+    public void setVanillaMaxStackSize(final boolean vanillaMaxStackSize) {
         this.vanillaMaxStackSize = vanillaMaxStackSize;
     }
 
     /**
-     * Get the default block type for items
-     * This can be null if an invalid block type is set from config
+     * Get the default block type for items.
+     * This can be null if an invalid block type is set from config.
+     *
      * @return the default block type for items
      */
     @Nullable
@@ -223,12 +250,13 @@ public final class IllegalStackScanner {
     }
 
     /**
-     * Set the default block type for items
+     * Set the default block type for items.
      * Setting the parameter to null is not recommended because it will keep the task running
-     * but will not block anything
+     * but will not block anything.
+     *
      * @param defaultBlockType the default block type wanted
      */
-    public void setDefaultBlockType(@Nullable IllegalStackBlockType defaultBlockType) {
+    public void setDefaultBlockType(@Nullable final IllegalStackBlockType defaultBlockType) {
         this.defaultBlockType = defaultBlockType;
     }
 }

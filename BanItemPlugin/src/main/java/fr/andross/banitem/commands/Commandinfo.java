@@ -38,8 +38,9 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command info
- * @version 3.2
+ *
  * @author Andross
+ * @version 3.2
  */
 public class Commandinfo extends BanCommand {
     private static final String CHECK = "\u2713";
@@ -53,75 +54,85 @@ public class Commandinfo extends BanCommand {
     public void run() {
         // Not player?
         if (!(sender instanceof Player)) {
-            message("Command IG only.");
+            sendMessage("Command IG only.");
             return;
         }
 
         // Permission?
         if (!sender.hasPermission("banitem.command.info")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
         // Preparing variables
-        final Player p = (Player) sender;
-        final ItemStack item = Utils.getItemInHand(p);
+        final Player player = (Player) sender;
+        final ItemStack item = Utils.getItemInHand(player);
 
         // Debug item?
         if (args.length > 1 && args[1].equalsIgnoreCase("debug")) {
-            header("&6&lInfo - Debug item");
+            sendHeaderMessage("&6&lInfo - Debug item");
 
             final StringBuilder materialBuilder = new StringBuilder("&7Material name: ");
             materialBuilder.append("&e").append(item.getType().name().toLowerCase(Locale.ROOT));
             if (!MinecraftVersion.v13OrMore)
                 materialBuilder.append(" &o(ID: ").append(item.getType().getId()).append(")");
-            message(materialBuilder.toString());
+            sendMessage(materialBuilder.toString());
 
-            message("&7Durability: &e" + item.getDurability() + "/" + item.getType().getMaxDurability());
-            message("&7ItemMeta: " + (item.hasItemMeta() ? "&a" + CHECK : "&c" + UNCHECK));
+            sendMessage("&7Durability: &e" + item.getDurability() + "/" + item.getType().getMaxDurability());
+            sendMessage("&7ItemMeta: " + (item.hasItemMeta() ? "&a" + CHECK : "&c" + UNCHECK));
             if (item.hasItemMeta()) {
                 final ItemMeta itemMeta = item.getItemMeta();
-                if (itemMeta != null)
-                    itemMeta.serialize().forEach((k, v) -> message("  &7" + k + ": &e" + v));
+                if (itemMeta != null) {
+                    itemMeta.serialize().forEach((key, value) -> sendMessage("  &7" + key + ": &e" + value));
+                }
             }
 
-            if (pl.getServer().getPluginManager().isPluginEnabled("NBTAPI"))
-                message("&7NBTAPI: &e" + new de.tr7zw.nbtapi.NBTItem(item));
-            else
-                message("&7NBTAPI: &c" + UNCHECK);
+            if (plugin.getServer().getPluginManager().isPluginEnabled("NBTAPI")) {
+                sendMessage("&7NBTAPI: &e" + new de.tr7zw.nbtapi.NBTItem(item));
+            } else {
+                sendMessage("&7NBTAPI: &c" + UNCHECK);
+            }
 
-            message("&7Bukkit version: " + Bukkit.getVersion());
+            sendMessage("&7Bukkit version: " + Bukkit.getVersion());
             return;
         }
 
         // Displaying item info
-        header("&6&lInfo");
+        sendHeaderMessage("&6&lInfo");
 
         // Displaying material type
         final String materialName = item.getType().name().toLowerCase();
-        message("&7Material name: &e" + materialName);
+        sendMessage("&7Material name: &e" + materialName);
 
         // Displaying if it's a meta item
         final BannedItem bannedItem = new BannedItem(item);
-        final String metaItemName = pl.getBanDatabase().getMetaItems().getKey(bannedItem);
-        if (metaItemName != null) message("&7Meta item name: &e" + metaItemName);
+        final String metaItemName = plugin.getBanDatabase().getMetaItems().getKey(bannedItem);
+        if (metaItemName != null) {
+            sendMessage("&7Meta item name: &e" + metaItemName);
+        }
 
         // Displaying matching custom items
-        final List<CustomBannedItem> customItems = pl.getBanDatabase().getCustomItems().values()
+        final List<CustomBannedItem> customItems = plugin.getBanDatabase().getCustomItems().values()
                 .stream()
                 .filter(ci -> ci.matches(bannedItem))
                 .collect(Collectors.toList());
-        if (!customItems.isEmpty())
-            message("&7Matching custom items: &e" + customItems.stream().map(CustomBannedItem::getName).collect(Collectors.joining(",")));
+        if (!customItems.isEmpty()) {
+            sendMessage("&7Matching custom items: &e" +
+                    customItems.stream()
+                            .map(CustomBannedItem::getName)
+                            .collect(Collectors.joining(",")));
+        }
 
-        message("&7Permission example:");
-        message(" &7>> &ebanitem.bypass." + p.getWorld().getName().toLowerCase() + "." + (metaItemName != null ? metaItemName.toLowerCase() : materialName) + ".action.*");
+        sendMessage("&7Permission example:");
+        sendMessage(" &7>> &ebanitem.bypass." + player.getWorld().getName().toLowerCase() + "." + (metaItemName != null ? metaItemName.toLowerCase() : materialName) + ".action.*");
     }
 
     @Nullable
     @Override
     public List<String> runTab() {
-        if (args.length == 2) return StringUtil.copyPartialMatches(args[1], Collections.singletonList("debug"), new ArrayList<>());
+        if (args.length == 2) {
+            return StringUtil.copyPartialMatches(args[1], Collections.singletonList("debug"), new ArrayList<>());
+        }
         return Collections.emptyList();
     }
 }

@@ -25,9 +25,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple meta comparator to compare the durability
- * @version 3.3
+ * A simple meta comparator to compare the durability.
+ *
  * @author Andross
+ * @version 3.3
  */
 public final class Durability extends MetaTypeComparator {
     private int min = -1, max = -1;

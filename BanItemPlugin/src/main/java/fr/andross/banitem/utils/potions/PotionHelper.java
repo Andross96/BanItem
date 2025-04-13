@@ -25,9 +25,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * A potion helper class to retrieve correct Bukkit PotionEffectType object across versions
- * @version 3.1.1
+ * A potion helper class to retrieve correct Bukkit PotionEffectType object across versions.
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public final class PotionHelper {
     private static final List<String> potionNames = Arrays.stream(PotionEffectType.values()).filter(Objects::nonNull).map(PotionEffectType::getName).collect(Collectors.toList()); // some of them are null in 1.8, why?!
@@ -55,33 +56,39 @@ public final class PotionHelper {
     }
 
     /**
-     * Try to get a {@link PotionEffectType} object by the name
+     * Try to get a {@link PotionEffectType} object by the name.
+     *
      * @param name name of the potion effect type
      * @return the bukkit PotionEffectType, null if not found
      */
     @Nullable
     public static PotionEffectType getPotionEffectType(@NotNull final String name) {
-        PotionEffectType potionEffectType;
-
         // Getting by name?
-        potionEffectType = PotionEffectType.getByName(name);
-        if (potionEffectType != null) return potionEffectType;
+        final PotionEffectType potionEffectType = PotionEffectType.getByName(name);
+        if (potionEffectType != null) {
+            return potionEffectType;
+        }
 
-        // Last chance, getting by my friendly names?
+        // Last chance, getting by friendly names above ?
         return names.containsKey(name.toLowerCase()) ? PotionEffectType.getByName(names.get(name)) : null;
     }
 
     /**
-     * Try to get a {@link PotionWrapper} from a string which synthax must be 'potion:level'
+     * Try to get a {@link PotionWrapper} from a string which syntax must be 'potion:level'.
+     *
      * @param potion the string
      * @return aa PotionWrapper if valid, otherwise null
      */
     @Nullable
     public static PotionWrapper getPotionWrapper(@NotNull final String potion) {
         final String[] s = potion.split(":");
-        if (s.length != 2) return null;
+        if (s.length != 2) {
+            return null;
+        }
         final PotionEffectType potionEffectType = getPotionEffectType(s[0]);
-        if (potionEffectType == null) return null;
+        if (potionEffectType == null) {
+            return null;
+        }
         final int level;
         try {
             level = Integer.parseInt(s[1]);

@@ -24,9 +24,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
- * A potion wrapper class that stores the Bukkit potion type with the level
- * @version 3.1
+ * A potion wrapper class that stores the Bukkit potion type with the level.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class PotionWrapper {
     private final PotionEffectType potionEffectType;
@@ -38,7 +39,8 @@ public final class PotionWrapper {
     }
 
     /**
-     * Get the PotionEffectType
+     * Get the PotionEffectType.
+     *
      * @return the PotionEffectType
      */
     @NotNull
@@ -47,7 +49,8 @@ public final class PotionWrapper {
     }
 
     /**
-     * Get the level of the potion effect
+     * Get the level of the potion effect.
+     *
      * @return the level of the potion effect
      */
     public int getLevel() {

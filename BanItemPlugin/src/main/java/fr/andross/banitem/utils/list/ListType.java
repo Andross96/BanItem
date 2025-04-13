@@ -18,9 +18,10 @@
 package fr.andross.banitem.utils.list;
 
 /**
- * List of elements that can be listed
- * @version 3.1
+ * List of elements that can be listed.
+ *
  * @author Andross
+ * @version 3.1
  */
 public enum ListType {
     ACTION,

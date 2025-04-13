@@ -20,11 +20,12 @@ package fr.andross.banitem.actions;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * The ban data used into a ban check
- * The object will be an instance of the described {@link BanDataType}
- * Example: if type == BanDataType.CREATIVE, the object is a boolean.
- * @version 3.1
+ * The ban data used into a ban check.
+ * The object will be an instance of the described {@link BanDataType}.
+ * Example: <code>if (type == BanDataType.CREATIVE)</code>, the object is a boolean.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class BanData {
     private final BanDataType type;

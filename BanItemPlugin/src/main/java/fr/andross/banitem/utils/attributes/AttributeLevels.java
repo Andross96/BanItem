@@ -20,9 +20,11 @@ package fr.andross.banitem.utils.attributes;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An attribute wrapper class that stores the levels and the comparator in which the attribute must match
- * @version 3.4
+ * An attribute wrapper class that stores the levels and
+ * the comparator in which the attribute must match.
+ *
  * @author EpiCanard
+ * @version 3.4
  */
 public final class AttributeLevels {
     /**
@@ -35,7 +37,8 @@ public final class AttributeLevels {
         HIGHER;
 
         /**
-         * Retrieve a Comparator from a string sign
+         * Retrieve a Comparator from a string sign.
+         *
          * @param operator Operator as string
          * @return The Comparator that match with operator
          */
@@ -69,7 +72,8 @@ public final class AttributeLevels {
     }
 
     /**
-     * Define if the param level match with the attribute levels
+     * Define if the param level match with the attribute levels.
+     *
      * @param level Level to check if it matches
      * @return if the input level match
      */

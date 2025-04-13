@@ -18,21 +18,24 @@
 package fr.andross.banitem.utils.scanners.illegalstack;
 
 /**
- * An enum for the block type of an illegal stacked item
- * @version 3.4
+ * An enum for the block type of illegal stacked item.
+ *
  * @author Andross
+ * @version 3.4
  */
 public enum IllegalStackBlockType {
     /**
      * Split the item, give it back to the player until the correct max stack size is respected
      */
     SPLIT,
+
     /**
      * Delete the whole stack
      */
     DELETE,
+
     /**
-     * Delete only whats more from the max allowed stack size
+     * Delete only what's more from the max allowed stack size
      */
     DELETEMORE
 }

@@ -27,8 +27,9 @@ import java.util.List;
 
 /**
  * Sub command reload
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class Commandreload extends BanCommand {
 
@@ -40,13 +41,13 @@ public class Commandreload extends BanCommand {
     public void run() {
         // Permission?
         if (!sender.hasPermission("banitem.command.reload")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
-        header("&6&lReload");
-        final File config = pl.getBanConfig().getConfigFile();
-        pl.getApi().load(sender, config.getName().equals("config.yml") ? null : config);
+        sendHeaderMessage("&6&lReload");
+        final File config = plugin.getBanConfig().getConfigFile();
+        plugin.getApi().load(sender, config.getName().equals("config.yml") ? null : config);
     }
 
     @Nullable

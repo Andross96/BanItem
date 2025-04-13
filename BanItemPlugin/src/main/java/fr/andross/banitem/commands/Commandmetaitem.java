@@ -38,8 +38,9 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command meta item
- * @version 3.1.1
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public class Commandmetaitem extends BanCommand {
 
@@ -51,29 +52,32 @@ public class Commandmetaitem extends BanCommand {
     public void run() {
         // Checking permission
         if (!sender.hasPermission("banitem.command.metaitem")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
         if (args.length < 2) { // Showing help
-            header("&6&lMetaItems - Help");
-            message("&7Usages:");
+            sendHeaderMessage("&6&lMetaItems - Help");
+            sendMessage("&7Usages:");
 
-            message("&b/bi mi add &3<name> [actions] [message]");
-            message("&7 >> Will save and ban the item (including meta)");
-            message("&7 >> currently in your hand");
-            message("&7 >> in your current world.");
+            sendMessage("&b/bi mi add &3<name> [actions] [message]");
+            sendMessage("&7 >> Will save and ban the item (including meta)");
+            sendMessage("&7 >> currently in your hand");
+            sendMessage("&7 >> in your current world.");
 
-            message("&b/bi mi get &3<name>");
-            message("&7 >> Will give you the item (with meta)");
-            message("&7 >> in your inventory.");
+            sendMessage("&b/bi mi get &3<name>");
+            sendMessage("&7 >> Will give you the item (with meta)");
+            sendMessage("&7 >> in your inventory.");
 
-            message("&b/bi mi list");
-            message("&7 >> Displays a list of meta");
-            message("&7 >> item names saved.");
+            sendMessage("&b/bi mi list");
+            sendMessage("&7 >> Displays a list of meta");
+            sendMessage("&7 >> item names saved.");
 
-            message("&b/bi mi remove &3<name>");
-            message("&7 >> Will remove & unban the metaitem");
+            sendMessage("&b/bi mi remove &3<name>");
+            sendMessage("&7 >> Will remove & unban the metaitem");
+
+            sendMessage("&cMetaItems match exactly the current item. If for example the durability changes, the " +
+                    "item will not be recognized anymore. You probably want the custom items feature.");
             return;
         }
 
@@ -82,43 +86,43 @@ public class Commandmetaitem extends BanCommand {
             case "add": { // /bi mi add <name> <actions> [message]
                 // Not player?
                 if (!(sender instanceof Player)) {
-                    message("Command IG only.");
+                    sendMessage("Command IG only.");
                     return;
                 }
 
                 if (args.length < 3) { // Showing help
-                    header("&6&lMetaItems - Add");
-                    message("&b/bi mi add &3<name> [actions] [message]");
-                    message("&7 >> Will save and ban the item (with meta)");
-                    message("&7 >> currently in your hand.");
-                    message("&7 >> Actions can be multiple separated with commas.");
+                    sendHeaderMessage("&6&lMetaItems - Add");
+                    sendMessage("&b/bi mi add &3<name> [actions] [message]");
+                    sendMessage("&7 >> Will save and ban the item (with meta)");
+                    sendMessage("&7 >> currently in your hand.");
+                    sendMessage("&7 >> Actions can be multiple separated with commas.");
                     return;
                 }
 
                 // Getting player item in hand
-                final Player p = (Player) sender;
-                final ItemStack item = Utils.getItemInHand(p);
+                final Player player = (Player) sender;
+                final ItemStack item = Utils.getItemInHand(player);
 
-                // Only saving the custom item?
+                // Only saving the meta item?
                 final String name = args[2];
                 if (args.length < 4) {
-                    header("&6&lMetaItems - Add");
+                    sendHeaderMessage("&6&lMetaItems - Add");
                     try {
-                        pl.getApi().addMetaItem(name, item);
-                        message("&aMeta item successfully saved with name &2" + name + "&a.");
+                        plugin.getApi().addMetaItem(name, item);
+                        sendMessage("&aMeta item successfully saved with name &2" + name + "&a.");
                     } catch (final Exception e) {
-                        e.printStackTrace();
-                        message("&cError during saving. Check the console for more info.");
+                        plugin.getLogger().warning("Error during saving meta item:" + e.getMessage());
+                        sendMessage("&cError during saving. Check the console for more info.");
                     }
                     return;
                 }
 
-                final List<String> actionsNames = Listable.getSplittedList(args[3]);
+                final List<String> actionsNames = Listable.splitToList(args[3]);
                 final List<BanAction> actions = Listable.getList(ListType.ACTION, actionsNames, null);
                 if (actions.isEmpty()) {
-                    header("&6&lMetaItems - Add");
-                    message("&cInvalid actions entered: &e" + args[3]);
-                    message("&7 >> Valid actions: &o" + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", "&7.")));
+                    sendHeaderMessage("&6&lMetaItems - Add");
+                    sendMessage("&cInvalid actions entered: &e" + args[3]);
+                    sendMessage("&7 >> Valid actions: &o" + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", "&7.")));
                     return;
                 }
 
@@ -132,105 +136,108 @@ public class Commandmetaitem extends BanCommand {
                         if (i > 4) sb.append(" ");
                         sb.append(args[i]);
                     }
-                    if (sb.length() > 0) actionData.getMap().put(BanDataType.MESSAGE, Collections.singletonList(Chat.color(sb.toString())));
+                    if (sb.length() > 0) {
+                        actionData.getMap().put(BanDataType.MESSAGE, Collections.singletonList(Chat.color(sb.toString())));
+                    }
                 }
 
                 final Map<BanAction, BanActionData> actionsData = new EnumMap<>(BanAction.class);
                 actions.forEach(ba -> actionsData.put(ba, actionData));
 
-                // Adding custom item name
+                // Adding meta item name
                 try {
-                    pl.getBanDatabase().addMetaItem(name, item);
+                    plugin.getBanDatabase().addMetaItem(name, item);
                 } catch (final Exception e) {
-                    e.printStackTrace();
-                    message("&cUnable to save metaitems.yml file.");
-                    message("&cCheck the console for more information.");
+                    plugin.getLogger().warning("Error during saving meta item:" + e.getMessage());
+                    sendMessage("&cUnable to save metaitems.yml file.");
+                    sendMessage("&cCheck the console for more information.");
                     return;
                 }
 
                 // Adding in blacklist
-                pl.getApi().addToBlacklist(new BannedItem(item), actionsData, p.getWorld());
-                pl.getListener().load(sender);
-                message("&aThis item &e" + name + "&a is now successfully banned for world &2" + p.getWorld().getName() + "&a.");
-                message("&7&oPlease note that you probably have the bypass");
-                message("&7&opermission, so the ban may not apply to you.");
+                plugin.getApi().addToBlacklist(new BannedItem(item), actionsData, player.getWorld());
+                plugin.getListener().load(sender);
+                sendMessage("&aThis item &e" + name + "&a is now successfully banned for world &2" + player.getWorld().getName() + "&a.");
+                sendMessage("&7&oPlease note that you probably have the bypass");
+                sendMessage("&7&opermission, so the ban may not apply to you.");
                 return;
             }
 
             case "get": {
                 // Not player?
                 if (!(sender instanceof Player)) {
-                    message("Command IG only.");
+                    sendMessage("Command IG only.");
                     return;
                 }
 
                 if (args.length < 3) { // Showing help
-                    header("&6&lMetaItems - Get");
-                    message("&b/bi mi get &3<name>");
-                    message("&7 >> Will give you the item (with meta)");
-                    message("&7 >> in your inventory.");
+                    sendHeaderMessage("&6&lMetaItems - Get");
+                    sendMessage("&b/bi mi get &3<name>");
+                    sendMessage("&7 >> Will give you the item (with meta)");
+                    sendMessage("&7 >> in your inventory.");
                     return;
                 }
 
-                final BannedItem bi = pl.getBanDatabase().getMetaItems().get(args[2]);
+                final BannedItem bi = plugin.getBanDatabase().getMetaItems().get(args[2]);
                 if (bi == null) {
-                    header("&6&lMetaItems - Get");
-                    message("&cUnknown meta item &e" + args[2] + "&c.");
+                    sendHeaderMessage("&6&lMetaItems - Get");
+                    sendMessage("&cUnknown meta item &e" + args[2] + "&c.");
                     return;
                 }
 
-                header("&6&lMetaItems - Get");
-                if (((Player) sender).getInventory().addItem(bi.toItemStack()).size() > 0)
-                    message("&cCan not get the meta item, your inventory is full.");
-                else
-                    message("&aSuccessfully received &e" + args[2] + "&a.");
+                sendHeaderMessage("&6&lMetaItems - Get");
+                if (!((Player) sender).getInventory().addItem(bi.toItemStack()).isEmpty()) {
+                    sendMessage("&cCan not get the meta item, your inventory is full.");
+                } else {
+                    sendMessage("&aSuccessfully received &e" + args[2] + "&a.");
+                }
                 return;
             }
 
             case "remove": {
                 if (args.length < 3) { // Showing help
-                    header("&6&lMetaItems - Remove");
-                    message("&b/bi mi remove &3<name>");
-                    message("&7 >> Will remove & unban the item");
-                    message("&7 >> with this meta name.");
+                    sendHeaderMessage("&6&lMetaItems - Remove");
+                    sendMessage("&b/bi mi remove &3<name>");
+                    sendMessage("&7 >> Will remove & unban the item");
+                    sendMessage("&7 >> with this meta name.");
                     return;
                 }
 
                 // Checking variables
-                final String customName = args[2];
+                final String metaName = args[2];
 
                 // Checking if exists
-                if (!pl.getBanDatabase().getCustomItems().containsKey(customName)) {
-                    header("&6&lMetaItems - Remove");
-                    message("&cThere is no custom item named &e" + customName + "&c.");
+                if (!plugin.getBanDatabase().getMetaItems().containsKey(metaName)) {
+                    sendHeaderMessage("&6&lMetaItems - Remove");
+                    sendMessage("&cThere is no meta item named &e" + metaName + "&c.");
                     return;
                 }
 
-                // Removing custom item
-                header("&6&lMetaItems - Remove");
+                // Removing meta item
+                sendHeaderMessage("&6&lMetaItems - Remove");
                 try {
-                    pl.getBanDatabase().removeMetaItem(customName);
-                    pl.getListener().load(sender);
-                    message("&aMeta item &e" + customName + "&a removed.");
+                    plugin.getBanDatabase().removeMetaItem(metaName);
+                    plugin.getListener().load(sender);
+                    sendMessage("&aMeta item &e" + metaName + "&a removed.");
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    message("&cUnable to save metaitems.yml file.");
-                    message("&cCheck the console for more information.");
+                    plugin.getLogger().warning("Error during saving meta item:" + e.getMessage());
+                    sendMessage("&cUnable to save metaitems.yml file.");
+                    sendMessage("&cCheck the console for more information.");
                 }
                 return;
             }
 
             case "list": {
-                final List<String> items = new ArrayList<>(pl.getBanDatabase().getMetaItems().keySet());
+                final List<String> items = new ArrayList<>(plugin.getBanDatabase().getMetaItems().keySet());
 
                 if (items.isEmpty()) {
-                    header("&6&lMetaItems - List");
-                    message("&7There is no custom item added yet.");
+                    sendHeaderMessage("&6&lMetaItems - List");
+                    sendMessage("&7There is no meta item added yet.");
                     return;
                 }
 
-                header("&6&lMetaItems - List");
-                message("&aMeta items: " + (items.stream().map(s -> ChatColor.GOLD + s + ChatColor.GRAY).collect(Collectors.joining(",", "", "&7."))));
+                sendHeaderMessage("&6&lMetaItems - List");
+                sendMessage("&aMeta items: " + (items.stream().map(s -> ChatColor.GOLD + s + ChatColor.GRAY).collect(Collectors.joining(",", "", "&7."))));
             }
         }
     }
@@ -238,15 +245,23 @@ public class Commandmetaitem extends BanCommand {
     @Nullable
     @Override
     public List<String> runTab() {
-        if (args.length == 2)
+        if (args.length == 2) {
             return StringUtil.copyPartialMatches(args[1], Arrays.asList("add", "get", "list", "remove"), new ArrayList<>());
-        else if (args.length == 3) {
+        }
+
+        if (args.length == 3) {
             if (args[1].equalsIgnoreCase("list")) return Collections.emptyList();
-            return StringUtil.copyPartialMatches(args[2], pl.getBanDatabase().getMetaItems().keySet(), new ArrayList<>());
-        } else if (args.length == 4 && args[1].equalsIgnoreCase("add"))
+            return StringUtil.copyPartialMatches(args[2], plugin.getBanDatabase().getMetaItems().keySet(), new ArrayList<>());
+        }
+
+        if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
             return Collections.singletonList("action");
-        else if (args.length > 4 && args[1].equalsIgnoreCase("add"))
+        }
+
+        if (args.length > 4 && args[1].equalsIgnoreCase("add")) {
             return Collections.singletonList("message");
+        }
+
         return Collections.emptyList();
     }
 }

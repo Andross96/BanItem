@@ -22,9 +22,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A debug message with its type
- * @version 3.1
+ * A debug message with its type.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class DebugMessage {
     private final ListType type;
@@ -40,8 +41,9 @@ public final class DebugMessage {
     }
 
     /**
-     * Get the type of node
-     * @return the type of node, null if its not an important node
+     * Get the type of node.
+     *
+     * @return the type of node, null if it's not an important node
      */
     @Nullable
     public ListType getType() {
@@ -49,7 +51,8 @@ public final class DebugMessage {
     }
 
     /**
-     * The the message for this node
+     * The message for this node.
+     *
      * @return the message of the node
      */
     @NotNull

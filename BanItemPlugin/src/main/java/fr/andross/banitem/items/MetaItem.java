@@ -21,9 +21,10 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An item wrapper for meta items
- * @version 3.3
+ * An item wrapper for meta items.
+ *
  * @author Andross
+ * @version 3.3
  */
 public final class MetaItem extends BannedItem implements ICustomName {
     private final String name;
@@ -34,8 +35,9 @@ public final class MetaItem extends BannedItem implements ICustomName {
     }
 
     /**
-     * Get the custom banned item name from customitems.yml
-     * @return the custom banned item name from customitems.yml
+     * Get the meta item name from metaitems.yml
+     *
+     * @return the meta item name from metaitems.yml
      */
     @NotNull
     @Override

@@ -26,9 +26,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 /**
- * A simple meta comparator to compare the AdvancedEnchantments
- * @version 3.2
+ * A simple meta comparator to compare the AdvancedEnchantments.
+ *
  * @author Andross
+ * @version 3.2
  */
 public final class AdvancedEnchantments extends MetaTypeComparator {
     private final Set<String> enchantsWithoutLevels = new HashSet<>(); // Any enchantment levels
@@ -47,7 +48,7 @@ public final class AdvancedEnchantments extends MetaTypeComparator {
             return;
         }
 
-        for (final String string : Listable.getSplittedStringList(o)) {
+        for (final String string : Listable.getSplitStringList(o)) {
             final String[] s = string.split(":");
 
             // 'Enchantment': if the item contains this enchantment, does not consider the level;
@@ -93,7 +94,7 @@ public final class AdvancedEnchantments extends MetaTypeComparator {
                 }
 
                 // Adding
-                enchantsIntervals.put(s[0].toLowerCase(Locale.ROOT), new Integer[] { minLevel, maxLevel });
+                enchantsIntervals.put(s[0].toLowerCase(Locale.ROOT), new Integer[]{minLevel, maxLevel});
             }
         }
     }
@@ -106,21 +107,29 @@ public final class AdvancedEnchantments extends MetaTypeComparator {
         }
 
         final Map<String, Integer> enchantsOnItem = AEAPI.getEnchantmentsOnItem(bannedItem.toItemStack());
-        if (enchantsOnItem.isEmpty()) return false;
+        if (enchantsOnItem.isEmpty()) {
+            return false;
+        }
         for (final Map.Entry<String, Integer> e : enchantsOnItem.entrySet()) {
             final String enchantment = e.getKey().toLowerCase(Locale.ROOT);
             final int level = e.getValue();
 
             // Containing enchantment (not considering level) ?
-            if (enchantsWithoutLevels.contains(enchantment)) return true;
+            if (enchantsWithoutLevels.contains(enchantment)) {
+                return true;
+            }
 
             // Containing enchantment (considering level)?
-            if (enchants.containsKey(enchantment) && enchants.get(enchantment) == level) return true;
+            if (enchants.containsKey(enchantment) && enchants.get(enchantment) == level) {
+                return true;
+            }
 
             // Containing enchantment (in interval)?
             if (enchantsIntervals.containsKey(enchantment)) {
                 final Integer[] interval = enchantsIntervals.get(enchantment);
-                if (level >= interval[0] && level <= interval[1]) return true;
+                if (level >= interval[0] && level <= interval[1]) {
+                    return true;
+                }
             }
         }
         return false;

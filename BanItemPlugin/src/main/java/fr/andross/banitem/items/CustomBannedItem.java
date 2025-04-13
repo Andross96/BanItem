@@ -24,16 +24,15 @@ import fr.andross.banitem.utils.list.ListType;
 import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 /**
- * An item wrapper, which store custom item meta
- * @version 3.3.2
+ * An item wrapper, which store custom item meta.
+ *
  * @author Andross
+ * @version 3.3.2
  */
 public final class CustomBannedItem extends BannedItem implements ICustomName {
     private final String name;
@@ -42,7 +41,9 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     private boolean valid = true;
     private boolean reverted = false;
 
-    public CustomBannedItem(@NotNull final String name, @NotNull final ConfigurationSection section, @NotNull final Debug debug) {
+    public CustomBannedItem(@NotNull final String name,
+                            @NotNull final ConfigurationSection section,
+                            @NotNull final Debug debug) {
         super(Material.AIR);
         this.name = name;
         final Object materialsObject = section.get("material");
@@ -94,33 +95,39 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     }
 
     /**
-     * Comparing the ItemMeta of the item with the item meta stored
+     * Comparing the ItemMeta of the item with the item meta stored.
+     *
      * @param bannedItem the item to compare
      * @return true if the item meta matches, otherwise false
      */
     public boolean matches(@NotNull final BannedItem bannedItem) {
         // Matching material?
-        if (!materials.contains(bannedItem.getType())) return false;
+        if (!materials.contains(bannedItem.getType())) {
+            return false;
+        }
 
         // All meta are matching?
         if (!reverted) {
             for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet()) {
-                if (!e.getValue().matches(bannedItem))
+                if (!e.getValue().matches(bannedItem)) {
                     return false;
+                }
             }
             return true;
         }
 
         // Reverted custom item! (matching everything that does not match)
         for (final Map.Entry<MetaType, MetaTypeComparator> e : meta.entrySet()) {
-            if (!e.getValue().matches(bannedItem))
+            if (!e.getValue().matches(bannedItem)) {
                 return true;
+            }
         }
         return false;
     }
 
     /**
-     * Get the custom banned item name from customitems.yml
+     * Get the custom banned item name from customitems.yml.
+     *
      * @return the custom banned item name from customitems.yml
      */
     @NotNull
@@ -130,7 +137,8 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     }
 
     /**
-     * Get the materials represented by this custom item
+     * Get the materials represented by this custom item.
+     *
      * @return set of materials
      */
     @NotNull
@@ -139,7 +147,8 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     }
 
     /**
-     * Get the map of meta to compare
+     * Get the map of meta to compare.
+     *
      * @return the map of meta to compare
      */
     @NotNull
@@ -148,7 +157,8 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     }
 
     /**
-     * If the custom item is correctly loaded
+     * If the custom item is correctly loaded.
+     *
      * @return if the custom item is correctly loaded
      */
     public boolean isValid() {
@@ -156,7 +166,8 @@ public final class CustomBannedItem extends BannedItem implements ICustomName {
     }
 
     /**
-     * If the custom item match is reverted
+     * If the custom item match is reverted.
+     *
      * @return if the custom item match is reverted
      */
     public boolean isReverted() {

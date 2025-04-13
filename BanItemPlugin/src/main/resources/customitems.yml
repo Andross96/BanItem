@@ -45,12 +45,12 @@
 #    -> if any line in the lore of the item contains the string written
 #  -> DURABILITY: Integer (number) or String (interval)
 #    -> if the durability of the item matches
-#    -> There is multiple synthax:
+#    -> There is multiple syntax:
 #      -> durability: 1 - to match items with durability 1
 #      -> durability: '0-300' - to match items with durability between 0 [inclusive] and 300 [inclusive]
 #  -> ENCHANTMENT-CONTAINS: String or List of String
 #    -> if the item contains one of the written enchantments
-#    -> Multiple synthax available:
+#    -> Multiple syntax available:
 #      -> 'Enchantment': if the item contains this enchantment, does not consider the level;
 #      -> 'Enchantment:Level': if the item contains this enchantment with this level;
 #      -> 'Enchantment:MinLevel:MaxLevel': if the item contains this enchantment, within the min & max level interval [inclusive];
@@ -58,12 +58,12 @@
 #      -> enchantment-contains: 'unbreaking,efficiency:5:32767'
 #  -> ENCHANTMENT-EQUALS: String or List of String
 #    -> if the enchantments of the item matches exactly the ones written, no more or less.
-#    -> The synthax is 'Enchantment:Level'
+#    -> The syntax is 'Enchantment:Level'
 #    -> Example:
 #      -> enchantment-equals: 'unbreaking:3,efficiency:5'
 #  -> POTION: String or List of String
 #    -> if the item contains one of the written potion effect
-#    -> Multiple synthax available:
+#    -> Multiple syntax available:
 #      -> 'Potion': if the item contains this potion effect, does not consider the level;
 #      -> 'Potion:Level': if the item contains this potion effect with this level;
 #      -> 'Potion:MinLevel:MaxLevel': if the item contains this potion effect, within the min & max level interval [inclusive];
@@ -76,7 +76,7 @@
 #  -- HOOKS: --
 #  -> ADVANCEDENCHANTMENTS:
 #    -> if you have the AdvancedEnchantments plugin (from GC.), you can match advanced enchantments.
-#    -> the synthax works exactly the same as ENCHANTMENT-CONTAINS.
+#    -> the syntax works exactly the same as ENCHANTMENT-CONTAINS.
 #    -> Example:
 #      -> advancedenchantments: 'custom_enchant:1'
 #  -> ITEMSADDER:
@@ -89,7 +89,7 @@
 #    -> Example: {EntityTag:{id:"minecraft:zombie"}}
 #      -> nbtapi:
 #           'EntityTag#id': 'minecraft:zombie'
-#    -> Using the synthax below, you can write multiples nodes and multiples possible match for a same custom item:
+#    -> Using the syntax below, you can write multiples nodes and multiples possible match for a same custom item:
 #      -> nbtapi:
 #           'EntityTag#id':
 #             1: 'minecraft:zombie'

@@ -27,9 +27,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * An enchantment helper class to retrieve correct Bukkit enchantments object across versions
- * @version 3.3.1
+ * An enchantment helper class to retrieve correct Bukkit
+ * enchantments object across versions.
+ *
  * @author Andross
+ * @version 3.3.1
  */
 public final class EnchantmentHelper {
     private static final Map<String, String> names = new HashMap<>();
@@ -68,7 +70,8 @@ public final class EnchantmentHelper {
     }
 
     /**
-     * Try to get an {@link Enchantment} object by the name
+     * Try to get an {@link Enchantment} object by the name.
+     *
      * @param name name of the enchantment
      * @return a bukkit enchantment object, null if not found
      */
@@ -79,19 +82,25 @@ public final class EnchantmentHelper {
         // Getting by key?
         if (MinecraftVersion.v13OrMore) {
             ench = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(name.toLowerCase()));
-            if (ench != null) return ench;
+            if (ench != null) {
+                return ench;
+            }
         }
 
         // Getting by name?
         ench = Enchantment.getByName(name.toUpperCase());
-        if (ench != null) return ench;
+        if (ench != null) {
+            return ench;
+        }
 
         // Last chance, getting by my friendly names?
         return names.containsKey(name.toLowerCase()) ? Enchantment.getByName(names.get(name).toUpperCase()) : null;
     }
 
     /**
-     * Try to get an {@link EnchantmentWrapper} from a string which synthax must be 'enchantment:level'
+     * Try to get an {@link EnchantmentWrapper} from a string
+     * which syntax must be 'enchantment:level'.
+     *
      * @param enchant the string
      * @return an EnchantmentWrapper if valid, otherwise null
      */
@@ -111,15 +120,17 @@ public final class EnchantmentHelper {
     }
 
     /**
-     * Get all enchantmentwrappers (all levels) for a bukkit Enchantment
+     * Get all enchantment wrappers (all levels) for a bukkit Enchantment.
+     *
      * @param enchantment the bukkit enchantment
      * @return a list which contains all levels
      */
     @NotNull
     public static List<EnchantmentWrapper> getAllEnchantmentWrappers(@NotNull final Enchantment enchantment) {
         final List<EnchantmentWrapper> list = new ArrayList<>();
-        for (int i = 1; i < enchantment.getMaxLevel(); i++)
+        for (int i = 1; i < enchantment.getMaxLevel(); i++) {
             list.add(new EnchantmentWrapper(enchantment, i));
+        }
         return list;
     }
 

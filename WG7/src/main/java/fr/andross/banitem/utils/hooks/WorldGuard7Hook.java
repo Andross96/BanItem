@@ -38,7 +38,8 @@ public final class WorldGuard7Hook implements IWorldGuardHook {
 
     @Nullable
     @Override
-    public ProtectedRegion getProtectedRegion(@NotNull final World world, @NotNull final String regionName) {
+    public ProtectedRegion getProtectedRegion(@NotNull final World world,
+                                              @NotNull final String regionName) {
         final RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         final RegionManager regions = container.get(BukkitAdapter.adapt(world));
         return regions == null ? null : regions.getRegion(regionName);
@@ -48,24 +49,31 @@ public final class WorldGuard7Hook implements IWorldGuardHook {
     @Override
     public List<ProtectedRegion> getAllProtectedRegions(@NotNull final World world) {
         final RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        final RegionManager regions = container.get(BukkitAdapter.adapt(world));
-        final List<ProtectedRegion> list = new ArrayList<>();
-        if (regions == null) return list;
-        list.addAll(regions.getRegions().values());
-        return list;
+        final RegionManager regionManager = container.get(BukkitAdapter.adapt(world));
+        final List<ProtectedRegion> protectedRegions = new ArrayList<>();
+        if (regionManager == null) {
+            return protectedRegions;
+        }
+        protectedRegions.addAll(regionManager.getRegions().values());
+        return protectedRegions;
     }
 
     @NotNull
     @Override
     public Set<ProtectedRegion> getStandingRegions(@NotNull final Location loc) {
         final RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        final Set<ProtectedRegion> set = new HashSet<>();
+        final Set<ProtectedRegion> protectedRegions = new HashSet<>();
         final World world = loc.getWorld();
-        if (world == null) return set;
+        if (world == null) {
+            return protectedRegions;
+        }
         final RegionManager regions = container.get(BukkitAdapter.adapt(world));
-        if (regions == null) return set;
+        if (regions == null) {
+            return protectedRegions;
+        }
         final ApplicableRegionSet applicableRegionSet = regions.getApplicableRegions(BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-        return applicableRegionSet == null || applicableRegionSet.size() == 0 ? set : applicableRegionSet.getRegions();
+        return applicableRegionSet == null ||
+                applicableRegionSet.size() == 0 ? protectedRegions : applicableRegionSet.getRegions();
     }
 
 }

@@ -33,9 +33,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A simple meta comparator to compare potions
- * @version 3.4.1
+ * A simple meta comparator to compare potions.
+ *
  * @author Andross
+ * @version 3.4.1
  */
 public final class Potion extends MetaTypeComparator {
     private final Set<Object> potionsWithoutLevels = new HashSet<>();
@@ -45,7 +46,7 @@ public final class Potion extends MetaTypeComparator {
     public Potion(final Object o, final Debug debug) {
         super(o);
 
-        for (final String string : Listable.getSplittedStringList(o)) {
+        for (final String string : Listable.getSplitStringList(o)) {
             final String[] s = string.split(":");
 
             // 'Potion': if the item contains this potion effect, does not consider the level;
@@ -113,7 +114,7 @@ public final class Potion extends MetaTypeComparator {
                 }
 
                 // Adding
-                potionsIntervals.put(MinecraftVersion.v13OrMore ? potionEffectType : potionEffectType.getName(), new Integer[]{ minLevel, maxLevel });
+                potionsIntervals.put(MinecraftVersion.v13OrMore ? potionEffectType : potionEffectType.getName(), new Integer[]{minLevel, maxLevel});
             }
         }
     }
@@ -126,7 +127,9 @@ public final class Potion extends MetaTypeComparator {
         }
 
         final Map<PotionEffectType, Integer> potions = Utils.getAllPotionEffects(bannedItem.toItemStack());
-        if (potions.isEmpty()) return false;
+        if (potions.isEmpty()) {
+            return false;
+        }
 
         for (final Map.Entry<PotionEffectType, Integer> e : potions.entrySet()) {
             final PotionEffectType potionEffectType = e.getKey();
@@ -139,15 +142,21 @@ public final class Potion extends MetaTypeComparator {
             final Object object = MinecraftVersion.v13OrMore ? potionEffectType : potionEffectType.getName();
 
             // Containing potion effect (not considering level) ?
-            if (potionsWithoutLevels.contains(object)) return true;
+            if (potionsWithoutLevels.contains(object)) {
+                return true;
+            }
 
             // Containing potion effect (considering level)?
-            if (this.potions.contains(new PotionWrapper(potionEffectType, level))) return true;
+            if (this.potions.contains(new PotionWrapper(potionEffectType, level))) {
+                return true;
+            }
 
             // Containing potion effect (in interval)?
             if (potionsIntervals.containsKey(object)) {
                 final Integer[] interval = potionsIntervals.get(object);
-                if (level >= interval[0] && level <= interval[1]) return true;
+                if (level >= interval[0] && level <= interval[1]) {
+                    return true;
+                }
             }
         }
 

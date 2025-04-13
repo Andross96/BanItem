@@ -26,8 +26,9 @@ import java.util.List;
 
 /**
  * Sub command load
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class Commandload extends BanCommand {
 
@@ -39,26 +40,26 @@ public class Commandload extends BanCommand {
     public void run() {
         // Permission?
         if (!sender.hasPermission("banitem.command.load")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
         // Args?
         if (args.length < 2) {
-            header("&6&lLoad");
-            message("&7Usage: &b/bi load &3<filename>");
-            message("&7Load the configuration file with name <filename>");
+            sendHeaderMessage("&6&lLoad");
+            sendMessage("&7Usage: &b/bi load &3<filename>");
+            sendMessage("&7Load the configuration file with name <filename>");
             return;
         }
 
-        final File f = new File(pl.getDataFolder(), args[1] + ".yml");
+        final File f = new File(plugin.getDataFolder(), args[1] + ".yml");
         if (!f.exists()) {
-            header("&6&lLoad");
-            message("&cThere is no configuration file named &e" + args[1] + ".yml&c.");
+            sendHeaderMessage("&6&lLoad");
+            sendMessage("&cThere is no configuration file named &e" + args[1] + ".yml&c.");
             return;
         }
 
-        pl.getApi().load(sender, f);
+        plugin.getApi().load(sender, f);
     }
 
     @Override

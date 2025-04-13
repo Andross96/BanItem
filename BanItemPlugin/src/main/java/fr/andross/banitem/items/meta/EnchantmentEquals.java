@@ -23,18 +23,16 @@ import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.enchantments.EnchantmentHelper;
 import fr.andross.banitem.utils.list.Listable;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A simple meta comparator to compare the enchantments
- * @version 3.1.1
+ * A simple meta comparator to compare the enchantments.
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public final class EnchantmentEquals extends MetaTypeComparator {
     private final Map<Enchantment, Integer> enchants = new HashMap<>();
@@ -42,13 +40,13 @@ public final class EnchantmentEquals extends MetaTypeComparator {
     public EnchantmentEquals(final Object o, final Debug debug) {
         super(o);
 
-        for (final String string : Listable.getSplittedStringList(o)) {
+        for (final String string : Listable.getSplitStringList(o)) {
             final Enchantment enchantment;
             final int level;
 
             final String[] s = string.split(":");
             if (s.length != 2) {
-                debug.clone().add("&cInvalid enchantment synthax '" + string + "'.").sendDebug();
+                debug.clone().add("&cInvalid enchantment syntax '" + string + "'.").sendDebug();
                 setValid(false);
                 return;
             }

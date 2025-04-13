@@ -1,4 +1,4 @@
-# BanItem ![GPL-3.0](http://cdn.andross.fr/badges/license.svg) ![Stable](http://cdn.andross.fr/badges/stable.svg) ![Version](https://badgen.net/badge/version/3.5/blue) ![Discord](https://badgen.net/badge/discord/Andross96/purple)
+# BanItem ![GPL-3.0](http://cdn.andross.fr/badges/license.svg) ![Stable](http://cdn.andross.fr/badges/stable.svg) ![Version](https://badgen.net/badge/version/3.7/blue) ![Discord](https://badgen.net/badge/discord/andross96/purple)
 
 ### Description
 Lightweight, powerful & configurable per world ban item plugin
@@ -11,7 +11,7 @@ Lightweight, powerful & configurable per world ban item plugin
 * Per world per item permissions;
 * Per world per item per option permissions;
 * Support of custom/modded items (items with specific item data/meta, like modded items, potions, egg spawners for old versions...);
-* Usefull commands;
+* Usefully commands;
 * Lightweight & activating only necessary listeners;
 * Developer API available;
 
@@ -27,7 +27,7 @@ Lightweight, powerful & configurable per world ban item plugin
 <dependency>
   <groupId>fr.andross.banitem</groupId>
   <artifactId>BanItemPlugin</artifactId>
-  <version>3.5</version>
+  <version>3.7</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -53,5 +53,4 @@ final BanItemAPI banItemApi = BanItem.getInstance().getApi();
 * [Bukkit page](https://dev.bukkit.org/projects/banitem-reloaded)
 * [Documentation](https://banitem.andross.fr/)
 
-For any questions/suggestions: PM me on spigot or on discord (Andross#5254).
-
+For any questions/suggestions: PM me on spigot or on discord (andross96).

@@ -38,8 +38,9 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command add
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class Commandadd extends BanCommand {
 
@@ -51,43 +52,43 @@ public class Commandadd extends BanCommand {
     public void run() {
         // Permission?
         if (!sender.hasPermission("banitem.command.add")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
         // /bi add <actions> [-m materials] [-w worlds] [message]
         if (args.length < 2) {
             if (sender instanceof Player) {
-                header("&6&lAdd");
-                message("&7Usage:");
-                message("&b/bi add &3<actions> [-m materials] [-w worlds] [message]");
-                message("&7 >> Will ban the item (material).");
-                message("&7 >> If no worlds or materials are entered");
-                message("&7 >> it will ban the current material in your hand");
-                message("&7 >> into the current world.");
-                message("&2&oExample: /bi add place,break This item is banned.");
-                message("&7&oPlayers will not be able to place nor break the item");
-                message("&7&ointo your current world.");
-                message("&2&oExample2: /bi add place -m stone -w world");
-                message("&7&oPlayers will not be able to place stone into world.");
+                sendHeaderMessage("&6&lAdd");
+                sendMessage("&7Usage:");
+                sendMessage("&b/bi add &3<actions> [-m materials] [-w worlds] [message]");
+                sendMessage("&7 >> Will ban the item (material).");
+                sendMessage("&7 >> If no worlds or materials are entered");
+                sendMessage("&7 >> it will ban the current material in your hand");
+                sendMessage("&7 >> into the current world.");
+                sendMessage("&2&oExample: /bi add place,break This item is banned.");
+                sendMessage("&7&oPlayers will not be able to place nor break the item");
+                sendMessage("&7&ointo your current world.");
+                sendMessage("&2&oExample2: /bi add place -m stone -w world");
+                sendMessage("&7&oPlayers will not be able to place stone into world.");
             } else {
-                header("&6&lAdd");
-                message("&7Usage: &b/bi add &3<actions> <-m materials> <-w worlds> [message]");
-                message("&7 >> Will ban the item (material) into the set world.");
-                message("&2&oExample: /bi add place -m stone -w world This item is banned.");
-                message("&7&oPlayers will not be able to place stone");
-                message("&o&ointo world.");
+                sendHeaderMessage("&6&lAdd");
+                sendMessage("&7Usage: &b/bi add &3<actions> <-m materials> <-w worlds> [message]");
+                sendMessage("&7 >> Will ban the item (material) into the set world.");
+                sendMessage("&2&oExample: /bi add place -m stone -w world This item is banned.");
+                sendMessage("&7&oPlayers will not be able to place stone");
+                sendMessage("&o&ointo world.");
             }
             return;
         }
 
         // Parsing the actions
-        final List<String> actionsNames = Listable.getSplittedList(args[1]);
+        final List<String> actionsNames = Listable.splitToList(args[1]);
         final List<BanAction> actions = Listable.getList(ListType.ACTION, actionsNames, null);
         if (actions.isEmpty()) {
-            header("&6&lAdd");
-            message("&cInvalid actions entered: &e" + args[1]);
-            message("&7Valid actions: &o" + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", "&7.")));
+            sendHeaderMessage("&6&lAdd");
+            sendMessage("&cInvalid actions entered: &e" + args[1]);
+            sendMessage("&7Valid actions: &o" + Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.joining(",", "", "&7.")));
             return;
         }
 
@@ -100,19 +101,19 @@ public class Commandadd extends BanCommand {
         for (int i = 0; i < args.length; i++) {
             if (args[i].toLowerCase(Locale.ROOT).startsWith("-m")) {
                 if (args.length <= i + 1) {
-                    header("&6&lAdd");
-                    message("&cInvalid material(s) synthax. Must be &e-m material1,material2...");
+                    sendHeaderMessage("&6&lAdd");
+                    sendMessage("&cInvalid material(s) syntax. Must be &e-m material1,material2...");
                     return;
                 }
 
                 final String material = args[i + 1];
                 materials.addAll(Listable.getMaterials(material, null));
                 if (material.isEmpty()) {
-                    header("&6&lAdd");
-                    message("&cInvalid material(s) entered: &e" + material);
+                    sendHeaderMessage("&6&lAdd");
+                    sendMessage("&cInvalid material(s) entered: &e" + material);
                     if (sender instanceof Player) {
-                        message("&7You can use &e/bi info&7 to get the material of");
-                        message("&7the item currently in your hand.");
+                        sendMessage("&7You can use &e/bi info&7 to get the material of");
+                        sendMessage("&7the item currently in your hand.");
                     }
                     return;
                 }
@@ -125,17 +126,17 @@ public class Commandadd extends BanCommand {
         for (int i = 0; i < args.length; i++) {
             if (args[i].toLowerCase(Locale.ROOT).startsWith("-w")) {
                 if (args.length <= i + 1) {
-                    header("&6&lAdd");
-                    message("&cInvalid world(s) synthax. Must be &e-w worldName,worldName2...");
+                    sendHeaderMessage("&6&lAdd");
+                    sendMessage("&cInvalid world(s) syntax. Must be &e-w worldName,worldName2...");
                     return;
                 }
 
                 final String world = args[i + 1];
                 worlds.addAll(Listable.getWorlds(world, null));
                 if (worlds.isEmpty()) {
-                    header("&6&lAdd");
-                    message("&cInvalid world(s) entered: &e" + world);
-                    message("&7Valid worlds: &o" + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", "&7.")));
+                    sendHeaderMessage("&6&lAdd");
+                    sendMessage("&cInvalid world(s) entered: &e" + world);
+                    sendMessage("&7Valid worlds: &o" + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", "&7.")));
                     return;
                 }
                 startMessage += 2;
@@ -161,9 +162,9 @@ public class Commandadd extends BanCommand {
         if (materials.isEmpty()) {
             // Console?
             if (!(sender instanceof Player)) {
-                header("Add");
-                message("You must enter the material(s) which will be banned.");
-                message("Example: /bi add place -m stone -w world");
+                sendHeaderMessage("Add");
+                sendMessage("You must enter the material(s) which will be banned.");
+                sendMessage("Example: /bi add place -m stone -w world");
                 return;
             }
             materials.add(Utils.getItemInHand((Player) sender).getType());
@@ -173,9 +174,9 @@ public class Commandadd extends BanCommand {
         if (worlds.isEmpty()) {
             // Console?
             if (!(sender instanceof Player)) {
-                header("Add");
-                message("You must enter the world(s) in which the ban will be applied.");
-                message("Example: /bi add place -m stone -w world");
+                sendHeaderMessage("Add");
+                sendMessage("You must enter the world(s) in which the ban will be applied.");
+                sendMessage("Example: /bi add place -m stone -w world");
                 return;
             }
             worlds.add(((Player) sender).getWorld());
@@ -183,26 +184,27 @@ public class Commandadd extends BanCommand {
 
         // Adding!
         final World[] worldsArray = worlds.toArray(new World[0]);
-        if (pl.getApi().addToBlacklist(materials.stream().map(BannedItem::new).collect(Collectors.toList()), actionsData, worldsArray)) {
-            header("&6&lAdd");
+        if (plugin.getApi().addToBlacklist(materials.stream().map(BannedItem::new).collect(Collectors.toList()), actionsData, worldsArray)) {
+            sendHeaderMessage("&6&lAdd");
             final String materialsName = materials.size() > 10 ? "these materials" : materials.stream().map(Material::name).collect(Collectors.joining(","));
             final String worldsName = Bukkit.getWorlds().size() == worlds.size() ? "&2ALL" : worlds.stream().map(World::getName).collect(Collectors.joining(","));
-            message("&aSuccessfully banned &e" + materialsName.toLowerCase(Locale.ROOT) + " &afor world &2" + worldsName + "&a.");
+            sendMessage("&aSuccessfully banned &e" + materialsName.toLowerCase(Locale.ROOT) + " &afor world &2" + worldsName + "&a.");
             if (sender instanceof Player) {
-                message("&7&oPlease note that you probably have the bypass");
-                message("&7&opermission, so the ban may not apply to you.");
+                sendMessage("&7&oPlease note that you probably have the bypass");
+                sendMessage("&7&opermission, so the ban may not apply to you.");
             }
-            pl.getListener().load(sender);
+            plugin.getListener().load(sender);
             return;
         }
 
-        message("&cAn error occured while banning the item.");
-        message("&cCheck the console for more information.");
+        sendMessage("&cAn error occurred while banning the item.");
+        sendMessage("&cCheck the console for more information.");
     }
 
     @Override
     public List<String> runTab() {
-        if (args.length == 2) return StringUtil.copyPartialMatches(args[1], Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.toList()), new ArrayList<>());
+        if (args.length == 2)
+            return StringUtil.copyPartialMatches(args[1], Arrays.stream(BanAction.values()).map(BanAction::getName).collect(Collectors.toList()), new ArrayList<>());
         return Arrays.asList("-w", "-m", "message");
     }
 }

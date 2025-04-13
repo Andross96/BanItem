@@ -39,24 +39,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A debug class, which can handle and display the nodes
- * Mainly used when loading the plugin, to display any error
- * @version 3.1
+ * A debug class, which can handle and display the nodes.
+ * Mainly used when loading the plugin, to debug errors.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class Debug implements Cloneable {
     private final BanConfig banConfig;
     private final CommandSender sender;
     private List<DebugMessage> nodes = new ArrayList<>();
 
-    public Debug(@NotNull final BanConfig banConfig, @NotNull final CommandSender sender, final DebugMessage... dm) {
+    public Debug(@NotNull final BanConfig banConfig,
+                 @NotNull final CommandSender sender,
+                 final DebugMessage... dm) {
         this.banConfig = banConfig;
         this.sender = sender;
         if (dm != null) add(dm);
     }
 
     /**
-     * Add a node
+     * Add a debug node.
+     *
      * @param type type of node
      * @param node message
      * @return this object
@@ -67,7 +71,8 @@ public final class Debug implements Cloneable {
     }
 
     /**
-     * Add a node
+     * Add a debug node.
+     *
      * @param node message
      * @return this object
      */
@@ -77,7 +82,8 @@ public final class Debug implements Cloneable {
     }
 
     /**
-     * Add a node
+     * Add a debug node.
+     *
      * @param dm nodes with messages
      * @return this object
      */
@@ -87,8 +93,9 @@ public final class Debug implements Cloneable {
     }
 
     /**
-     * List of nodes
-     * @return list of nodes with their respectives messages
+     * List of debug nodes.
+     *
+     * @return list of nodes with their respective messages
      */
     @NotNull
     public List<DebugMessage> getNodes() {
@@ -96,15 +103,17 @@ public final class Debug implements Cloneable {
     }
 
     /**
-     * Set all nodes
-     * @param nodes nodes with their respectives messages
+     * Set all debug nodes.
+     *
+     * @param nodes nodes with their respective messages
      */
     public void setNodes(@NotNull final List<DebugMessage> nodes) {
         this.nodes = nodes;
     }
 
     /**
-     * A simple message with the debug result
+     * A simple message with the debug result.
+     *
      * @return a simple message with the debug result
      */
     public String getSimpleDebug() {
@@ -121,8 +130,9 @@ public final class Debug implements Cloneable {
     }
 
     /**
-     * A list of messages with nodes and the detailled debug message
-     * @return a list of messages with nodes and a more detailled error message
+     * A list of messages with nodes and the detailed debug message.
+     *
+     * @return a list of messages with nodes and a more detailed error message
      */
     public List<String> getBetterDebug() {
         final List<String> messages = new ArrayList<>();
@@ -200,14 +210,17 @@ public final class Debug implements Cloneable {
     }
 
     /**
-     * Send this debug message to the sender
+     * Send this debug message to the sender.
      */
     public void sendDebug() {
-        if (!banConfig.getConfig().getBoolean("debug.errors"))
-            sender.sendMessage(sender instanceof Player ? getSimpleDebug() : Chat.uncolor(getSimpleDebug()));
-        else {
-            if (sender instanceof Player) getBetterDebug().forEach(sender::sendMessage);
-            else getBetterDebug().stream().map(Chat::uncolor).forEach(sender::sendMessage);
+        if (!banConfig.getConfig().getBoolean("debug.errors")) {
+            sender.sendMessage(sender instanceof Player ? getSimpleDebug() : Chat.stripColors(getSimpleDebug()));
+        } else {
+            if (sender instanceof Player) {
+                getBetterDebug().forEach(sender::sendMessage);
+            } else {
+                getBetterDebug().stream().map(Chat::stripColors).forEach(sender::sendMessage);
+            }
         }
     }
 

@@ -21,16 +21,17 @@ import fr.andross.banitem.actions.BanAction;
 import fr.andross.banitem.actions.BanActionData;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.items.CustomBannedItem;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 
 /**
- * Map that store all the banned items, with their actions and actions datas.
- * @version 3.1.1
+ * Map that store all the banned items, with their actions and actions data.
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public class Items {
     protected final Map<BannedItem, Map<BanAction, BanActionData>> items = new HashMap<>(); // includes normal & meta items
@@ -38,6 +39,7 @@ public class Items {
 
     /**
      * Get a map of actions and their respective data for a banned item object, if present.
+     *
      * @param bannedItem the banned item
      * @return a map of actions and data if found, otherwise null.
      */
@@ -46,13 +48,16 @@ public class Items {
         // Custom items?
         if (!customItems.isEmpty()) {
             for (final Map.Entry<CustomBannedItem, Map<BanAction, BanActionData>> e : customItems.entrySet()) {
-                if (e.getKey().matches(bannedItem))
+                if (e.getKey().matches(bannedItem)) {
                     return e.getValue();
+                }
             }
         }
 
         // Meta item?
-        if (items.containsKey(bannedItem)) return items.get(bannedItem);
+        if (items.containsKey(bannedItem)) {
+            return items.get(bannedItem);
+        }
 
         // Simple material item?
         final BannedItem simpleBannedItem = new BannedItem(bannedItem.getType());
@@ -61,8 +66,9 @@ public class Items {
 
     /**
      * Get the BanActionData of the BannedItem for the said action, if present.
+     *
      * @param bannedItem the banned item
-     * @param action the action
+     * @param action     the action
      * @return the BanActionData if found, otherwise null.
      */
     @Nullable
@@ -72,7 +78,8 @@ public class Items {
     }
 
     /**
-     * Get the items map (include normal and meta items)
+     * Get the items map (include normal and meta items).
+     *
      * @return the items map
      */
     @NotNull
@@ -81,7 +88,8 @@ public class Items {
     }
 
     /**
-     * Get the custom items map
+     * Get the custom items map.
+     *
      * @return the custom items map
      */
     @NotNull
@@ -90,18 +98,21 @@ public class Items {
     }
 
     /**
-     * Get the total amount of items added
+     * Get the total amount of items added.
+     *
      * @return the total amount of items added
      */
-    public int getTotal() {
+    public int getTotalAmountOfItems() {
         return items.size() + customItems.size();
     }
 
     /**
-     * Get all actions saved for the items, unmodifiable
+     * Get all actions saved for the items, unmodifiable.
+     *
      * @return all actions saved for the items
      */
     @NotNull
+    @Unmodifiable
     public Set<BanAction> getAllActions() {
         final Set<BanAction> set = EnumSet.noneOf(BanAction.class);
         items.values().stream().map(Map::keySet).forEach(set::addAll);

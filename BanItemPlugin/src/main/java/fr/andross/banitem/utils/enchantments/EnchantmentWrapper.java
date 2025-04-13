@@ -27,9 +27,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * An enchantment wrapper class that stores the Bukkit enchantment with a level
- * @version 3.1
+ * An enchantment wrapper class that stores the Bukkit enchantment with a level.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class EnchantmentWrapper {
     private final Enchantment enchantment;
@@ -42,6 +43,7 @@ public final class EnchantmentWrapper {
 
     /**
      * Get the Bukkit enchantment
+     *
      * @return the bukkit enchantment
      */
     @NotNull
@@ -51,6 +53,7 @@ public final class EnchantmentWrapper {
 
     /**
      * Get the level of the enchantment
+     *
      * @return the level of the enchantment
      */
     public int getLevel() {
@@ -58,7 +61,8 @@ public final class EnchantmentWrapper {
     }
 
     /**
-     * Create a set of this wrapper from a map of enchantements
+     * Create a set of this wrapper from a map of enchantments.
+     *
      * @param map map of enchantments
      * @return set of this wrapper from the map
      */

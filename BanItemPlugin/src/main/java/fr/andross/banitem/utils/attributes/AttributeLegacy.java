@@ -24,9 +24,10 @@ import java.util.Arrays;
 
 /**
  * An enum which represents the minecraft attributes.
- * Only useful for Minecraft lower to 1.9
- * @version 3.4
+ * Only useful for Minecraft lower to 1.9.
+ *
  * @author EpiCanard
+ * @version 3.4
  */
 public enum AttributeLegacy {
     GENERIC_MAX_HEALTH("generic.maxHealth"),
@@ -54,7 +55,8 @@ public enum AttributeLegacy {
     }
 
     /**
-     * Retrieve an AttributeLegacy from its name
+     * Retrieve an AttributeLegacy from its name.
+     *
      * @param name Name of attribute to find
      * @return the AttributeLegacy matching or null
      */

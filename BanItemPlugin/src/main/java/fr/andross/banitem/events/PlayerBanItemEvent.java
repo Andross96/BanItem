@@ -29,11 +29,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Called when an item should be banned
+ * Called when an item should be banned.
  * This is only for check purpose, no modifications can be made.
  * Cancelling the event will cancel the ban process.
- * @version 3.3
+ *
  * @author Andross
+ * @version 3.3
  */
 public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
@@ -44,25 +45,33 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
     private final BanData[] data;
     private boolean cancelled;
 
-    public PlayerBanItemEvent(@NotNull final Player player, @NotNull Type type, @NotNull final BannedItem bannedItem, @NotNull final BanAction action, @NotNull final BanActionData actionData, @Nullable final BanData... data) {
+    public PlayerBanItemEvent(@NotNull final Player player,
+                              @NotNull final Type type,
+                              @NotNull final BannedItem bannedItem,
+                              @NotNull final BanAction action,
+                              @NotNull final BanActionData actionData,
+                              @Nullable final BanData... data) {
         super(player);
         this.type = type;
         this.bannedItem = bannedItem;
-        this.actionData = actionData;
         this.action = action;
+        this.actionData = actionData;
         this.data = data;
     }
 
     /**
-     * Type of banning
+     * Type of banning.
+     *
      * @return the type of ban, BLACKLIST or WHITELIST
      */
+    @NotNull
     public Type getType() {
         return type;
     }
 
     /**
-     * The banned item
+     * The banned item.
+     *
      * @return the banned item involved into this event
      */
     @NotNull
@@ -71,7 +80,8 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
     }
 
     /**
-     * The ban action
+     * The ban action.
+     *
      * @return the action triggered
      */
     @NotNull
@@ -80,7 +90,8 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
     }
 
     /**
-     * The ban action data
+     * The ban action data.
+     *
      * @return the ban action data that the banned item has in database
      */
     @NotNull
@@ -89,29 +100,8 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
     }
 
     /**
-     * The ban action
-     * @return the action triggered
-     * @deprecated Error in typo. Use {@link #getAction()} instead.
-     */
-    @Deprecated
-    @NotNull
-    public BanAction getaction() {
-        return action;
-    }
-
-    /**
-     * The ban action data
-     * @return the ban action data that the banned item has in database
-     * @deprecated Error in typo. Use {@link #getActionData()} instead.
-     */
-    @Deprecated
-    @NotNull
-    public BanActionData getactionData() {
-        return actionData;
-    }
-
-    /**
-     * The data used
+     * The data used.
+     *
      * @return all the ban datas used into this event
      */
     @Nullable
@@ -120,7 +110,7 @@ public final class PlayerBanItemEvent extends PlayerEvent implements Cancellable
     }
 
     /**
-     * The ban type
+     * The ban type.
      */
     public enum Type {
         BLACKLIST,

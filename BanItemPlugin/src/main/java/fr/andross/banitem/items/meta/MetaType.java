@@ -20,9 +20,10 @@ package fr.andross.banitem.items.meta;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple enumeration for customizable item metas
- * @version 3.4.1
+ * A simple enumeration for customizable item metas.
+ *
  * @author Andross
+ * @version 3.4.1
  */
 public enum MetaType {
     ADVANCEDENCHANTMENTS(AdvancedEnchantments.class),
@@ -50,7 +51,8 @@ public enum MetaType {
     }
 
     /**
-     * Get the handler class of this meta
+     * Get the handler class of this meta.
+     *
      * @return the handler class of this meta
      */
     @NotNull

@@ -36,9 +36,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Class that contains all the maps
- * @version 3.1
+ * Class that contains all the maps.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class BanDatabase {
     private final CustomItems customItems;
@@ -51,7 +52,9 @@ public final class BanDatabase {
      * This should not be used externally.
      * Use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, File)} instead.
      */
-    BanDatabase(@NotNull final BanItem pl, @NotNull final CommandSender sender, @NotNull final FileConfiguration config) {
+    BanDatabase(@NotNull final BanItem pl,
+                @NotNull final CommandSender sender,
+                @NotNull final FileConfiguration config) {
         this.customItems = new CustomItems(pl, sender);
         this.metaItems = new MetaItems(pl, sender);
         this.blacklist = new Blacklist(pl, this, sender, config.getConfigurationSection("blacklist"));
@@ -59,8 +62,9 @@ public final class BanDatabase {
     }
 
     /**
-     * Getting an immutable set of used ban actions <i>({@link BanAction})</i>
-     * This is actually used to register the specific listeners for the specific actions
+     * Getting an immutable set of used ban actions <i>({@link BanAction})</i>.
+     * This is actually used to register the specific listeners for the specific actions.
+     *
      * @return An immutable set containing all used ban actions in the blacklist
      */
     @NotNull
@@ -71,7 +75,8 @@ public final class BanDatabase {
     }
 
     /**
-     * Try to add a meta item <i>({@link BannedItem})</i> into the map and the config file
+     * Try to add a meta item <i>({@link BannedItem})</i> into the map and the config file.
+     *
      * @param metaName name of the meta item
      * @param metaItem ItemStack
      */
@@ -91,7 +96,8 @@ public final class BanDatabase {
 
     /**
      * Try to remove the meta item with the said name.
-     * You should check if the meta item exists before calling this method
+     * You should check if the meta item exists before calling this method.
+     *
      * @param metaItem name of the meta item
      */
     public void removeMetaItem(@NotNull final String metaItem) {
@@ -113,14 +119,17 @@ public final class BanDatabase {
         if (bannedItem instanceof CustomBannedItem) {
             final CustomBannedItem customBannedItem = (CustomBannedItem) bannedItem;
             final String name = customItems.getKey(customBannedItem);
-            if (name != null) return name;
+            if (name != null) {
+                return name;
+            }
         }
         final String metaName = metaItems.getKey(bannedItem);
         return metaName == null ? bannedItem.getType().name().toLowerCase() : metaName;
     }
 
     /**
-     * Get the custom items map
+     * Get the custom items map.
+     *
      * @return map of custom items
      */
     @NotNull
@@ -129,7 +138,8 @@ public final class BanDatabase {
     }
 
     /**
-     * Get the meta items map
+     * Get the meta items map.
+     *
      * @return map of meta items
      */
     @NotNull
@@ -138,7 +148,8 @@ public final class BanDatabase {
     }
 
     /**
-     * Get the blacklist map
+     * Get the blacklist map.
+     *
      * @return map containing the blacklisted items
      */
     @NotNull
@@ -147,7 +158,8 @@ public final class BanDatabase {
     }
 
     /**
-     * Get the whitelist map
+     * Get the whitelist map.
+     *
      * @return map containing the whitelisted items
      */
     @NotNull

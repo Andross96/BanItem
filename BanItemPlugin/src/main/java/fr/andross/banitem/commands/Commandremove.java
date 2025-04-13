@@ -35,8 +35,9 @@ import java.util.stream.Collectors;
 
 /**
  * Sub command remove
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class Commandremove extends BanCommand {
 
@@ -48,7 +49,7 @@ public class Commandremove extends BanCommand {
     public void run() {
         // Permission?
         if (!sender.hasPermission("banitem.command.remove")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
@@ -59,16 +60,16 @@ public class Commandremove extends BanCommand {
         for (int i = 0; i < args.length; i++) {
             if (args[i].toLowerCase(Locale.ROOT).startsWith("-m")) {
                 if (args.length <= i + 1) {
-                    header("&6&lRemove");
-                    message("&cInvalid material(s) synthax. Must be &e-m material1,material2...");
+                    sendHeaderMessage("&6&lRemove");
+                    sendMessage("&cInvalid material(s) syntax. Must be &e-m material1,material2...");
                     return;
                 }
 
                 final String material = args[i + 1];
                 materials.addAll(Listable.getMaterials(material, null));
                 if (material.isEmpty()) {
-                    header("&6&lRemove");
-                    message("&cInvalid material(s) entered: &e" + material);
+                    sendHeaderMessage("&6&lRemove");
+                    sendMessage("&cInvalid material(s) entered: &e" + material);
                     return;
                 }
                 break;
@@ -79,17 +80,17 @@ public class Commandremove extends BanCommand {
         for (int i = 0; i < args.length; i++) {
             if (args[i].toLowerCase(Locale.ROOT).startsWith("-w")) {
                 if (args.length <= i + 1) {
-                    header("&6&lRemove");
-                    message("&cInvalid world(s) synthax. Must be &e-w worldName,worldName2...");
+                    sendHeaderMessage("&6&lRemove");
+                    sendMessage("&cInvalid world(s) syntax. Must be &e-w worldName,worldName2...");
                     return;
                 }
 
                 final String world = args[i + 1];
                 worlds.addAll(Listable.getWorlds(world, null));
                 if (worlds.isEmpty()) {
-                    header("&6&lRemove");
-                    message("&cInvalid world(s) entered: &e" + world);
-                    message("&7Valid worlds: &o" + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", "&7.")));
+                    sendHeaderMessage("&6&lRemove");
+                    sendMessage("&cInvalid world(s) entered: &e" + world);
+                    sendMessage("&7Valid worlds: &o" + Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.joining(",", "", "&7.")));
                     return;
                 }
                 break;
@@ -100,9 +101,9 @@ public class Commandremove extends BanCommand {
         if (materials.isEmpty()) {
             // Console?
             if (!(sender instanceof Player)) {
-                header("Remove");
-                message("You must enter the material(s) which will be unbanned.");
-                message("Example: /bi remove -m stone -w world");
+                sendHeaderMessage("Remove");
+                sendMessage("You must enter the material(s) which will be unbanned.");
+                sendMessage("Example: /bi remove -m stone -w world");
                 return;
             }
             materials.add(Utils.getItemInHand((Player) sender).getType());
@@ -112,21 +113,22 @@ public class Commandremove extends BanCommand {
         if (worlds.isEmpty()) {
             // Console?
             if (!(sender instanceof Player)) {
-                header("Remove");
-                message("You must enter the world(s) in which the ban will be unbanned.");
-                message("Example: /bi remove -m stone -w world");
+                sendHeaderMessage("Remove");
+                sendMessage("You must enter the world(s) in which the ban will be unbanned.");
+                sendMessage("Example: /bi remove -m stone -w world");
                 return;
             }
             worlds.add(((Player) sender).getWorld());
         }
 
         final World[] worldsArray = worlds.toArray(new World[0]);
-        pl.getApi().removeFromBlacklist(materials.stream().map(BannedItem::new).collect(Collectors.toList()), worldsArray);
-        header("&6&lRemove");
-        if (materials.size() == 1)
-            message("&aThe item is successfully unbanned.");
-        else
-            message ("&aThe items are successfully unbanned.");
+        plugin.getApi().removeFromBlacklist(materials.stream().map(BannedItem::new).collect(Collectors.toList()), worldsArray);
+        sendHeaderMessage("&6&lRemove");
+        if (materials.size() == 1) {
+            sendMessage("&aThe item is successfully unbanned.");
+        } else {
+            sendMessage("&aThe items are successfully unbanned.");
+        }
     }
 
     @Override

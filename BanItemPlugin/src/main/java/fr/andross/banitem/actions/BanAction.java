@@ -22,8 +22,9 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * List of available ban actions
- * @version 3.4
+ *
  * @author Andross
+ * @version 3.4
  */
 public enum BanAction {
     /**
@@ -217,8 +218,8 @@ public enum BanAction {
     /**
      * When an item is transfered from an inventory to another
      * Special data:
-     *   - <b>inventory-from</b> - the {@link org.bukkit.event.inventory.InventoryType} where the item comes from
-     *   - <b>inventory-to</b> - the {@link org.bukkit.event.inventory.InventoryType} where the item goes to
+     * - <b>inventory-from</b> - the {@link org.bukkit.event.inventory.InventoryType} where the item comes from
+     * - <b>inventory-to</b> - the {@link org.bukkit.event.inventory.InventoryType} where the item goes to
      */
     TRANSFER("transfer"),
 

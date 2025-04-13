@@ -20,9 +20,10 @@ package fr.andross.banitem.items;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This interface is used for MetaItem/CustomBannedItem to retreive their names
- * @version 3.1.1
+ * This interface is used for MetaItem/CustomBannedItem to retrieve their names
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public interface ICustomName {
 

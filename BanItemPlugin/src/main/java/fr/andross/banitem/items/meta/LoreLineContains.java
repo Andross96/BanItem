@@ -20,17 +20,16 @@ package fr.andross.banitem.items.meta;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.Chat;
 import fr.andross.banitem.utils.debug.Debug;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 /**
- * A simple meta comparator to compare the lore
- * @version 3.1
+ * A simple meta comparator to check if the line inside a lore matches a configured string.
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class LoreLineContains extends MetaTypeComparator {
     private final String lore;

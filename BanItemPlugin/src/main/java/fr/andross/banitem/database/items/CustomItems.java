@@ -35,8 +35,9 @@ import java.util.Locale;
  * Map that contains all the custom items
  * This is a double map <i>(include a reversed map)</i>, for easier access of
  * custom items names and their respective banned item.
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
     private final File file;
@@ -46,7 +47,8 @@ public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
      * This will create a new instance of custom items map, with the items from <i>customitems.yml</i> file.
      * This should not be used externally, as it could create two different instance of this object.
      * You should use {@link fr.andross.banitem.BanItemAPI#load(CommandSender, File)} instead.
-     * @param pl main instance
+     *
+     * @param pl     main instance
      * @param sender the sender who executed this command, for debug
      */
     public CustomItems(@NotNull final BanItem pl, @NotNull final CommandSender sender) {
@@ -57,11 +59,14 @@ public final class CustomItems extends DoubleMap<String, CustomBannedItem> {
         // Loading custom items
         for (final String key : config.getKeys(false)) {
             final ConfigurationSection section = config.getConfigurationSection(key);
-            if (section == null) continue;
+            if (section == null) {
+                continue;
+            }
             final Debug d = new Debug(pl.getBanConfig(), sender, new DebugMessage("customitems.yml"), new DebugMessage(key));
             final CustomBannedItem customBannedItem = new CustomBannedItem(key.toLowerCase(Locale.ROOT), section, d);
-            if (customBannedItem.isValid())
+            if (customBannedItem.isValid()) {
                 put(key, customBannedItem);
+            }
         }
     }
 

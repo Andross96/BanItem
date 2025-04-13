@@ -34,8 +34,9 @@ import java.util.*;
 
 /**
  * Sub command check
- * @version 3.1
+ *
  * @author Andross
+ * @version 3.1
  */
 public class Commandcheck extends BanCommand {
 
@@ -47,50 +48,60 @@ public class Commandcheck extends BanCommand {
     public void run() {
         // Permission?
         if (!sender.hasPermission("banitem.command.check")) {
-            message(getNoPermMessage());
+            sendMessage(getNoPermMessage());
             return;
         }
 
         // Checking...
         final boolean delete = args.length > 1 && args[1].equalsIgnoreCase("delete");
         final Set<String> players = new HashSet<>();
-        final Blacklist blacklist = pl.getBanDatabase().getBlacklist();
-        for (final Player p : pl.getServer().getOnlinePlayers()) {
+        final Blacklist blacklist = plugin.getBanDatabase().getBlacklist();
+        for (final Player p : plugin.getServer().getOnlinePlayers()) {
             final Items map = blacklist.get(p.getWorld());
-            if (map == null) continue; // nothing banned in this world
+            if (map == null) {
+                continue; // nothing banned in this world
+            }
 
             // Checking player inventory
             final PlayerInventory inv = p.getInventory();
             for (int i = 0; i < inv.getSize(); i++) {
                 final ItemStack item = inv.getItem(i);
-                if (Utils.isNullOrAir(item)) continue;
+                if (Utils.isNullOrAir(item)) {
+                    continue;
+                }
 
                 final Map<BanAction, BanActionData> data = map.get(new BannedItem(item));
-                if (data == null || data.isEmpty()) continue;
+                if (data == null || data.isEmpty()) {
+                    continue;
+                }
 
                 // Blacklisted!
-                if (delete) inv.clear(i);
+                if (delete) {
+                    inv.clear(i);
+                }
                 players.add(p.getName());
             }
         }
 
         // Showing list
         if (players.isEmpty()) {
-            header("&6&lCheck");
-            message("&7No player with blacklisted item in inventory found.");
+            sendHeaderMessage("&6&lCheck");
+            sendMessage("&7No player with blacklisted item in inventory found.");
             return;
         }
 
         final StringJoiner joiner = new StringJoiner(",", "", "&7.");
         for (final String player : players) joiner.add(ChatColor.GOLD + player + ChatColor.GRAY);
-        header("&6&lCheck");
-        message("&7Found &2" + players.size() + "&7 player(s):");
-        message(joiner.toString());
-        if (delete) message("&7&oSuccessfully removed banned items from &e&o" + players.size() + "&7&o players.");
+        sendHeaderMessage("&6&lCheck");
+        sendMessage("&7Found &2" + players.size() + "&7 player(s):");
+        sendMessage(joiner.toString());
+        if (delete) {
+            sendMessage("&7&oSuccessfully removed banned items from &e&o" + players.size() + "&7&o players.");
+        }
     }
 
     @Override
     public List<String> runTab() {
-        return args.length == 2 ?  Collections.singletonList("delete") : Collections.emptyList();
+        return args.length == 2 ? Collections.singletonList("delete") : Collections.emptyList();
     }
 }

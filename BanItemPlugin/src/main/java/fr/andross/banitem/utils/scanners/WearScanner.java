@@ -19,22 +19,23 @@ package fr.andross.banitem.utils.scanners;
 
 import fr.andross.banitem.BanItem;
 import fr.andross.banitem.BanUtils;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple async scanner to check if players wears a banned item
- * @version 3.1.1
+ * Async scanner to check if players wears a banned item.
+ * If a banned item is worn, a next sync task will be run to handle it.
+ *
  * @author Andross
+ * @version 3.1.1
  */
 public final class WearScanner {
-    private final BanItem pl;
+    private final BanItem plugin;
     private final BanUtils utils;
     private boolean enabled;
     private int taskId = -1;
 
-    public WearScanner(@NotNull final BanItem pl, @NotNull final BanUtils utils) {
-        this.pl = pl;
+    public WearScanner(@NotNull final BanItem plugin, @NotNull final BanUtils utils) {
+        this.plugin = plugin;
         this.utils = utils;
     }
 
@@ -45,11 +46,14 @@ public final class WearScanner {
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
         if (enabled) {
-            if (taskId < 0)
-                taskId = pl.getServer().getScheduler().runTaskTimerAsynchronously(pl, () -> Bukkit.getOnlinePlayers().forEach(utils::checkPlayerArmors), 16L, 16L).getTaskId();
+            if (taskId < 0) {
+                taskId = plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () ->
+                                plugin.getServer().getOnlinePlayers().forEach(utils::checkPlayerArmors),
+                        16L, 16L).getTaskId();
+            }
         } else {
             if (taskId > -1) {
-                pl.getServer().getScheduler().cancelTask(taskId);
+                plugin.getServer().getScheduler().cancelTask(taskId);
                 taskId = -1;
             }
         }

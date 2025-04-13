@@ -21,10 +21,7 @@ import dev.lone.itemsadder.api.CustomStack;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.debug.Debug;
 import fr.andross.banitem.utils.list.Listable;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -32,9 +29,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A simple meta comparator to compare ItemsAdder items
- * @version 3.2
+ * A simple meta comparator to compare ItemsAdder items.
+ *
  * @author Andross
+ * @version 3.2
  */
 public final class ItemsAdder extends MetaTypeComparator {
     private final Set<String> items = new HashSet<>();
@@ -51,7 +49,7 @@ public final class ItemsAdder extends MetaTypeComparator {
             return;
         }
 
-        items.addAll(Listable.getSplittedStringList(o).stream().map(String::toLowerCase).collect(Collectors.toList()));
+        items.addAll(Listable.getSplitStringList(o).stream().map(String::toLowerCase).collect(Collectors.toList()));
     }
 
     @Override
