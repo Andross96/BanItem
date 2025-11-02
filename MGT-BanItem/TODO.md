@@ -1,9 +1,33 @@
 # TODO: Implementações Futuras - MGT-BanItem
 
+## 🎉 Recentemente Concluído
+
+### Comandos Administrativos Completos (Nov 2024)
+Implementação completa do sistema de comandos administrativos com:
+- ✅ 5 novos comandos: add, remove, check, log, metaitem
+- ✅ Sistema de parsing de argumentos com wildcards
+- ✅ Suporte a múltiplos materiais e mundos
+- ✅ Mensagens personalizadas e coloridas
+- ✅ API estendida para gerenciamento de blacklist/whitelist
+- ✅ Sistema de logging debug por jogador
+- ✅ Gerenciamento completo de metaitems
+
+**Arquivos criados:** `CommandHelper.java`, `CommandAdd.java`, `CommandRemove.java`, `CommandCheck.java`, `CommandLog.java`, `CommandMetaItem.java`
+
+**Arquivos modificados:** `BanCommand.java`, `BanUtils.java`, `ModMain.java`, `BanItemAPI.java`, `BanDatabase.java`, `BannedItem.java`
+
+---
+
 ## Prioridade Alta
 
-### 1. Implementar Lógica de Verificação de Blacklist/Whitelist
+### 1. Implementar Lógica de Verificação de Blacklist/Whitelist (Parcialmente Concluído)
 **Arquivos**: `BanItemAPI.java`, `BanDatabase.java`
+
+- [x] API para adicionar/remover items do blacklist (`addToBlacklist()`, `removeFromBlacklist()`)
+- [x] Método `get()` no Blacklist para recuperar items banidos por mundo
+- [x] Suporte a metaitems (`addMetaItem()`, `removeMetaItem()`)
+- [x] Método `toItemStack()` em BannedItem
+- [x] Método `reloadConfig()` em ModMain
 
 - [ ] Implementar método `isBlacklisted()` completo
   - Verificar item no blacklist do mundo atual
@@ -56,14 +80,20 @@ Implementar handlers faltantes do plugin original:
 
 ## Prioridade Média
 
-### 4. Comandos Administrativos Completos
-**Arquivo**: `commands/BanCommand.java`
+### 4. Comandos Administrativos Completos ✅ CONCLUÍDO
+**Arquivos**: `commands/BanCommand.java`, `commands/CommandAdd.java`, `commands/CommandRemove.java`, `commands/CommandCheck.java`, `commands/CommandLog.java`, `commands/CommandMetaItem.java`, `commands/CommandHelper.java`
 
-- [ ] `/banitem add <item> <action>` - Adicionar item ao blacklist
-- [ ] `/banitem remove <item>` - Remover item do blacklist
-- [ ] `/banitem check` - Verificar itens banidos nos jogadores
-- [ ] `/banitem log <player>` - Ativar modo log para debugar
-- [ ] `/banitem metaitem <add|remove|list>` - Gerenciar meta items
+- [x] `/banitem add <actions> [-m materials] [-w worlds] [message]` - Adicionar item ao blacklist
+- [x] `/banitem remove [-m materials] [-w worlds]` - Remover item do blacklist
+- [x] `/banitem check [delete]` - Verificar itens banidos nos jogadores
+- [x] `/banitem log` - Ativar modo log para debugar
+- [x] `/banitem metaitem <add|remove|get|list>` - Gerenciar meta items
+- [x] Sistema de parsing de argumentos com suporte a wildcards
+- [x] Suporte a múltiplos materiais e mundos
+- [x] Mensagens personalizadas com color codes
+- [x] Aliases de comandos (/bi, /bi mi)
+- [x] Verificação de permissões (operator level 2)
+- [x] Helper class para parsing de ações, itens e mundos
 
 ### 5. Sistema de Mensagens Personalizadas
 **Novo arquivo**: `BanMessages.java`
