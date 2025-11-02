@@ -3,3 +3,7 @@
 /WG6/target/
 /WG7/target/
 /.idea/
+.gradle/
+build/
+.run/
+run/

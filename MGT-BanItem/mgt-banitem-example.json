@@ -1,0 +1,51 @@
+{
+  "prefix": "&c[&eMGT-BanItem&c] ",
+  "check-update": true,
+  "priority": [
+    "delete",
+    "wear"
+  ],
+  "blacklist": {
+    "*": {
+      "tnt": {
+        "*": {
+          "message": "&cTNT is banned in all worlds!"
+        }
+      },
+      "command_block": {
+        "use,place": {
+          "message": "&cCommand blocks are not allowed!",
+          "command": "kick %player% Using banned item"
+        }
+      }
+    },
+    "minecraft:the_nether": {
+      "diamond_sword": {
+        "attack": {
+          "message": "&cDiamond swords cannot be used to attack in the Nether!"
+        }
+      }
+    }
+  },
+  "whitelist": {
+    "minecraft:overworld": {
+      "diamond_pickaxe": {
+        "break": {
+          "message": "&aYou can use diamond pickaxes in the Overworld"
+        }
+      }
+    }
+  },
+  "actions": {
+    "delete": {
+      "ignored-inventories-titles": []
+    },
+    "wear": {
+      "scanner": false,
+      "region-check": false
+    },
+    "transfer": {
+      "hoppers-block": true
+    }
+  }
+}
