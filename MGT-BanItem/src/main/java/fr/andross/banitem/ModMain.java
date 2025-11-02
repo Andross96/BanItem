@@ -74,4 +74,21 @@ public class ModMain {
     public BanListener getListener() {
         return listener;
     }
+    
+    /**
+     * Reload configuration and database.
+     */
+    public void reloadConfig() {
+        java.nio.file.Path configDir = net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get();
+        banConfig = new BanConfig(this, configDir);
+        banDatabase = new BanDatabase(this, banConfig);
+        
+        if (listener != null) {
+            listener.load();
+        }
+        
+        LOGGER.info("Configuration reloaded - {} blacklisted items, {} whitelisted items",
+                banDatabase.getBlacklist().getTotalBlacklistedItems(),
+                banDatabase.getWhitelist().getTotalWhitelistedItems());
+    }
 }

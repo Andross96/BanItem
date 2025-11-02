@@ -110,6 +110,20 @@ public class BanDatabase {
             final String worldName = world.dimension().location().toString();
             items.computeIfAbsent(worldName, k -> new HashMap<>()).put(item, actions);
         }
+        
+        public void removeBan(@NotNull final Level world, @NotNull final BannedItem item) {
+            final String worldName = world.dimension().location().toString();
+            final Map<BannedItem, Map<BanAction, BanActionData>> worldItems = items.get(worldName);
+            if (worldItems != null) {
+                worldItems.remove(item);
+            }
+        }
+        
+        @Nullable
+        public Map<BannedItem, Map<BanAction, BanActionData>> get(@NotNull final Level world) {
+            final String worldName = world.dimension().location().toString();
+            return items.get(worldName);
+        }
 
         public int getTotalBlacklistedItems() {
             return items.values().stream().mapToInt(Map::size).sum();

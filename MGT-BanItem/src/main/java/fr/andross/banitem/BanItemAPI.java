@@ -157,4 +157,53 @@ public class BanItemAPI {
     public BanDatabase getDatabase() {
         return plugin.getBanDatabase();
     }
+    
+    /**
+     * Add items to the blacklist for specified worlds.
+     *
+     * @param items   the items to ban
+     * @param actions the actions to ban for these items
+     * @param worlds  the worlds to apply the ban in
+     * @return true if successfully added
+     */
+    public boolean addToBlacklist(@NotNull final java.util.List<BannedItem> items,
+                                   @NotNull final java.util.Map<BanAction, fr.andross.banitem.actions.BanActionData> actions,
+                                   @NotNull final Level... worlds) {
+        try {
+            for (final Level world : worlds) {
+                for (final BannedItem item : items) {
+                    plugin.getBanDatabase().getBlacklist().addNewBan(world, item, actions);
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            ModMain.LOGGER.error("Error adding items to blacklist", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Remove items from the blacklist for specified worlds.
+     *
+     * @param items  the items to unban
+     * @param worlds the worlds to remove the ban from
+     */
+    public void removeFromBlacklist(@NotNull final java.util.List<BannedItem> items,
+                                     @NotNull final Level... worlds) {
+        for (final Level world : worlds) {
+            for (final BannedItem item : items) {
+                plugin.getBanDatabase().getBlacklist().removeBan(world, item);
+            }
+        }
+    }
+    
+    /**
+     * Add a meta item to the database.
+     *
+     * @param name the name of the meta item
+     * @param item the ItemStack to save
+     */
+    public void addMetaItem(@NotNull final String name, @NotNull final ItemStack item) {
+        plugin.getBanDatabase().addMetaItem(name, new BannedItem(item));
+    }
 }

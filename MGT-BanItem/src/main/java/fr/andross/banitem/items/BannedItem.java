@@ -41,6 +41,17 @@ public class BannedItem {
     public boolean hasNBT() {
         return itemStack != null && itemStack.hasTag();
     }
+    
+    /**
+     * Convert this BannedItem to an ItemStack.
+     */
+    @NotNull
+    public ItemStack toItemStack() {
+        if (itemStack != null) {
+            return itemStack.copy();
+        }
+        return new ItemStack(type);
+    }
 
     /**
      * Check if this banned item matches the given ItemStack.

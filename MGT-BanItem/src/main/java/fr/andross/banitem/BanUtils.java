@@ -9,12 +9,27 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * Utility class for the MGT-BanItem mod.
  */
 public class BanUtils {
+    private final ModMain plugin;
+    private final Set<UUID> logging = new HashSet<>();
+    
     public BanUtils(@NotNull final ModMain plugin) {
-        // Constructor for future use
+        this.plugin = plugin;
+    }
+    
+    /**
+     * Get the set of players with logging enabled.
+     */
+    @NotNull
+    public Set<UUID> getLogging() {
+        return logging;
     }
 
     /**

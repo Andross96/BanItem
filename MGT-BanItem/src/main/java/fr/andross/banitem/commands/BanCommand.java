@@ -5,6 +5,7 @@
 package fr.andross.banitem.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.andross.banitem.ModMain;
@@ -36,6 +37,39 @@ public class BanCommand {
                 .then(Commands.literal("info")
                     .requires(source -> source.hasPermission(2))
                     .executes(BanCommand::info))
+                .then(Commands.literal("add")
+                    .requires(source -> source.hasPermission(2))
+                    .then(Commands.argument("actions", StringArgumentType.greedyString())
+                        .executes(CommandAdd::execute)))
+                .then(Commands.literal("remove")
+                    .requires(source -> source.hasPermission(2))
+                    .then(Commands.argument("args", StringArgumentType.greedyString())
+                        .executes(CommandRemove::execute)))
+                .then(Commands.literal("check")
+                    .requires(source -> source.hasPermission(2))
+                    .executes(CommandCheck::execute)
+                    .then(Commands.literal("delete")
+                        .executes(CommandCheck::executeDelete)))
+                .then(Commands.literal("log")
+                    .requires(source -> source.hasPermission(2))
+                    .executes(CommandLog::execute))
+                .then(Commands.literal("metaitem")
+                    .requires(source -> source.hasPermission(2))
+                    .executes(CommandMetaItem::helpCommand)
+                    .then(Commands.literal("add")
+                        .then(Commands.argument("args", StringArgumentType.greedyString())
+                            .executes(CommandMetaItem::addCommand)))
+                    .then(Commands.literal("remove")
+                        .then(Commands.argument("name", StringArgumentType.word())
+                            .executes(CommandMetaItem::removeCommand)))
+                    .then(Commands.literal("get")
+                        .then(Commands.argument("name", StringArgumentType.word())
+                            .executes(CommandMetaItem::getCommand)))
+                    .then(Commands.literal("list")
+                        .executes(CommandMetaItem::listCommand)))
+                .then(Commands.literal("mi")
+                    .requires(source -> source.hasPermission(2))
+                    .redirect(dispatcher.getRoot().getChild("banitem").getChild("metaitem")))
                 .executes(BanCommand::help) // Default to help
         );
 
@@ -96,7 +130,12 @@ public class BanCommand {
             " §7- /banitem help§r: show this help message\n" +
             " §7- /banitem reload§r: reload configuration\n" +
             " §7- /banitem info§r: show mod information\n" +
-            "§7Alias: §e/bi§r"
+            " §7- /banitem add <actions> [-m materials] [-w worlds] [message]§r: ban items\n" +
+            " §7- /banitem remove [-m materials] [-w worlds]§r: unban items\n" +
+            " §7- /banitem check [delete]§r: check for banned items in players\n" +
+            " §7- /banitem log§r: toggle debug logging\n" +
+            " §7- /banitem metaitem <add|remove|get|list>§r: manage meta items\n" +
+            "§7Alias: §e/bi§r, §e/bi mi§r for metaitem"
         ), false);
         
         return 1;
