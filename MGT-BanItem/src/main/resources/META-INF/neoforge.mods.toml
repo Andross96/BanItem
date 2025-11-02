@@ -1,0 +1,12 @@
+modLoader="neoforge"
+loaderVersion="[21.1.211]"
+
+[[mods]]
+modId="mgt_banitem"
+version="1.0.0"
+displayName="MGT-BanItem"
+displayURL=""
+description='MGT-BanItem - conversão do plugin BanItem para NeoForge 21.1.211.'
+credits=""
+logoFile=""
+authors=["GnomoMuitoLoco"]
