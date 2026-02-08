@@ -1,4 +1,4 @@
-# BanItem ![GPL-3.0](http://cdn.andross.fr/badges/license.svg) ![Stable](http://cdn.andross.fr/badges/stable.svg) ![Version](https://badgen.net/badge/version/3.7/blue) ![Discord](https://badgen.net/badge/discord/andross96/purple)
+# BanItem ![GPL-3.0](http://cdn.andross.fr/badges/license.svg) ![Stable](http://cdn.andross.fr/badges/stable.svg) ![Version](https://badgen.net/badge/version/3.8/blue) ![Discord](https://badgen.net/badge/discord/andross96/purple)
 
 ### Description
 Lightweight, powerful & configurable per world ban item plugin
@@ -27,7 +27,7 @@ Lightweight, powerful & configurable per world ban item plugin
 <dependency>
   <groupId>fr.andross.banitem</groupId>
   <artifactId>BanItemPlugin</artifactId>
-  <version>3.7</version>
+  <version>3.8</version>
   <scope>provided</scope>
 </dependency>
 ```

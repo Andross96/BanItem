@@ -312,6 +312,7 @@ public final class BanListener {
                 if (!e.getViewers().isEmpty()) {
                     final Player p = (Player) e.getViewers().get(0);
                     if (api.isBanned(p, item, true, BanAction.CRAFT)) {
+                        e.setCancelled(true);
                         e.getInventory().setResult(null);
                     }
                 }
