@@ -21,6 +21,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import fr.andross.banitem.items.BannedItem;
 import fr.andross.banitem.utils.MinecraftVersion;
+import fr.andross.banitem.utils.attributes.AttributeHelper;
 import fr.andross.banitem.utils.attributes.AttributeLegacy;
 import fr.andross.banitem.utils.attributes.AttributeLevels;
 import fr.andross.banitem.utils.attributes.ReflectionUtils;
@@ -138,8 +139,17 @@ public final class AttributeContains extends MetaTypeComparator {
     @Nullable
     private Object getAttributeKey(@NotNull final String attributeName,
                                    @NotNull final Debug debug) {
+        if (MinecraftVersion.v9OrMore) {
+            // AttributeHelper handles both enum (< 26.1) and registry-backed (>= 26.1) Attribute
+            final Attribute attribute = AttributeHelper.getAttribute(attributeName);
+            if (attribute == null) {
+                invalidateMetaType(debug, "Unknown attribute '" + attributeName + "'.");
+            }
+            return attribute;
+        }
+
         try {
-            return (MinecraftVersion.v9OrMore) ? Attribute.valueOf(attributeName) : AttributeLegacy.valueOf(attributeName);
+            return AttributeLegacy.valueOf(attributeName);
         } catch (final IllegalArgumentException e) {
             invalidateMetaType(debug, "Unknown attribute '" + attributeName + "'.");
             return null;
