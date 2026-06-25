@@ -77,21 +77,30 @@ public abstract class MinecraftVersion {
 
     static {
         final String bukkitVersion = Bukkit.getBukkitVersion();
-        int subMcVersion;
+
+        int majorMcVersion;
+
         try {
-            final String mcVersion = bukkitVersion.split("-")[0]; // 1.8.8
-            subMcVersion = Integer.parseInt(mcVersion.split("\\.")[1]); // 8
-        } catch (final Exception e) {
-            subMcVersion = 1;
+            final String mcVersion = bukkitVersion.split("-")[0];
+            final String[] parts = mcVersion.split("\\.");
+            if ("1".equals(parts[0])) {
+                // Old format: 1.8.8, 1.21.5, 1.26.1
+                majorMcVersion = Integer.parseInt(parts[1]);
+            } else {
+                // Future format: 26.1, 27.0...
+                majorMcVersion = Integer.parseInt(parts[0]);
+            }
+        } catch (Exception e) {
+            majorMcVersion = 1;
             Bukkit.getLogger().warning("[VERSION] Unrecognized/Unsupported Bukkit version!");
         }
-        v21OrMore = subMcVersion >= 21;
-        v16OrMore = subMcVersion >= 16;
-        v14OrMore = subMcVersion >= 14;
-        v13OrMore = subMcVersion >= 13;
-        v12OrMore = subMcVersion >= 12;
-        v11OrMore = subMcVersion >= 11;
-        v9OrMore = subMcVersion >= 9;
-        v8OrMore = subMcVersion >= 8;
+        v21OrMore = majorMcVersion >= 21;
+        v16OrMore = majorMcVersion >= 16;
+        v14OrMore = majorMcVersion >= 14;
+        v13OrMore = majorMcVersion >= 13;
+        v12OrMore = majorMcVersion >= 12;
+        v11OrMore = majorMcVersion >= 11;
+        v9OrMore = majorMcVersion >= 9;
+        v8OrMore = majorMcVersion >= 8;
     }
 }
