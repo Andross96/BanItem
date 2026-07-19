@@ -7,14 +7,15 @@
     <groupId>fr.andross.banitem</groupId>
     <artifactId>BanItemParent</artifactId>
     <version>3.8</version>
+    <packaging>pom</packaging>
+    <name>BanItemParent</name>
+
     <modules>
         <module>BanItemPlugin</module>
         <module>Hooks</module>
         <module>WG6</module>
         <module>WG7</module>
     </modules>
-    <packaging>pom</packaging>
-    <name>BanItemParent</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
