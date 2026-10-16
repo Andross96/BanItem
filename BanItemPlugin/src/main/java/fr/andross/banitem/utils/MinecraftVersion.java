@@ -44,6 +44,11 @@ public abstract class MinecraftVersion {
     public static final boolean v21OrMore;
 
     /**
+     * Minecraft 1.20.5+ uses the modern potion type API.
+     */
+    public static final boolean v20_5OrMore;
+
+    /**
      * In 1.16+, color codes now support HEX.
      */
     public static final boolean v16OrMore;
@@ -84,15 +89,20 @@ public abstract class MinecraftVersion {
         final String bukkitVersion = Bukkit.getBukkitVersion();
 
         int majorMcVersion;
+        int patchMcVersion = 0;
 
         try {
             final String mcVersion = bukkitVersion.split("-")[0];
             final String[] parts = mcVersion.split("\\.");
             if ("1".equals(parts[0])) {
-                // Old format: 1.8.8, 1.21.5, 1.26.1
+                // Old format: 1.8.8, 1.20.6, 1.21.5
                 majorMcVersion = Integer.parseInt(parts[1]);
+
+                if (parts.length > 2) {
+                    patchMcVersion = Integer.parseInt(parts[2]);
+                }
             } else {
-                // Future format: 26.1, 27.0...
+                // Year-based format: 26.1.2, 27.0...
                 majorMcVersion = Integer.parseInt(parts[0]);
             }
         } catch (Exception e) {
@@ -101,6 +111,8 @@ public abstract class MinecraftVersion {
         }
         v26OrMore = majorMcVersion >= 26;
         v21OrMore = majorMcVersion >= 21;
+        v20_5OrMore = majorMcVersion >= 21
+                || (majorMcVersion == 20 && patchMcVersion >= 5);
         v16OrMore = majorMcVersion >= 16;
         v14OrMore = majorMcVersion >= 14;
         v13OrMore = majorMcVersion >= 13;

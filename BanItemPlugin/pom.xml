@@ -81,6 +81,10 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/releases/</url>
         </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -100,13 +104,13 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>advancedenchantments</groupId>
-            <artifactId>AdvancedEnchantments-API</artifactId>
+            <groupId>net.advancedplugins</groupId>
+            <artifactId>ae.api</artifactId>
             <version>8.7.4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>itemsadder</groupId>
+            <groupId>com.github.LoneDev6</groupId>
             <artifactId>api-itemsadder</artifactId>
             <version>2.3.8</version>
             <scope>provided</scope>
@@ -114,8 +118,14 @@
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
-            <version>7.0.3-SNAPSHOT</version>
+            <version>7.0.3</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bukkit</groupId>
+                    <artifactId>bukkit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.tr7zw</groupId>
