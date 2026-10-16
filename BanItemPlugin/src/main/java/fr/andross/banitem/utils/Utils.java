@@ -24,9 +24,12 @@ import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -221,16 +224,56 @@ public abstract class Utils {
         // Getting base effect
         final ItemMeta itemMeta = item.hasItemMeta() ? item.getItemMeta() : null;
         if (!MinecraftVersion.v9OrMore && item.getType() == Material.POTION) {
-            final Potion p = Potion.fromDamage(item.getDurability());
-            if (p.getType().getEffectType() != null) {
-                map.put(p.getType().getEffectType(), p.getLevel());
+            try {
+                final Class<?> potionClass = Class.forName("org.bukkit.potion.Potion");
+
+                final Object potion = potionClass
+                        .getMethod("fromDamage", int.class)
+                        .invoke(null, (int) item.getDurability());
+
+                final PotionType potionType = (PotionType) potionClass
+                        .getMethod("getType")
+                        .invoke(potion);
+
+                final int level = (Integer) potionClass
+                        .getMethod("getLevel")
+                        .invoke(potion);
+
+                final PotionEffectType effectType = potionType.getEffectType();
+
+                if (effectType != null) {
+                    map.put(effectType, level);
+                }
+
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalStateException(
+                        "Failed to read legacy potion data", e);
             }
         } else if (itemMeta instanceof PotionMeta) {
             final PotionMeta pm = (PotionMeta) itemMeta;
-            final PotionEffectType effectType = pm.getBasePotionData().getType().getEffectType();
-            final int level = pm.getBasePotionData().isUpgraded() ? 2 : 1;
-            if (effectType != null) {
-                map.put(effectType, level);
+
+            if (MinecraftVersion.v21OrMore) {
+                // Modern potion API (Minecraft 1.21+)
+                final PotionType baseType = pm.getBasePotionType();
+
+                if (baseType != null) {
+                    for (final PotionEffect effect : baseType.getPotionEffects()) {
+                        map.put(effect.getType(), effect.getAmplifier() + 1);
+                    }
+                }
+            } else {
+                // Legacy potion API
+                final PotionData baseData = pm.getBasePotionData();
+
+                if (baseData != null) {
+                    final PotionEffectType effectType =
+                            baseData.getType().getEffectType();
+
+                    if (effectType != null) {
+                        final int level = baseData.isUpgraded() ? 2 : 1;
+                        map.put(effectType, level);
+                    }
+                }
             }
         }
 
@@ -241,7 +284,7 @@ public abstract class Utils {
                 for (final PotionEffect customEffect : pm.getCustomEffects()) {
                     final PotionEffectType effectType = customEffect.getType();
                     if (effectType != null) {
-                        final int level = customEffect.getAmplifier() == 0 ? 1 : 2;
+                        final int level = customEffect.getAmplifier() + 1;
                         map.put(effectType, level);
                     }
                 }
