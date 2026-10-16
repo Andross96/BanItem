@@ -104,8 +104,8 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>advancedenchantments</groupId>
-            <artifactId>AdvancedEnchantments-API</artifactId>
+            <groupId>net.advancedplugins</groupId>
+            <artifactId>ae.api</artifactId>
             <version>8.7.4</version>
             <scope>provided</scope>
         </dependency>
