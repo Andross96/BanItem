@@ -3,3 +3,9 @@
 /WG6/target/
 /WG7/target/
 /.idea/
+
+# Eclipse IDE
+.project
+.classpath
+.settings/
+bin/
