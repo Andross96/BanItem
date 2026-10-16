@@ -252,8 +252,8 @@ public abstract class Utils {
         } else if (itemMeta instanceof PotionMeta) {
             final PotionMeta pm = (PotionMeta) itemMeta;
 
-            if (MinecraftVersion.v21OrMore) {
-                // Modern potion API (Minecraft 1.21+)
+            if (MinecraftVersion.v20_5OrMore) {
+                // Modern potion API (Minecraft 1.20.5+)
                 final PotionType baseType = pm.getBasePotionType();
 
                 if (baseType != null) {
@@ -277,12 +277,14 @@ public abstract class Utils {
             }
         }
 
-        // Getting custom effects
+     // Getting custom effects
         if (itemMeta instanceof PotionMeta) {
             final PotionMeta pm = (PotionMeta) itemMeta;
+
             if (pm.hasCustomEffects()) {
                 for (final PotionEffect customEffect : pm.getCustomEffects()) {
                     final PotionEffectType effectType = customEffect.getType();
+
                     if (effectType != null) {
                         final int level = customEffect.getAmplifier() + 1;
                         map.put(effectType, level);
