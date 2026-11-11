@@ -704,7 +704,7 @@ public final class BanListener {
 
                 // Hotkey?
                 if (e.getHotbarButton() == heldItemSlot) {
-                    final ItemStack item = p.getInventory().getItem(e.getSlot());
+                    final ItemStack item = e.getCurrentItem();
                     if (item != null && api.isBanned(p, item, true, BanAction.HOLD)) {
                         e.setCancelled(true);
                         return;
